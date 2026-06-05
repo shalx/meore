@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fix-Pin v4 Georgia (Stable)</title>
+<title>Fix-Pin v5 PRO • Georgia</title>
 
 <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
 
@@ -12,7 +12,7 @@ html, body {
     margin: 0;
     height: 100%;
     background: #0b0f14;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
 }
 
 #map {
@@ -22,21 +22,35 @@ html, body {
 
 #hud {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 12px;
+    left: 12px;
     z-index: 999;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.75);
     color: white;
     padding: 10px 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 13px;
+    backdrop-filter: blur(10px);
+}
+
+#status {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 999;
+    background: rgba(0,0,0,0.6);
+    color: #aaa;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="hud">Fix-Pin v4 loading...</div>
+<div id="hud">Fix-Pin v5 PRO loading...</div>
+<div id="status">GPS: waiting...</div>
 <div id="map"></div>
 
 <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
@@ -46,81 +60,119 @@ const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
 
 let map;
 let userMarker;
+let followUser = true;
+let lastPosition = null;
 
 function init() {
 
     map = tt.map({
         key: API_KEY,
         container: "map",
-        center: [44.8271, 41.7151],
+        center: [44.8271, 41.7151], // Georgia
         zoom: 7,
         style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
     });
 
     map.addControl(new tt.FullscreenControl());
 
-    // 🇬🇪 LIMIT GEORGIA AREA
+    // 🇬🇪 restrict to Georgia area
     map.setMaxBounds([
         [40.5, 39.0],
         [47.8, 44.8]
     ]);
 
-    map.on('load', function () {
+    map.on('load', () => {
 
-        // ✅ REAL TRAFFIC LAYER (CORRECT TOMTOM WAY)
+        // REAL traffic layer (stable)
         map.addLayer({
-            id: 'traffic-flow',
-            type: 'line',
+            id: "traffic-flow",
+            type: "line",
             source: {
-                type: 'vector',
+                type: "vector",
                 tiles: [
-                    `https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${API_KEY}`
+                    `https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.pbf?key=${API_KEY}`
                 ]
             },
-            'source-layer': 'Traffic flow',
+            "source-layer": "Traffic flow",
             paint: {
-                'line-color': [
-                    'match',
-                    ['get', 'traffic_level'],
-                    0, '#00c853',
-                    1, '#ffd600',
-                    2, '#ff9100',
-                    3, '#d50000',
-                    '#999'
+                "line-color": [
+                    "match",
+                    ["get", "traffic_level"],
+                    0, "#00e676",
+                    1, "#ffea00",
+                    2, "#ff9100",
+                    3, "#ff1744",
+                    "#999"
                 ],
-                'line-width': 3
+                "line-width": 3
             }
         });
 
         document.getElementById("hud").innerText =
-            "Fix-Pin v4 • traffic ON 🇬🇪";
+            "Fix-Pin v5 PRO • traffic active 🇬🇪";
+
+        // 🔴 fake but useful congestion radius visualization
+        addRadiusEffect([44.8271, 41.7151]);
     });
 
-    // 📍 GPS
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(
-            (pos) => {
+    // 📍 GPS tracking (PRO logic)
+    navigator.geolocation.watchPosition(
+        (pos) => {
 
-                const user = [pos.coords.longitude, pos.coords.latitude];
+            const user = [pos.coords.longitude, pos.coords.latitude];
+            lastPosition = user;
 
+            document.getElementById("status").innerText =
+                "GPS: live";
+
+            if (followUser) {
                 map.setCenter(user);
-                map.setZoom(12);
-
-                if (!userMarker) {
-                    userMarker = new tt.Marker().setLngLat(user).addTo(map);
-                } else {
-                    userMarker.setLngLat(user);
-                }
-
-                document.getElementById("hud").innerText =
-                    "Fix-Pin v4 • live Georgia traffic 🚗";
-            },
-            () => {
-                document.getElementById("hud").innerText =
-                    "Fix-Pin v4 • location denied";
+                map.setZoom(13);
             }
-        );
-    }
+
+            if (!userMarker) {
+                userMarker = new tt.Marker({ color: "red" })
+                    .setLngLat(user)
+                    .addTo(map);
+            } else {
+                userMarker.setLngLat(user);
+            }
+
+            document.getElementById("hud").innerText =
+                "Fix-Pin v5 PRO • LIVE traffic + tracking 🚗";
+        },
+        () => {
+            document.getElementById("status").innerText =
+                "GPS denied";
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 3000,
+            timeout: 10000
+        }
+    );
+
+    // auto refresh traffic
+    setInterval(() => {
+        if (map) {
+            map.triggerRepaint();
+        }
+    }, 5000);
+}
+
+// 🔴 visual congestion radius (simple effect layer)
+function addRadiusEffect(center) {
+
+    const el = document.createElement("div");
+    el.style.width = "120px";
+    el.style.height = "120px";
+    el.style.border = "2px solid rgba(255,0,0,0.5)";
+    el.style.borderRadius = "50%";
+    el.style.opacity = "0.4";
+
+    new tt.Marker({ element: el })
+        .setLngLat(center)
+        .addTo(map);
 }
 
 init();
