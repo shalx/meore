@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fix-Pin v5 PRO (Stable)</title>
+<title>Fix-Pin DEBUG MODE</title>
 
 <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
 
@@ -11,8 +11,8 @@
 html, body {
     margin: 0;
     height: 100%;
-    background: #0b0f14;
     font-family: Arial;
+    background: #0b0f14;
 }
 
 #map {
@@ -20,83 +20,130 @@ html, body {
     height: 100vh;
 }
 
-#hud {
+#debug {
     position: absolute;
     top: 10px;
     left: 10px;
-    z-index: 999;
-    background: rgba(0,0,0,0.75);
-    color: white;
-    padding: 10px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.85);
+    color: #00ff9d;
+    padding: 10px 12px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 12px;
+    max-width: 320px;
+    white-space: pre-line;
+}
+
+.error {
+    color: #ff4d4d;
 }
 </style>
 </head>
 
 <body>
 
-<div id="hud">Fix-Pin v5 loading...</div>
+<div id="debug">INIT...</div>
 <div id="map"></div>
 
 <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
 
 <script>
-const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
+const API_KEY = "YOUR_TOMTOM_API_KEY";
 
-let map;
-let marker;
+const debug = document.getElementById("debug");
+
+function log(msg, type="ok") {
+    debug.innerHTML += "\n" + (type === "error" ? "❌ " : "✔ ") + msg;
+}
 
 function init() {
 
-    map = tt.map({
-        key: API_KEY,
-        container: "map",
-        center: [44.8271, 41.7151],
-        zoom: 7,
-        style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
-    });
+    debug.innerHTML = "Fix-Pin DEBUG MODE started...";
+
+    // 1. CHECK API KEY
+    if (!API_KEY || API_KEY === "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo") {
+        log("API KEY is missing", "error");
+        return;
+    } else {
+        log("API KEY loaded");
+    }
+
+    // 2. CHECK SDK
+    if (typeof tt === "undefined") {
+        log("TomTom SDK not loaded", "error");
+        return;
+    } else {
+        log("TomTom SDK OK");
+    }
+
+    let map;
+
+    try {
+        map = tt.map({
+            key: API_KEY,
+            container: "map",
+            center: [44.8271, 41.7151],
+            zoom: 7,
+            style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
+        });
+
+        log("Map initialized");
+    } catch (e) {
+        log("Map init failed: " + e.message, "error");
+        return;
+    }
 
     map.addControl(new tt.FullscreenControl());
 
-    // 🇬🇪 LIMIT GEORGIA
-    map.setMaxBounds([
-        [40.5, 39.0],
-        [47.8, 44.8]
-    ]);
+    // 3. GEO CHECK
+    if (!navigator.geolocation) {
+        log("Geolocation NOT supported", "error");
+    } else {
+        log("Geolocation supported");
+    }
 
-    map.on('load', () => {
-
-        // ✅ OFFICIAL TRAFFIC PLUGINS (THIS IS THE KEY FIX)
-        map.addControl(new tt.TrafficFlowControl());
-        map.addControl(new tt.TrafficIncidentsControl());
-
-        document.getElementById("hud").innerText =
-            "Fix-Pin v5 PRO • Traffic ON 🇬🇪";
-    });
-
-    // GPS
+    // 4. GPS WATCH
     navigator.geolocation.watchPosition(
         (pos) => {
 
             const user = [pos.coords.longitude, pos.coords.latitude];
 
+            log("GPS OK: " + user[0].toFixed(4) + ", " + user[1].toFixed(4));
+
             map.setCenter(user);
             map.setZoom(13);
 
-            if (!marker) {
-                marker = new tt.Marker({ color: "red" })
-                    .setLngLat(user)
-                    .addTo(map);
-            } else {
-                marker.setLngLat(user);
-            }
+            new tt.Marker({ color: "red" })
+                .setLngLat(user)
+                .addTo(map);
+
         },
-        () => {
-            document.getElementById("hud").innerText =
-                "GPS denied";
+        (err) => {
+            log("GPS ERROR: " + err.message, "error");
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000
         }
     );
+
+    // 5. TRAFFIC TEST (SAFE MODE)
+    map.on("load", () => {
+        try {
+            map.addControl(new tt.TrafficFlowControl());
+            map.addControl(new tt.TrafficIncidentsControl());
+            log("Traffic controls loaded");
+        } catch (e) {
+            log("Traffic failed: " + e.message, "error");
+        }
+    });
+
+    // 6. NETWORK CHECK
+    if (!navigator.onLine) {
+        log("OFFLINE MODE", "error");
+    } else {
+        log("Internet OK");
+    }
 }
 
 init();
