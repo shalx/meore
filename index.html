@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fix-Pin v3 • Global Traffic</title>
+<title>Fix-Pin v4 • Georgia Traffic</title>
 
 <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
 
@@ -27,7 +27,7 @@ html, body {
     left: 12px;
     z-index: 999;
     background: rgba(0,0,0,0.75);
-    color: #fff;
+    color: white;
     padding: 10px 12px;
     border-radius: 12px;
     font-size: 13px;
@@ -38,7 +38,7 @@ html, body {
 
 <body>
 
-<div id="hud">Fix-Pin v3 • loading world traffic...</div>
+<div id="hud">Fix-Pin v4 • Georgia traffic loading...</div>
 <div id="map"></div>
 
 <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
@@ -49,29 +49,34 @@ const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
 let map;
 let marker;
 
+// 🇬🇪 Georgia bounds (rough)
+const GEORGIA_CENTER = [44.8271, 41.7151];
+
 function initMap() {
 
     map = tt.map({
         key: API_KEY,
         container: "map",
-        center: [44.8271, 41.7151], // fallback (Georgia)
-        zoom: 12,
+        center: GEORGIA_CENTER,
+        zoom: 7,
         style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
     });
 
     map.addControl(new tt.FullscreenControl());
 
-    // ✅ REAL TRAFFIC LAYERS (correct way)
-    map.on('load', function () {
+    // limit view to Georgia area
+    map.setMaxBounds([
+        [40.0, 39.0], // SW
+        [47.5, 44.5]  // NE
+    ]);
 
-        // show traffic flow
+    map.on('load', () => {
+
         map.showTrafficFlow();
-
-        // show incidents (accidents, jams, closures)
         map.showTrafficIncidents();
 
         document.getElementById("hud").innerText =
-            "Fix-Pin v3 • live traffic ON 🌍";
+            "Fix-Pin v4 • Georgia traffic ON 🇬🇪";
     });
 
     // GPS tracking
@@ -82,6 +87,7 @@ function initMap() {
                 const user = [pos.coords.longitude, pos.coords.latitude];
 
                 map.setCenter(user);
+                map.setZoom(12);
 
                 if (!marker) {
                     marker = new tt.Marker()
@@ -90,10 +96,13 @@ function initMap() {
                 } else {
                     marker.setLngLat(user);
                 }
+
+                document.getElementById("hud").innerText =
+                    "Fix-Pin v4 • live traffic in Georgia 🚗";
             },
             () => {
                 document.getElementById("hud").innerText =
-                    "Fix-Pin v3 • location denied";
+                    "Fix-Pin v4 • location denied";
             },
             {
                 enableHighAccuracy: true,
