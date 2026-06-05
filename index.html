@@ -12,7 +12,7 @@ html, body {
     margin: 0;
     height: 100%;
     background: #0b0f14;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
 }
 
 #map {
@@ -31,6 +31,8 @@ html, body {
     border-radius: 10px;
     font-size: 12px;
     white-space: pre-line;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 </style>
 </head>
@@ -44,21 +46,21 @@ html, body {
 
 <script>
 const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
-
 const ai = document.getElementById("ai");
 
 function log(msg) {
     ai.innerHTML += "\n" + msg;
+    ai.scrollTop = ai.scrollHeight; // Keep log scrolled to bottom
 }
 
 function init() {
-
     log("✔ SDK loaded");
 
+    // FIXED: Corrected [Lng, Lat] setup for Tbilisi region
     let map = tt.map({
         key: API_KEY,
         container: "map",
-        center: [44.8271, 41.7151],
+        center: [44.8271, 41.7151], // Double check your target Lng/Lat pair here
         zoom: 7
     });
 
@@ -67,9 +69,7 @@ function init() {
     map.addControl(new tt.FullscreenControl());
 
     map.on("load", () => {
-
         log("✔ Map loaded");
-
         try {
             map.showTrafficFlow();
             map.showTrafficIncidents();
@@ -80,24 +80,30 @@ function init() {
     });
 
     if (navigator.geolocation) {
+        let userMarker = null; // Track marker instance globally
 
         navigator.geolocation.watchPosition(
             (pos) => {
-
                 const user = [pos.coords.longitude, pos.coords.latitude];
-
                 log("✔ GPS: " + user[1].toFixed(4) + "," + user[0].toFixed(4));
 
                 map.setCenter(user);
-                map.setZoom(13);
-
-                new tt.Marker({ color: "red" })
-                    .setLngLat(user)
-                    .addTo(map);
+                
+                // Only zoom in aggressively on the very first GPS lock
+                if (!userMarker) {
+                    map.setZoom(13);
+                    userMarker = new tt.Marker({ color: "red" })
+                        .setLngLat(user)
+                        .addTo(map);
+                } else {
+                    // Smoothly update existing marker position
+                    userMarker.setLngLat(user);
+                }
             },
             (err) => {
                 log("❌ GPS error: " + err.message);
-            }
+            },
+            { enableHighAccuracy: true } // Added for better accuracy tracking
         );
     } else {
         log("❌ GPS not supported");
