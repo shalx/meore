@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fix-Pin v4 • Georgia Traffic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fix-Pin v4 Georgia (Stable)</title>
 
 <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
 
 <style>
 html, body {
     margin: 0;
-    padding: 0;
     height: 100%;
     background: #0b0f14;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
 }
 
 #map {
@@ -23,22 +22,21 @@ html, body {
 
 #hud {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 10px;
+    left: 10px;
     z-index: 999;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.7);
     color: white;
     padding: 10px 12px;
-    border-radius: 12px;
+    border-radius: 10px;
     font-size: 13px;
-    backdrop-filter: blur(10px);
 }
 </style>
 </head>
 
 <body>
 
-<div id="hud">Fix-Pin v4 • Georgia traffic loading...</div>
+<div id="hud">Fix-Pin v4 loading...</div>
 <div id="map"></div>
 
 <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
@@ -47,39 +45,58 @@ html, body {
 const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
 
 let map;
-let marker;
+let userMarker;
 
-// 🇬🇪 Georgia bounds (rough)
-const GEORGIA_CENTER = [44.8271, 41.7151];
-
-function initMap() {
+function init() {
 
     map = tt.map({
         key: API_KEY,
         container: "map",
-        center: GEORGIA_CENTER,
+        center: [44.8271, 41.7151],
         zoom: 7,
         style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
     });
 
     map.addControl(new tt.FullscreenControl());
 
-    // limit view to Georgia area
+    // 🇬🇪 LIMIT GEORGIA AREA
     map.setMaxBounds([
-        [40.0, 39.0], // SW
-        [47.5, 44.5]  // NE
+        [40.5, 39.0],
+        [47.8, 44.8]
     ]);
 
-    map.on('load', () => {
+    map.on('load', function () {
 
-        map.showTrafficFlow();
-        map.showTrafficIncidents();
+        // ✅ REAL TRAFFIC LAYER (CORRECT TOMTOM WAY)
+        map.addLayer({
+            id: 'traffic-flow',
+            type: 'line',
+            source: {
+                type: 'vector',
+                tiles: [
+                    `https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${API_KEY}`
+                ]
+            },
+            'source-layer': 'Traffic flow',
+            paint: {
+                'line-color': [
+                    'match',
+                    ['get', 'traffic_level'],
+                    0, '#00c853',
+                    1, '#ffd600',
+                    2, '#ff9100',
+                    3, '#d50000',
+                    '#999'
+                ],
+                'line-width': 3
+            }
+        });
 
         document.getElementById("hud").innerText =
-            "Fix-Pin v4 • Georgia traffic ON 🇬🇪";
+            "Fix-Pin v4 • traffic ON 🇬🇪";
     });
 
-    // GPS tracking
+    // 📍 GPS
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (pos) => {
@@ -89,31 +106,24 @@ function initMap() {
                 map.setCenter(user);
                 map.setZoom(12);
 
-                if (!marker) {
-                    marker = new tt.Marker()
-                        .setLngLat(user)
-                        .addTo(map);
+                if (!userMarker) {
+                    userMarker = new tt.Marker().setLngLat(user).addTo(map);
                 } else {
-                    marker.setLngLat(user);
+                    userMarker.setLngLat(user);
                 }
 
                 document.getElementById("hud").innerText =
-                    "Fix-Pin v4 • live traffic in Georgia 🚗";
+                    "Fix-Pin v4 • live Georgia traffic 🚗";
             },
             () => {
                 document.getElementById("hud").innerText =
                     "Fix-Pin v4 • location denied";
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 5000,
-                timeout: 10000
             }
         );
     }
 }
 
-initMap();
+init();
 </script>
 
 </body>
