@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fix-Pin DEBUG MODE</title>
+<title>Fix-Pin v6 AI MODE</title>
 
 <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
 
@@ -11,8 +11,8 @@
 html, body {
     margin: 0;
     height: 100%;
-    font-family: Arial;
     background: #0b0f14;
+    font-family: Arial;
 }
 
 #map {
@@ -20,129 +20,87 @@ html, body {
     height: 100vh;
 }
 
-#debug {
+#ai {
     position: absolute;
     top: 10px;
     left: 10px;
     z-index: 9999;
     background: rgba(0,0,0,0.85);
-    color: #00ff9d;
+    color: #00ffae;
     padding: 10px 12px;
     border-radius: 10px;
     font-size: 12px;
-    max-width: 320px;
     white-space: pre-line;
-}
-
-.error {
-    color: #ff4d4d;
 }
 </style>
 </head>
 
 <body>
 
-<div id="debug">INIT...</div>
+<div id="ai">AI MODE starting...</div>
 <div id="map"></div>
 
 <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
 
 <script>
-const API_KEY = "YOUR_TOMTOM_API_KEY";
+const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
 
-const debug = document.getElementById("debug");
+const ai = document.getElementById("ai");
 
-function log(msg, type="ok") {
-    debug.innerHTML += "\n" + (type === "error" ? "❌ " : "✔ ") + msg;
+function log(msg) {
+    ai.innerHTML += "\n" + msg;
 }
 
 function init() {
 
-    debug.innerHTML = "Fix-Pin DEBUG MODE started...";
+    log("✔ SDK loaded");
 
-    // 1. CHECK API KEY
-    if (!API_KEY || API_KEY === "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo") {
-        log("API KEY is missing", "error");
-        return;
-    } else {
-        log("API KEY loaded");
-    }
+    let map = tt.map({
+        key: API_KEY,
+        container: "map",
+        center: [44.8271, 41.7151],
+        zoom: 7
+    });
 
-    // 2. CHECK SDK
-    if (typeof tt === "undefined") {
-        log("TomTom SDK not loaded", "error");
-        return;
-    } else {
-        log("TomTom SDK OK");
-    }
-
-    let map;
-
-    try {
-        map = tt.map({
-            key: API_KEY,
-            container: "map",
-            center: [44.8271, 41.7151],
-            zoom: 7,
-            style: "https://api.tomtom.com/style/1/style/22.2.1-9/basic_main.json?key=" + API_KEY
-        });
-
-        log("Map initialized");
-    } catch (e) {
-        log("Map init failed: " + e.message, "error");
-        return;
-    }
+    log("✔ Map created (NO custom style)");
 
     map.addControl(new tt.FullscreenControl());
 
-    // 3. GEO CHECK
-    if (!navigator.geolocation) {
-        log("Geolocation NOT supported", "error");
-    } else {
-        log("Geolocation supported");
-    }
-
-    // 4. GPS WATCH
-    navigator.geolocation.watchPosition(
-        (pos) => {
-
-            const user = [pos.coords.longitude, pos.coords.latitude];
-
-            log("GPS OK: " + user[0].toFixed(4) + ", " + user[1].toFixed(4));
-
-            map.setCenter(user);
-            map.setZoom(13);
-
-            new tt.Marker({ color: "red" })
-                .setLngLat(user)
-                .addTo(map);
-
-        },
-        (err) => {
-            log("GPS ERROR: " + err.message, "error");
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 10000
-        }
-    );
-
-    // 5. TRAFFIC TEST (SAFE MODE)
     map.on("load", () => {
+
+        log("✔ Map loaded");
+
         try {
-            map.addControl(new tt.TrafficFlowControl());
-            map.addControl(new tt.TrafficIncidentsControl());
-            log("Traffic controls loaded");
+            map.showTrafficFlow();
+            map.showTrafficIncidents();
+            log("✔ Traffic enabled");
         } catch (e) {
-            log("Traffic failed: " + e.message, "error");
+            log("❌ Traffic error: " + e.message);
         }
     });
 
-    // 6. NETWORK CHECK
-    if (!navigator.onLine) {
-        log("OFFLINE MODE", "error");
+    if (navigator.geolocation) {
+
+        navigator.geolocation.watchPosition(
+            (pos) => {
+
+                const user = [pos.coords.longitude, pos.coords.latitude];
+
+                log("✔ GPS: " + user[1].toFixed(4) + "," + user[0].toFixed(4));
+
+                map.setCenter(user);
+                map.setZoom(13);
+
+                new tt.Marker({ color: "red" })
+                    .setLngLat(user)
+                    .addTo(map);
+            },
+            (err) => {
+                log("❌ GPS error: " + err.message);
+            }
+        );
     } else {
-        log("Internet OK");
+        log("❌ GPS not supported");
     }
 }
 
