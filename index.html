@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fix-Pin • Live Traffic World</title>
+
+<link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #0b0f14;
+    font-family: Arial, sans-serif;
+}
+
+#map {
+    width: 100%;
+    height: 100vh;
+}
+
+#panel {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 999;
+    background: rgba(15, 20, 30, 0.85);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+
+<body>
+
+<div id="panel">Fix-Pin • loading traffic...</div>
+<div id="map"></div>
+
+<script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
+<script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/services/services-web.min.js"></script>
+
+<script>
+const API_KEY = "YOUR_TOMTOM_API_KEY";
+
+let map;
+let userMarker;
+
+function initMap() {
+
+    const fallback = [44.8271, 41.7151]; // Georgia default
+
+    map = tt.map({
+        key: API_KEY,
+        container: "map",
+        center: fallback,
+        zoom: 13,
+        style: {
+            map: "basic_main",
+            trafficIncidents: true,
+            trafficFlow: true
+        }
+    });
+
+    document.getElementById("panel").innerText =
+        "Fix-Pin • locating you...";
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+            (pos) => {
+
+                const lnglat = [
+                    pos.coords.longitude,
+                    pos.coords.latitude
+                ];
+
+                map.setCenter(lnglat);
+
+                if (!userMarker) {
+                    userMarker = new tt.Marker()
+                        .setLngLat(lnglat)
+                        .addTo(map);
+                } else {
+                    userMarker.setLngLat(lnglat);
+                }
+
+                document.getElementById("panel").innerText =
+                    "Fix-Pin • LIVE traffic worldwide enabled";
+            },
+            () => {
+                document.getElementById("panel").innerText =
+                    "Fix-Pin • location denied";
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 5000,
+                timeout: 10000
+            }
+        );
+    }
+}
+
+initMap();
+</script>
+
+</body>
+</html>
