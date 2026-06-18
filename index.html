@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fix-Pin v7 RED LED</title>
 
+<link rel="manifest" href="manifest.json">
+
 <style>
 body{
     margin:0;
@@ -17,11 +19,7 @@ body{
     height:100vh;
 }
 
-.container{
-    width:90%;
-    max-width:500px;
-    text-align:center;
-}
+.container{ width:90%; max-width:500px; text-align:center; }
 
 .title{
     font-size:28px;
@@ -39,21 +37,11 @@ body{
 .value{
     font-size:32px;
     font-weight:bold;
-    text-shadow:
-        0 0 5px #ff1a1a,
-        0 0 10px #ff1a1a,
-        0 0 20px #ff1a1a;
+    text-shadow:0 0 10px #ff1a1a;
     margin:10px 0;
 }
 
-.small{
-    font-size:16px;
-    opacity:0.9;
-}
-
-.buttons{
-    margin-top:20px;
-}
+.small{ font-size:16px; opacity:0.9; }
 
 button{
     background:transparent;
@@ -62,9 +50,6 @@ button{
     padding:10px 20px;
     margin:5px;
     cursor:pointer;
-    font-weight:bold;
-    text-shadow:0 0 5px #ff1a1a;
-    transition:0.2s;
 }
 
 button:hover{
@@ -88,85 +73,74 @@ button:hover{
 
 <div class="container">
 
-    <div class="title">FIX-PIN v7</div>
+<div class="title">FIX-PIN v7 PWA</div>
 
-    <div class="screen">
-        <div class="value" id="lat">LAT --</div>
-        <div class="value" id="lon">LON --</div>
+<div class="screen">
+    <div class="value" id="lat">LAT --</div>
+    <div class="value" id="lon">LON --</div>
+    <div class="small" id="acc">ACC --</div>
+    <div class="small" id="time">TIME --</div>
+</div>
 
-        <div class="small" id="acc">ACC --</div>
-        <div class="small" id="alt">ALT --</div>
-        <div class="small" id="time">TIME --</div>
-    </div>
+<div>
+    <button onclick="fixPin()">FIX</button>
+    <button onclick="savePin()">SAVE</button>
+</div>
 
-    <div class="buttons">
-        <button onclick="fixPin()">FIX</button>
-        <button onclick="savePin()">SAVE</button>
-    </div>
-
-    <div class="list" id="list"></div>
+<div class="list" id="list"></div>
 
 </div>
 
 <script>
 
-let lastData = null;
+let lastData=null;
 
 function fixPin(){
-    navigator.geolocation.getCurrentPosition(pos => {
+navigator.geolocation.getCurrentPosition(pos=>{
+const c=pos.coords;
+const now=new Date().toLocaleTimeString();
 
-        const c = pos.coords;
+lastData={
+lat:c.latitude.toFixed(6),
+lon:c.longitude.toFixed(6),
+acc:c.accuracy.toFixed(1),
+time:now
+};
 
-        const now = new Date().toLocaleTimeString();
+lat.innerText="LAT "+lastData.lat;
+lon.innerText="LON "+lastData.lon;
+acc.innerText="ACC "+lastData.acc+" m";
+time.innerText="TIME "+lastData.time;
 
-        lastData = {
-            lat: c.latitude.toFixed(6),
-            lon: c.longitude.toFixed(6),
-            acc: c.accuracy.toFixed(1),
-            alt: c.altitude ? c.altitude.toFixed(1) : "n/a",
-            time: now
-        };
-
-        document.getElementById("lat").innerText = "LAT " + lastData.lat;
-        document.getElementById("lon").innerText = "LON " + lastData.lon;
-        document.getElementById("acc").innerText = "ACC " + lastData.acc + " m";
-        document.getElementById("alt").innerText = "ALT " + lastData.alt;
-        document.getElementById("time").innerText = "TIME " + lastData.time;
-
-    }, err => {
-        alert("GPS error: " + err.message);
-    }, {
-        enableHighAccuracy:true
-    });
+},{enableHighAccuracy:true});
 }
 
 function savePin(){
+if(!lastData)return;
 
-    if(!lastData) return;
-
-    let data = JSON.parse(localStorage.getItem("pins") || "[]");
-
-    data.push(lastData);
-
-    localStorage.setItem("pins", JSON.stringify(data));
-
-    renderList();
+let data=JSON.parse(localStorage.getItem("pins")||"[]");
+data.push(lastData);
+localStorage.setItem("pins",JSON.stringify(data));
+render();
 }
 
-function renderList(){
+function render(){
+let data=JSON.parse(localStorage.getItem("pins")||"[]");
+let html="<b>SAVED</b><br><br>";
 
-    let data = JSON.parse(localStorage.getItem("pins") || "[]");
+data.slice().reverse().forEach((p,i)=>{
+html+=`#${data.length-i} ${p.lat}, ${p.lon}<br>`;
+});
 
-    let html = "<b>SAVED POINTS</b><br><br>";
-
-    data.slice().reverse().forEach((p, i) => {
-        html += `#${data.length - i} ${p.lat}, ${p.lon} | ${p.time}<br>`;
-    });
-
-    document.getElementById("list").innerHTML = html;
+list.innerHTML=html;
 }
 
-renderList();
+render();
+
+// register service worker
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js");
+}
 
 </script>
 
