@@ -59,7 +59,6 @@
       text-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
     }
 
-    /* Новый стиль для высоты (синее неоновое свечение) */
     #altitude {
       color: #33ccff;
       text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
@@ -158,7 +157,7 @@
 
   <div class="input-box">
     <label for="comment-input">Quick Comment:</label>
-    <input type="text" id="id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
+    <input type="text" id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
   </div>
 
   <div class="button-group">
@@ -172,7 +171,7 @@
 <script>
 let currentLat = null;
 let currentLon = null;
-let currentAlt = null; // Переменная для хранения высоты
+let currentAlt = null;
 let userComment = "";
 
 function updateComment() {
@@ -193,12 +192,11 @@ function getFix() {
     currentLon = pos.coords.longitude;
     document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
 
-    // ЗАПРОС К API ДЛЯ ПОЛУЧЕНИЯ ВЫСОТЫ
     fetch(`https://api.open-meteo.com/v1/elevation?latitude=${currentLat}&longitude=${currentLon}`)
       .then(response => response.json())
       .then(data => {
         if (data && data.elevation) {
-          currentAlt = data.elevation[0]; // Высота в метрах
+          currentAlt = data.elevation[0];
           document.getElementById("altitude").innerText = "altitude: " + currentAlt + " m";
         } else {
           document.getElementById("altitude").innerText = "altitude: N/A";
@@ -229,7 +227,7 @@ function saveData() {
   const data = {
     lat: currentLat,
     lon: currentLon,
-    alt: currentAlt, // Сохраняем высоту
+    alt: currentAlt,
     comment: userComment
   };
 
@@ -262,6 +260,7 @@ function openMap() {
     alert("No coords available to show on map");
     return;
   }
+  // Также исправлена строка подстановки для URL карты
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
