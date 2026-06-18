@@ -1,116 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fix-Pin v6 AI MODE</title>
-
-<link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css">
+<title>Fix-Pin v7 RED LED</title>
 
 <style>
-html, body {
-    margin: 0;
-    height: 100%;
-    background: #0b0f14;
-    font-family: Arial, sans-serif;
+body{
+    margin:0;
+    background:#000;
+    font-family:"Courier New", monospace;
+    color:#ff1a1a;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
 }
 
-#map {
-    width: 100%;
-    height: 100vh;
+.container{
+    width:90%;
+    max-width:500px;
+    text-align:center;
 }
 
-#ai {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 9999;
-    background: rgba(0,0,0,0.85);
-    color: #00ffae;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 12px;
-    white-space: pre-line;
-    max-height: 80vh;
-    overflow-y: auto;
+.title{
+    font-size:28px;
+    letter-spacing:3px;
+    margin-bottom:20px;
+    text-shadow:0 0 10px #ff1a1a;
+}
+
+.screen{
+    border:1px solid #ff1a1a;
+    padding:20px;
+    box-shadow:0 0 20px #ff1a1a;
+}
+
+.value{
+    font-size:32px;
+    font-weight:bold;
+    text-shadow:
+        0 0 5px #ff1a1a,
+        0 0 10px #ff1a1a,
+        0 0 20px #ff1a1a;
+    margin:10px 0;
+}
+
+.small{
+    font-size:16px;
+    opacity:0.9;
+}
+
+.buttons{
+    margin-top:20px;
+}
+
+button{
+    background:transparent;
+    border:1px solid #ff1a1a;
+    color:#ff1a1a;
+    padding:10px 20px;
+    margin:5px;
+    cursor:pointer;
+    font-weight:bold;
+    text-shadow:0 0 5px #ff1a1a;
+    transition:0.2s;
+}
+
+button:hover{
+    background:#ff1a1a;
+    color:#000;
+}
+
+.list{
+    margin-top:20px;
+    text-align:left;
+    font-size:14px;
+    max-height:200px;
+    overflow:auto;
+    border-top:1px solid #ff1a1a;
+    padding-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="ai">AI MODE starting...</div>
-<div id="map"></div>
+<div class="container">
 
-<script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js"></script>
+    <div class="title">FIX-PIN v7</div>
+
+    <div class="screen">
+        <div class="value" id="lat">LAT --</div>
+        <div class="value" id="lon">LON --</div>
+
+        <div class="small" id="acc">ACC --</div>
+        <div class="small" id="alt">ALT --</div>
+        <div class="small" id="time">TIME --</div>
+    </div>
+
+    <div class="buttons">
+        <button onclick="fixPin()">FIX</button>
+        <button onclick="savePin()">SAVE</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+</div>
 
 <script>
-const API_KEY = "p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo";
-const ai = document.getElementById("ai");
 
-function log(msg) {
-    ai.innerHTML += "\n" + msg;
-    ai.scrollTop = ai.scrollHeight; // Keep log scrolled to bottom
+let lastData = null;
+
+function fixPin(){
+    navigator.geolocation.getCurrentPosition(pos => {
+
+        const c = pos.coords;
+
+        const now = new Date().toLocaleTimeString();
+
+        lastData = {
+            lat: c.latitude.toFixed(6),
+            lon: c.longitude.toFixed(6),
+            acc: c.accuracy.toFixed(1),
+            alt: c.altitude ? c.altitude.toFixed(1) : "n/a",
+            time: now
+        };
+
+        document.getElementById("lat").innerText = "LAT " + lastData.lat;
+        document.getElementById("lon").innerText = "LON " + lastData.lon;
+        document.getElementById("acc").innerText = "ACC " + lastData.acc + " m";
+        document.getElementById("alt").innerText = "ALT " + lastData.alt;
+        document.getElementById("time").innerText = "TIME " + lastData.time;
+
+    }, err => {
+        alert("GPS error: " + err.message);
+    }, {
+        enableHighAccuracy:true
+    });
 }
 
-function init() {
-    log("✔ SDK loaded");
+function savePin(){
 
-    // FIXED: Corrected [Lng, Lat] setup for Tbilisi region
-    let map = tt.map({
-        key: API_KEY,
-        container: "map",
-        center: [44.8271, 41.7151], // Double check your target Lng/Lat pair here
-        zoom: 7
-    });
+    if(!lastData) return;
 
-    log("✔ Map created (NO custom style)");
+    let data = JSON.parse(localStorage.getItem("pins") || "[]");
 
-    map.addControl(new tt.FullscreenControl());
+    data.push(lastData);
 
-    map.on("load", () => {
-        log("✔ Map loaded");
-        try {
-            map.showTrafficFlow();
-            map.showTrafficIncidents();
-            log("✔ Traffic enabled");
-        } catch (e) {
-            log("❌ Traffic error: " + e.message);
-        }
-    });
+    localStorage.setItem("pins", JSON.stringify(data));
 
-    if (navigator.geolocation) {
-        let userMarker = null; // Track marker instance globally
-
-        navigator.geolocation.watchPosition(
-            (pos) => {
-                const user = [pos.coords.longitude, pos.coords.latitude];
-                log("✔ GPS: " + user[1].toFixed(4) + "," + user[0].toFixed(4));
-
-                map.setCenter(user);
-                
-                // Only zoom in aggressively on the very first GPS lock
-                if (!userMarker) {
-                    map.setZoom(13);
-                    userMarker = new tt.Marker({ color: "red" })
-                        .setLngLat(user)
-                        .addTo(map);
-                } else {
-                    // Smoothly update existing marker position
-                    userMarker.setLngLat(user);
-                }
-            },
-            (err) => {
-                log("❌ GPS error: " + err.message);
-            },
-            { enableHighAccuracy: true } // Added for better accuracy tracking
-        );
-    } else {
-        log("❌ GPS not supported");
-    }
+    renderList();
 }
 
-init();
+function renderList(){
+
+    let data = JSON.parse(localStorage.getItem("pins") || "[]");
+
+    let html = "<b>SAVED POINTS</b><br><br>";
+
+    data.slice().reverse().forEach((p, i) => {
+        html += `#${data.length - i} ${p.lat}, ${p.lon} | ${p.time}<br>`;
+    });
+
+    document.getElementById("list").innerHTML = html;
+}
+
+renderList();
+
 </script>
 
 </body>
