@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Fix Pin Digital Style</title>
   <style>
-    /* Базовые стили для темной темы в стиле неонового дисплея */
     body {
       background-color: #0a0a0c;
       color: #e0e0e0;
@@ -18,7 +17,6 @@
       min-height: 100vh;
     }
 
-    /* Контейнер для всего приложения */
     .clock-container {
       background-color: #121214;
       border: 3px solid #222;
@@ -30,7 +28,6 @@
       text-align: center;
     }
 
-    /* Заголовок в стиле светящихся часов (зеленый неон) */
     h3 {
       color: #00ff66;
       font-size: 1.8rem;
@@ -41,15 +38,13 @@
       text-shadow: 0 0 10px rgba(0, 255, 102, 0.5), 0 0 20px rgba(0, 255, 102, 0.3);
     }
 
-    /* Экран с данными */
     #data-display {
       background-color: #050505;
       border: 1px solid #333;
       border-radius: 8px;
       padding: 20px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       text-align: left;
-      /* Имитация цифрового табло */
       font-family: 'Courier New', Courier, monospace; 
     }
 
@@ -59,25 +54,55 @@
       letter-spacing: 1px;
     }
 
-    /* Специфические цвета для выводимых данных */
     #coords {
-      color: #ff3333; /* Красный неон для координат */
+      color: #ff3333; 
       text-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
     }
 
     #comment {
-      color: #00ff66; /* Зеленый неон для комментариев */
+      color: #00ff66; 
       text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
     }
 
-    /* Контейнер для кнопок */
+    /* Удобное поле ввода прямо в интерфейсе */
+    .input-box {
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .input-box label {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-box input {
+      width: 100%;
+      box-sizing: border-box;
+      background-color: #1a1a1f;
+      border: 1px solid #3a3a42;
+      border-radius: 6px;
+      padding: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-box input:focus {
+      outline: none;
+      border-color: #00ff66;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+    }
+
     .button-group {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       gap: 10px;
     }
 
-    /* Стильные современные кнопки */
     button {
       background: linear-gradient(145deg, #1e1e24, #141418);
       color: #ffffff;
@@ -92,7 +117,6 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
 
-    /* Эффект при наведении на кнопки */
     button:hover {
       background: #1e1e24;
       border-color: #00ff66;
@@ -101,13 +125,11 @@
       transform: translateY(-2px);
     }
 
-    /* Эффект при нажатии */
     button:active {
       transform: translateY(1px);
       box-shadow: 0 2px 3px rgba(0,0,0,0.5);
     }
 
-    /* Кнопка карты выделяется отдельно */
     button[onclick="openMap()"] {
       border-color: #ff3333;
     }
@@ -128,11 +150,15 @@
     <p id="comment">comment: -</p>
   </div>
 
+  <div class="input-box">
+    <label for="comment-input">Quick Comment:</label>
+    <input type="text" id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
+  </div>
+
   <div class="button-group">
     <button onclick="getFix()">FIX</button>
     <button onclick="saveData()">SAVE</button>
     <button onclick="loadData()">LOAD</button>
-    <button onclick="addComment()">COMMENT</button>
     <button onclick="openMap()">OPEN MAP</button>
   </div>
 </div>
@@ -141,6 +167,12 @@
 let currentLat = null;
 let currentLon = null;
 let userComment = "";
+
+// Автоматически обновляет текст на "табло" при вводе в поле
+function updateComment() {
+  userComment = document.getElementById("comment-input").value;
+  document.getElementById("comment").innerText = "comment: " + (userComment || "-");
+}
 
 function getFix() {
   if (!navigator.geolocation) {
@@ -151,7 +183,6 @@ function getFix() {
   navigator.geolocation.getCurrentPosition((pos) => {
     currentLat = pos.coords.latitude;
     currentLon = pos.coords.longitude;
-
     document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
   },
   (err) => {
@@ -192,16 +223,10 @@ function loadData() {
   currentLon = data.lon;
   userComment = data.comment || "";
 
+  // Обновляем и табло, и само поле ввода
   document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
-  document.getElementById("comment").innerText = "comment: " + userComment;
-}
-
-function addComment() {
-  const text = prompt("Enter comment:", userComment);
-  if (text !== null) {
-    userComment = text.trim();
-    document.getElementById("comment").innerText = "comment: " + userComment;
-  }
+  document.getElementById("comment").innerText = "comment: " + (userComment || "-");
+  document.getElementById("comment-input").value = userComment;
 }
 
 function openMap() {
@@ -209,7 +234,6 @@ function openMap() {
     alert("No coords available to show on map");
     return;
   }
-
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
