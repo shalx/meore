@@ -220,7 +220,7 @@ function getFix() {
 
 function saveData() {
   if (currentLat === null) {
-    alert("No coords to save");
+    alert("No coords to save. Click FIX first!");
     return;
   }
 
@@ -239,7 +239,7 @@ function loadData() {
   const rawData = localStorage.getItem("fixpin_data");
   
   if (!rawData) {
-    alert("No saved data found");
+    alert("No saved data found in localStorage!");
     return;
   }
 
@@ -253,6 +253,8 @@ function loadData() {
   document.getElementById("altitude").innerText = "altitude: " + (currentAlt !== "-" ? currentAlt + " m" : "-");
   document.getElementById("comment").innerText = "comment: " + (userComment || "-");
   document.getElementById("comment-input").value = userComment;
+  
+  alert("Data loaded!");
 }
 
 function openMap() {
@@ -260,7 +262,6 @@ function openMap() {
     alert("No coords available to show on map");
     return;
   }
-  // Также исправлена строка подстановки для URL карты
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
