@@ -46,7 +46,7 @@
       margin-bottom: 20px;
       text-align: left;
       font-family: 'Courier New', Courier, monospace; 
-      max-height: 250px;
+      max-height: 280px;
       overflow-y: auto;
     }
 
@@ -71,9 +71,15 @@
       text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
     }
 
-    /* Стили для сохраненных пинов в списке */
+    /* Контейнер для списка пинов */
+    #pins-list-container {
+      margin-top: 15px;
+      border-top: 1px solid #333;
+      padding-top: 10px;
+    }
+
     .pin-item {
-      border-bottom: 1px dashed #333;
+      border-bottom: 1px dashed #222;
       padding: 10px 0;
       font-size: 0.9rem;
     }
@@ -165,9 +171,13 @@
   <h3>FIX PIN SIMPLE</h3>
 
   <div id="data-display">
+    <!-- Эти элементы ТЕПЕРЬ НЕ УДАЛЯЮТСЯ, поэтому FIX всегда будет работать -->
     <p id="coords">coords: -</p>
     <p id="altitude">altitude: -</p>
     <p id="comment">comment: -</p>
+    
+    <!-- Сюда будут загружаться пины -->
+    <div id="pins-list-container"></div>
   </div>
 
   <div class="input-box">
@@ -233,7 +243,6 @@ function getFix() {
   });
 }
 
-// Теперь сохраняем каждый пин под уникальным ключом с префиксом "pin_"
 function saveData() {
   if (currentLat === null) {
     alert("No coords to save. Click FIX first!");
@@ -247,20 +256,21 @@ function saveData() {
     comment: userComment || "-"
   };
 
-  // Уникальный ключ по текущему времени
   const uniqueKey = "pin_" + Date.now();
   localStorage.setItem(uniqueKey, JSON.stringify(data));
   alert("Pin saved successfully!");
+  
+  // Автоматически обновляем список на экране, если он открыт
+  loadPins();
 }
 
-// Выводим все сохраненные пины прямо в цифровой дисплей
 function loadPins() {
-  const display = document.getElementById("data-display");
-  display.innerHTML = ""; // Очищаем дисплей
+  // Очищаем только контейнер списка, оригинальные строки FIX остаются нетронутыми
+  const pinsContainer = document.getElementById("pins-list-container");
+  pinsContainer.innerHTML = ""; 
 
   let hasPins = false;
 
-  // Ищем все ключи, которые начинаются с "pin_"
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     
@@ -268,7 +278,6 @@ function loadPins() {
       hasPins = true;
       const data = JSON.parse(localStorage.getItem(key));
       
-      // Создаем блок для каждого пина
       const pinDiv = document.createElement("div");
       pinDiv.className = "pin-item";
       pinDiv.innerHTML = `
@@ -277,12 +286,12 @@ function loadPins() {
         <div style="color: #33ccff;">• Alt: ${data.alt} m</div>
         <div style="color: #00ff66;">• Msg: ${data.comment}</div>
       `;
-      display.appendChild(pinDiv);
+      pinsContainer.appendChild(pinDiv);
     }
   }
 
   if (!hasPins) {
-    display.innerHTML = "<p style='color: #888; text-align:center;'>No saved pins found.</p>";
+    pinsContainer.innerHTML = "<p style='color: #888; text-align:center; font-size:0.9rem; margin-top:10px;'>No saved pins found.</p>";
   }
 }
 
@@ -291,7 +300,6 @@ function openMap() {
     alert("No coords available to show on map");
     return;
   }
-  // Исправил синтаксическую ошибку в строке (была "0{currentLat}" вместо "${currentLat}")
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
