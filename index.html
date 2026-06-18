@@ -2,27 +2,140 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Fix Pin Simple</title>
+  <title>Fix Pin Digital Style</title>
   <style>
-    body { font-family: sans-serif; margin: 20px; }
-    button { margin-right: 5px; margin-top: 10px; padding: 5px 10px; cursor: pointer; }
-    #data-display { margin-bottom: 15px; }
+    /* Базовые стили для темной темы в стиле неонового дисплея */
+    body {
+      background-color: #0a0a0c;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Контейнер для всего приложения */
+    .clock-container {
+      background-color: #121214;
+      border: 3px solid #222;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    /* Заголовок в стиле светящихся часов (зеленый неон) */
+    h3 {
+      color: #00ff66;
+      font-size: 1.8rem;
+      margin-top: 0;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.5), 0 0 20px rgba(0, 255, 102, 0.3);
+    }
+
+    /* Экран с данными */
+    #data-display {
+      background-color: #050505;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: left;
+      /* Имитация цифрового табло */
+      font-family: 'Courier New', Courier, monospace; 
+    }
+
+    #data-display p {
+      margin: 10px 0;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    /* Специфические цвета для выводимых данных */
+    #coords {
+      color: #ff3333; /* Красный неон для координат */
+      text-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
+    }
+
+    #comment {
+      color: #00ff66; /* Зеленый неон для комментариев */
+      text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+    }
+
+    /* Контейнер для кнопок */
+    .button-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    /* Стильные современные кнопки */
+    button {
+      background: linear-gradient(145deg, #1e1e24, #141418);
+      color: #ffffff;
+      border: 1px solid #3a3a42;
+      border-radius: 6px;
+      padding: 12px 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Эффект при наведении на кнопки */
+    button:hover {
+      background: #1e1e24;
+      border-color: #00ff66;
+      color: #00ff66;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Эффект при нажатии */
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Кнопка карты выделяется отдельно */
+    button[onclick="openMap()"] {
+      border-color: #ff3333;
+    }
+    button[onclick="openMap()"]:hover {
+      color: #ff3333;
+      border-color: #ff3333;
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+    }
   </style>
 </head>
 <body>
 
-<h3>FIX PIN SIMPLE</h3>
+<div class="clock-container">
+  <h3>FIX PIN SIMPLE</h3>
 
-<div id="data-display">
-  <p id="coords">coords: -</p>
-  <p id="comment">comment: -</p>
+  <div id="data-display">
+    <p id="coords">coords: -</p>
+    <p id="comment">comment: -</p>
+  </div>
+
+  <div class="button-group">
+    <button onclick="getFix()">FIX</button>
+    <button onclick="saveData()">SAVE</button>
+    <button onclick="loadData()">LOAD</button>
+    <button onclick="addComment()">COMMENT</button>
+    <button onclick="openMap()">OPEN MAP</button>
+  </div>
 </div>
-
-<button onclick="getFix()">FIX</button>
-<button onclick="saveData()">SAVE</button>
-<button onclick="loadData()">LOAD</button>
-<button onclick="addComment()">COMMENT</button>
-<button onclick="openMap()">OPEN MAP</button>
 
 <script>
 let currentLat = null;
@@ -35,7 +148,6 @@ function getFix() {
     return;
   }
 
-  // Добавлены настройки для более точного определения координат
   navigator.geolocation.getCurrentPosition((pos) => {
     currentLat = pos.coords.latitude;
     currentLon = pos.coords.longitude;
@@ -98,7 +210,6 @@ function openMap() {
     return;
   }
 
-  // ИСПРАВЛЕНО: Правильный формат ссылки для Google Maps
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
