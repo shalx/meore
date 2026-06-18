@@ -59,12 +59,17 @@
       text-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
     }
 
+    /* Новый стиль для высоты (синее неоновое свечение) */
+    #altitude {
+      color: #33ccff;
+      text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
+    }
+
     #comment {
       color: #00ff66; 
       text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
     }
 
-    /* Удобное поле ввода прямо в интерфейсе */
     .input-box {
       margin-bottom: 25px;
       text-align: left;
@@ -147,12 +152,13 @@
 
   <div id="data-display">
     <p id="coords">coords: -</p>
+    <p id="altitude">altitude: -</p>
     <p id="comment">comment: -</p>
   </div>
 
   <div class="input-box">
     <label for="comment-input">Quick Comment:</label>
-    <input type="text" id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
+    <input type="text" id="id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
   </div>
 
   <div class="button-group">
@@ -166,9 +172,9 @@
 <script>
 let currentLat = null;
 let currentLon = null;
+let currentAlt = null; // Переменная для хранения высоты
 let userComment = "";
 
-// Автоматически обновляет текст на "табло" при вводе в поле
 function updateComment() {
   userComment = document.getElementById("comment-input").value;
   document.getElementById("comment").innerText = "comment: " + (userComment || "-");
@@ -180,13 +186,33 @@ function getFix() {
     return;
   }
 
+  document.getElementById("altitude").innerText = "altitude: Loading...";
+
   navigator.geolocation.getCurrentPosition((pos) => {
     currentLat = pos.coords.latitude;
     currentLon = pos.coords.longitude;
     document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
+
+    // ЗАПРОС К API ДЛЯ ПОЛУЧЕНИЯ ВЫСОТЫ
+    fetch(`https://api.open-meteo.com/v1/elevation?latitude=${currentLat}&longitude=${currentLon}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.elevation) {
+          currentAlt = data.elevation[0]; // Высота в метрах
+          document.getElementById("altitude").innerText = "altitude: " + currentAlt + " m";
+        } else {
+          document.getElementById("altitude").innerText = "altitude: N/A";
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("altitude").innerText = "altitude: Error";
+      });
+
   },
   (err) => {
     alert("Error: " + err.message);
+    document.getElementById("altitude").innerText = "altitude: -";
   }, {
     enableHighAccuracy: true,
     timeout: 5000,
@@ -203,6 +229,7 @@ function saveData() {
   const data = {
     lat: currentLat,
     lon: currentLon,
+    alt: currentAlt, // Сохраняем высоту
     comment: userComment
   };
 
@@ -221,10 +248,11 @@ function loadData() {
   const data = JSON.parse(rawData);
   currentLat = data.lat;
   currentLon = data.lon;
+  currentAlt = data.alt || "-";
   userComment = data.comment || "";
 
-  // Обновляем и табло, и само поле ввода
   document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
+  document.getElementById("altitude").innerText = "altitude: " + (currentAlt !== "-" ? currentAlt + " m" : "-");
   document.getElementById("comment").innerText = "comment: " + (userComment || "-");
   document.getElementById("comment-input").value = userComment;
 }
