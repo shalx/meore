@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Fix Pin Simple</title>
+  <meta charset="UTF-8">
+  <title>Fix Pin Simple</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    button { margin-right: 5px; margin-top: 10px; padding: 5px 10px; cursor: pointer; }
+    #data-display { margin-bottom: 15px; }
+  </style>
 </head>
 <body>
 
 <h3>FIX PIN SIMPLE</h3>
 
-<div>
+<div id="data-display">
   <p id="coords">coords: -</p>
   <p id="comment">comment: -</p>
 </div>
@@ -20,26 +25,29 @@
 <button onclick="openMap()">OPEN MAP</button>
 
 <script>
-
 let currentLat = null;
 let currentLon = null;
 let userComment = "";
 
 function getFix() {
   if (!navigator.geolocation) {
-    alert("Geolocation not supported");
+    alert("Geolocation not supported by your browser");
     return;
   }
 
+  // Добавлены настройки для более точного определения координат
   navigator.geolocation.getCurrentPosition((pos) => {
     currentLat = pos.coords.latitude;
     currentLon = pos.coords.longitude;
 
-    document.getElementById("coords").innerText =
-      "coords: " + currentLat + ", " + currentLon;
+    document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
   },
   (err) => {
     alert("Error: " + err.message);
+  }, {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0
   });
 }
 
@@ -56,46 +64,44 @@ function saveData() {
   };
 
   localStorage.setItem("fixpin_data", JSON.stringify(data));
-  alert("Saved");
+  alert("Saved successfully!");
 }
 
 function loadData() {
-  const data = JSON.parse(localStorage.getItem("fixpin_data"));
-
-  if (!data) {
-    alert("No saved data");
+  const rawData = localStorage.getItem("fixpin_data");
+  
+  if (!rawData) {
+    alert("No saved data found");
     return;
   }
 
+  const data = JSON.parse(rawData);
   currentLat = data.lat;
   currentLon = data.lon;
   userComment = data.comment || "";
 
-  document.getElementById("coords").innerText =
-    "coords: " + currentLat + ", " + currentLon;
-
-  document.getElementById("comment").innerText =
-    "comment: " + userComment;
+  document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
+  document.getElementById("comment").innerText = "comment: " + userComment;
 }
 
 function addComment() {
-  const text = prompt("Enter comment:");
+  const text = prompt("Enter comment:", userComment);
   if (text !== null) {
-    userComment = text;
+    userComment = text.trim();
     document.getElementById("comment").innerText = "comment: " + userComment;
   }
 }
 
 function openMap() {
   if (currentLat === null) {
-    alert("No coords");
+    alert("No coords available to show on map");
     return;
   }
 
-  const url = "https://www.google.com/maps?q=" + currentLat + "," + currentLon;
+  // ИСПРАВЛЕНО: Правильный формат ссылки для Google Maps
+  const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
-
 </script>
 
 </body>
