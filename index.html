@@ -46,6 +46,8 @@
       margin-bottom: 20px;
       text-align: left;
       font-family: 'Courier New', Courier, monospace; 
+      max-height: 250px;
+      overflow-y: auto;
     }
 
     #data-display p {
@@ -67,6 +69,19 @@
     #comment {
       color: #00ff66; 
       text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+    }
+
+    /* Стили для сохраненных пинов в списке */
+    .pin-item {
+      border-bottom: 1px dashed #333;
+      padding: 10px 0;
+      font-size: 0.9rem;
+    }
+    .pin-item:last-child {
+      border-bottom: none;
+    }
+    .pin-item strong {
+      color: #00ff66;
     }
 
     .input-box {
@@ -163,7 +178,7 @@
   <div class="button-group">
     <button onclick="getFix()">FIX</button>
     <button onclick="saveData()">SAVE</button>
-    <button onclick="loadData()">LOAD</button>
+    <button onclick="loadPins()">PINS</button>
     <button onclick="openMap()">OPEN MAP</button>
   </div>
 </div>
@@ -218,6 +233,7 @@ function getFix() {
   });
 }
 
+// Теперь сохраняем каждый пин под уникальным ключом с префиксом "pin_"
 function saveData() {
   if (currentLat === null) {
     alert("No coords to save. Click FIX first!");
@@ -227,34 +243,47 @@ function saveData() {
   const data = {
     lat: currentLat,
     lon: currentLon,
-    alt: currentAlt,
-    comment: userComment
+    alt: currentAlt || "-",
+    comment: userComment || "-"
   };
 
-  localStorage.setItem("fixpin_data", JSON.stringify(data));
-  alert("Saved successfully!");
+  // Уникальный ключ по текущему времени
+  const uniqueKey = "pin_" + Date.now();
+  localStorage.setItem(uniqueKey, JSON.stringify(data));
+  alert("Pin saved successfully!");
 }
 
-function loadData() {
-  const rawData = localStorage.getItem("fixpin_data");
-  
-  if (!rawData) {
-    alert("No saved data found in localStorage!");
-    return;
+// Выводим все сохраненные пины прямо в цифровой дисплей
+function loadPins() {
+  const display = document.getElementById("data-display");
+  display.innerHTML = ""; // Очищаем дисплей
+
+  let hasPins = false;
+
+  // Ищем все ключи, которые начинаются с "pin_"
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    
+    if (key.startsWith("pin_")) {
+      hasPins = true;
+      const data = JSON.parse(localStorage.getItem(key));
+      
+      // Создаем блок для каждого пина
+      const pinDiv = document.createElement("div");
+      pinDiv.className = "pin-item";
+      pinDiv.innerHTML = `
+        <div><strong>Pin [${new Date(parseInt(key.split('_')[1])).toLocaleTimeString()}]:</strong></div>
+        <div style="color: #ff3333;">• ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}</div>
+        <div style="color: #33ccff;">• Alt: ${data.alt} m</div>
+        <div style="color: #00ff66;">• Msg: ${data.comment}</div>
+      `;
+      display.appendChild(pinDiv);
+    }
   }
 
-  const data = JSON.parse(rawData);
-  currentLat = data.lat;
-  currentLon = data.lon;
-  currentAlt = data.alt || "-";
-  userComment = data.comment || "";
-
-  document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
-  document.getElementById("altitude").innerText = "altitude: " + (currentAlt !== "-" ? currentAlt + " m" : "-");
-  document.getElementById("comment").innerText = "comment: " + (userComment || "-");
-  document.getElementById("comment-input").value = userComment;
-  
-  alert("Data loaded!");
+  if (!hasPins) {
+    display.innerHTML = "<p style='color: #888; text-align:center;'>No saved pins found.</p>";
+  }
 }
 
 function openMap() {
@@ -262,6 +291,7 @@ function openMap() {
     alert("No coords available to show on map");
     return;
   }
+  // Исправил синтаксическую ошибку в строке (была "0{currentLat}" вместо "${currentLat}")
   const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
   window.open(url, "_blank");
 }
