@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>meore — Geolocation Pins</title>
-    <!-- Официальный скрипт авторизации Google -->
+    
     <script src="https://google.com" async defer></script>
     <style>
         :root {
@@ -37,7 +37,6 @@
         }
         h1 { font-size: 26px; margin: 0; color: var(--accent-color); letter-spacing: 1px; }
         
-        /* Кнопка синхронизации */
         .auth-btn {
             background: none;
             border: 1px solid var(--accent-color);
@@ -53,7 +52,6 @@
             color: #000;
         }
 
-        /* Форма управления */
         .control-panel {
             background-color: var(--card-bg);
             padding: 20px;
@@ -82,7 +80,6 @@
         #btnSave { background-color: var(--accent-green); color: #000; }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Поле вывода координат */
         .coords-display {
             background-color: rgba(255,255,255,0.03);
             border: 1px dashed #444;
@@ -95,7 +92,6 @@
             color: #aaa;
         }
 
-        /* Инпут для заметки */
         input.note-input {
             width: 100%;
             background-color: #121212;
@@ -109,7 +105,6 @@
         }
         input.note-input:focus { border-color: var(--accent-green); outline: none; }
 
-        /* Текстовый список пинов */
         .pins-list {
             display: flex;
             flex-direction: column;
@@ -140,7 +135,6 @@
             padding: 5px 10px;
         }
 
-        /* Рекламный блок */
         #adContainer { width: 100%; margin-top: auto; }
         .ad-banner-mock {
             height: 50px;
@@ -168,13 +162,13 @@
     <div class="container">
         <header>
             <h1>meore</h1>
-            <button class="auth-btn" id="authBtn" onclick="handleAuthClick()">Google Sync</button>
+            <button class="auth-btn" id="authBtn">Google Sync</button>
         </header>
 
         <div class="control-panel">
             <div class="button-row">
-                <button class="action-btn" id="btnPin" onclick="getLocation()">PIN ⦿</button>
-                <button class="action-btn" id="btnSave" onclick="addPin()" disabled>SAVE ✓</button>
+                <button class="action-btn" id="btnPin">PIN ⦿</button>
+                <button class="action-btn" id="btnSave" disabled>SAVE ✓</button>
             </div>
             
             <div class="coords-display" id="coordsDisplay">Coordinates: Not captured yet</div>
@@ -186,108 +180,13 @@
 
         <div id="adContainer">
             <div class="ad-banner-mock">AdMob Banner Space</div>
-            <a href="#" class="remove-ads-link" onclick="removeAdsPurchase(event)">Remove Ads ($1.99)</a>
+            <a href="#" class="remove-ads-link" id="removeAdsBtn">Remove Ads ($1.99)</a>
         </div>
     </div>
 
-    <script>
-        // Инициализация переменных безопасности и данных
-        let pins = JSON.parse(localStorage.getItem('meore_pins')) || [];
-        let isAdsRemoved = localStorage.getItem('meore_no_ads') === 'true';
-        let currentCoords = null;
-        
-        // Переменные для работы с Google Drive API
-        let tokenClient;
-        let accessToken = null;
-        const CLIENT_ID = 'ВАШ_GOOGLE_CLIENT_://googleusercontent.com'; // Замените на ваш ID из Google Console
+    <!-- Подключаем изолированную логику -->
+    <script src="app.js"></script>
+</body>
+</html>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderPins();
-            checkAdsStatus();
-            gapiInit();
-        });
-
-        // 1. ФУНКЦИЯ ДЛЯ КНОПКИ "PIN": Получение геолокации
-        function getLocation() {
-            const display = document.getElementById('coordsDisplay');
-            const btnPin = document.getElementById('btnPin');
-            
-            if (!navigator.geolocation) {
-                display.innerText = "Geolocation is not supported by your browser.";
-                return;
-            }
-
-            display.innerText = "Locating...";
-            btnPin.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    currentCoords = {
-                        lat: position.coords.latitude.toFixed(6),
-                        lng: position.coords.longitude.toFixed(6)
-                    };
-                    display.innerHTML = `Lat: <b>${currentCoords.lat}</b> | Lng: <b>${currentCoords.lng}</b>`;
-                    document.getElementById('btnSave').disabled = false; // Разрешаем сохранение
-                    btnPin.disabled = false;
-                },
-                (error) => {
-                    display.innerText = "Error: " + error.message;
-                    btnPin.disabled = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
-        // 2. ФУНКЦИЯ ДЛЯ КНОПКИ "SAVE": Добавление пина в коллекцию
-        function addPin() {
-            const noteInput = document.getElementById('noteInput');
-            const noteText = noteInput.value.trim() || "Saved Location";
-
-            if (!currentCoords) return;
-
-            const newPin = {
-                id: Date.now(),
-                note: noteText,
-                lat: currentCoords.lat,
-                lng: currentCoords.lng,
-                date: new Date().toLocaleString()
-            };
-
-            pins.unshift(newPin);
-            saveToLocal();
-            renderPins();
-
-            // Сброс интерфейса формы после сохранения
-            noteInput.value = '';
-            currentCoords = null;
-            document.getElementById('coordsDisplay').innerText = "Coordinates: Not captured yet";
-            document.getElementById('btnSave').disabled = true;
-
-            // Если выполнен вход в Google — отправляем бэкап на диск
-            if (accessToken) {
-                savePinsToDrive();
-            }
-        }
-
-        function deletePin(id) {
-            pins = pins.filter(pin => pin.id !== id);
-            saveToLocal();
-            renderPins();
-            if (accessToken) savePinsToDrive();
-        }
-
-        function saveToLocal() {
-            localStorage.setItem('meore_pins', JSON.stringify(pins));
-        }
-
-        // Рендер текстового списка пинов (без графической карты)
-        function renderPins() {
-            const listContainer = document.getElementById('pinsList');
-            listContainer.innerHTML = '';
-
-            if (pins.length === 0) {
-                listContainer.innerHTML = '<p style="color: #555; text-align: center; margin-top: 20px;">No saved locations yet.</p>';
-                return;
-            }
-
-            pins.forEach(pin => {
+      
