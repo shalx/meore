@@ -1,309 +1,152 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fix Pin Digital Style</title>
-  <style>
-    body {
-      background-color: #0a0a0c;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .clock-container {
-      background-color: #121214;
-      border: 3px solid #222;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0,0,0,0.5);
-      width: 90%;
-      max-width: 500px;
-      text-align: center;
-    }
-
-    h3 {
-      color: #00ff66;
-      font-size: 1.8rem;
-      margin-top: 0;
-      margin-bottom: 25px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0, 255, 102, 0.5), 0 0 20px rgba(0, 255, 102, 0.3);
-    }
-
-    #data-display {
-      background-color: #050505;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      text-align: left;
-      font-family: 'Courier New', Courier, monospace; 
-      max-height: 280px;
-      overflow-y: auto;
-    }
-
-    #data-display p {
-      margin: 10px 0;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-    }
-
-    #coords {
-      color: #ff3333; 
-      text-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
-    }
-
-    #altitude {
-      color: #33ccff;
-      text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
-    }
-
-    #comment {
-      color: #00ff66; 
-      text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
-    }
-
-    /* Контейнер для списка пинов */
-    #pins-list-container {
-      margin-top: 15px;
-      border-top: 1px solid #333;
-      padding-top: 10px;
-    }
-
-    .pin-item {
-      border-bottom: 1px dashed #222;
-      padding: 10px 0;
-      font-size: 0.9rem;
-    }
-    .pin-item:last-child {
-      border-bottom: none;
-    }
-    .pin-item strong {
-      color: #00ff66;
-    }
-
-    .input-box {
-      margin-bottom: 25px;
-      text-align: left;
-    }
-
-    .input-box label {
-      display: block;
-      color: #888;
-      font-size: 0.85rem;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .input-box input {
-      width: 100%;
-      box-sizing: border-box;
-      background-color: #1a1a1f;
-      border: 1px solid #3a3a42;
-      border-radius: 6px;
-      padding: 12px;
-      color: #fff;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .input-box input:focus {
-      outline: none;
-      border-color: #00ff66;
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
-    }
-
-    .button-group {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 10px;
-    }
-
-    button {
-      background: linear-gradient(145deg, #1e1e24, #141418);
-      color: #ffffff;
-      border: 1px solid #3a3a42;
-      border-radius: 6px;
-      padding: 12px 10px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-
-    button:hover {
-      background: #1e1e24;
-      border-color: #00ff66;
-      color: #00ff66;
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
-      transform: translateY(-2px);
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 3px rgba(0,0,0,0.5);
-    }
-
-    button[onclick="openMap()"] {
-      border-color: #ff3333;
-    }
-    button[onclick="openMap()"]:hover {
-      color: #ff3333;
-      border-color: #ff3333;
-      box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>meore — Minimalist Pins</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #bb86fc;
+            --card-bg: #1e1e1e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 { font-size: 24px; margin: 0; color: var(--accent-color); }
+        .auth-btn {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button.action-btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        /* Чисто текстовый список без сеток и карт */
+        .pins-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .pin-item {
+            background-color: var(--card-bg);
+            padding: 14px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--accent-color);
+        }
+        .pin-info a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .pin-info span {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #cf6679;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        /* Будущее место под баннер AdMob */
+        .ad-banner-mock {
+            width: 100%;
+            height: 50px;
+            background-color: #222;
+            border: 1px dashed #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: auto;
+            border-radius: 4px;
+        }
+        .remove-ads-link {
+            text-align: center;
+            display: block;
+            font-size: 12px;
+            color: var(--accent-color);
+            margin-top: 8px;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
 
-<div class="clock-container">
-  <h3>FIX PIN SIMPLE</h3>
+    <div class="container">
+        <header>
+            <h1>meore</h1>
+            <button class="auth-btn" id="authBtn" onclick="toggleAuth()">Sync Google</button>
+        </header>
 
-  <div id="data-display">
-    <!-- Эти элементы ТЕПЕРЬ НЕ УДАЛЯЮТСЯ, поэтому FIX всегда будет работать -->
-    <p id="coords">coords: -</p>
-    <p id="altitude">altitude: -</p>
-    <p id="comment">comment: -</p>
-    
-    <!-- Сюда будут загружаться пины -->
-    <div id="pins-list-container"></div>
-  </div>
+        <div class="input-group">
+            <input type="text" id="pinInput" placeholder="Paste link or text here...">
+            <button class="action-btn" onclick="addPin()">FIX / SAVE</button>
+        </div>
 
-  <div class="input-box">
-    <label for="comment-input">Quick Comment:</label>
-    <input type="text" id="comment-input" placeholder="Type your comment here..." oninput="updateComment()">
-  </div>
+        <div class="pins-list" id="pinsList">
+            <!-- Сюда JS будет рендерить текстовые пины -->
+        </div>
 
-  <div class="button-group">
-    <button onclick="getFix()">FIX</button>
-    <button onclick="saveData()">SAVE</button>
-    <button onclick="loadPins()">PINS</button>
-    <button onclick="openMap()">OPEN MAP</button>
-  </div>
-</div>
+        <!-- Контейнер для рекламы -->
+        <div id="adContainer">
+            <div class="ad-banner-mock">AdMob Banner Space</div>
+            <a href="#" class="remove-ads-link" onclick="removeAdsPurchase(event)">Remove Ads ($1.99)</a>
+        </div>
+    </div>
 
-<script>
-let currentLat = null;
-let currentLon = null;
-let currentAlt = null;
-let userComment = "";
-
-function updateComment() {
-  userComment = document.getElementById("comment-input").value;
-  document.getElementById("comment").innerText = "comment: " + (userComment || "-");
-}
-
-function getFix() {
-  if (!navigator.geolocation) {
-    alert("Geolocation not supported by your browser");
-    return;
-  }
-
-  document.getElementById("altitude").innerText = "altitude: Loading...";
-
-  navigator.geolocation.getCurrentPosition((pos) => {
-    currentLat = pos.coords.latitude;
-    currentLon = pos.coords.longitude;
-    document.getElementById("coords").innerText = "coords: " + currentLat + ", " + currentLon;
-
-    fetch(`https://api.open-meteo.com/v1/elevation?latitude=${currentLat}&longitude=${currentLon}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.elevation) {
-          currentAlt = data.elevation[0];
-          document.getElementById("altitude").innerText = "altitude: " + currentAlt + " m";
-        } else {
-          document.getElementById("altitude").innerText = "altitude: N/A";
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("altitude").innerText = "altitude: Error";
-      });
-
-  },
-  (err) => {
-    alert("Error: " + err.message);
-    document.getElementById("altitude").innerText = "altitude: -";
-  }, {
-    enableHighAccuracy: true,
-    timeout: 5000,
-    maximumAge: 0
-  });
-}
-
-function saveData() {
-  if (currentLat === null) {
-    alert("No coords to save. Click FIX first!");
-    return;
-  }
-
-  const data = {
-    lat: currentLat,
-    lon: currentLon,
-    alt: currentAlt || "-",
-    comment: userComment || "-"
-  };
-
-  const uniqueKey = "pin_" + Date.now();
-  localStorage.setItem(uniqueKey, JSON.stringify(data));
-  alert("Pin saved successfully!");
-  
-  // Автоматически обновляем список на экране, если он открыт
-  loadPins();
-}
-
-function loadPins() {
-  // Очищаем только контейнер списка, оригинальные строки FIX остаются нетронутыми
-  const pinsContainer = document.getElementById("pins-list-container");
-  pinsContainer.innerHTML = ""; 
-
-  let hasPins = false;
-
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    
-    if (key.startsWith("pin_")) {
-      hasPins = true;
-      const data = JSON.parse(localStorage.getItem(key));
-      
-      const pinDiv = document.createElement("div");
-      pinDiv.className = "pin-item";
-      pinDiv.innerHTML = `
-        <div><strong>Pin [${new Date(parseInt(key.split('_')[1])).toLocaleTimeString()}]:</strong></div>
-        <div style="color: #ff3333;">• ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}</div>
-        <div style="color: #33ccff;">• Alt: ${data.alt} m</div>
-        <div style="color: #00ff66;">• Msg: ${data.comment}</div>
-      `;
-      pinsContainer.appendChild(pinDiv);
-    }
-  }
-
-  if (!hasPins) {
-    pinsContainer.innerHTML = "<p style='color: #888; text-align:center; font-size:0.9rem; margin-top:10px;'>No saved pins found.</p>";
-  }
-}
-
-function openMap() {
-  if (currentLat === null) {
-    alert("No coords available to show on map");
-    return;
-  }
-  const url = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
-  window.open(url, "_blank");
-}
-</script>
-
+    <script src="app.js"></script>
 </body>
 </html>
