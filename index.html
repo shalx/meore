@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>meore — Minimalist Pins</title>
+    <title>meore — Geolocation Pins</title>
+    <!-- Официальный скрипт авторизации Google -->
+    <script src="https://google.com" async defer></script>
     <style>
         :root {
             --bg-color: #121212;
             --text-color: #e0e0e0;
             --accent-color: #bb86fc;
+            --accent-green: #03dac6;
             --card-bg: #1e1e1e;
+            --error-color: #cf6679;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -29,95 +33,131 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-        h1 { font-size: 24px; margin: 0; color: var(--accent-color); }
+        h1 { font-size: 26px; margin: 0; color: var(--accent-color); letter-spacing: 1px; }
+        
+        /* Кнопка синхронизации */
         .auth-btn {
             background: none;
             border: 1px solid var(--accent-color);
             color: var(--accent-color);
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 6px 14px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
         }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        .auth-btn.active {
+            background-color: var(--accent-color);
+            color: #000;
         }
-        input {
-            flex: 1;
+
+        /* Форма управления */
+        .control-panel {
             background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+        }
+        .button-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        button.action-btn {
+            flex: 1;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        button.action-btn:active { transform: scale(0.98); }
+        
+        #btnPin { background-color: var(--accent-color); color: #000; }
+        #btnSave { background-color: var(--accent-green); color: #000; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Поле вывода координат */
+        .coords-display {
+            background-color: rgba(255,255,255,0.03);
+            border: 1px dashed #444;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #aaa;
+        }
+
+        /* Инпут для заметки */
+        input.note-input {
+            width: 100%;
+            background-color: #121212;
             border: 1px solid #333;
             color: #fff;
             padding: 12px;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
         }
-        button.action-btn {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        /* Чисто текстовый список без сеток и карт */
+        input.note-input:focus { border-color: var(--accent-green); outline: none; }
+
+        /* Текстовый список пинов */
         .pins-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 30px;
         }
         .pin-item {
             background-color: var(--card-bg);
-            padding: 14px;
-            border-radius: 6px;
+            padding: 16px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid var(--accent-color);
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
-        .pin-info a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 500;
-            word-break: break-all;
-        }
-        .pin-info span {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
+        .pin-info { flex: 1; padding-right: 10px; }
+        .pin-note { font-weight: 600; font-size: 16px; color: #fff; margin-bottom: 4px; }
+        .pin-coords { font-family: monospace; font-size: 13px; color: var(--accent-color); }
+        .pin-date { font-size: 11px; color: #666; margin-top: 6px; }
+        
         .delete-btn {
             background: none;
             border: none;
-            color: #cf6679;
+            color: var(--error-color);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 18px;
+            padding: 5px 10px;
         }
-        /* Будущее место под баннер AdMob */
+
+        /* Рекламный блок */
+        #adContainer { width: 100%; margin-top: auto; }
         .ad-banner-mock {
-            width: 100%;
             height: 50px;
-            background-color: #222;
-            border: 1px dashed #444;
+            background-color: #1a1a1a;
+            border: 1px dashed #333;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 12px;
-            color: #666;
-            margin-top: auto;
-            border-radius: 4px;
+            color: #555;
+            border-radius: 6px;
         }
         .remove-ads-link {
             text-align: center;
             display: block;
-            font-size: 12px;
-            color: var(--accent-color);
+            font-size: 11px;
+            color: #666;
             margin-top: 8px;
             text-decoration: none;
         }
@@ -128,25 +168,126 @@
     <div class="container">
         <header>
             <h1>meore</h1>
-            <button class="auth-btn" id="authBtn" onclick="toggleAuth()">Sync Google</button>
+            <button class="auth-btn" id="authBtn" onclick="handleAuthClick()">Google Sync</button>
         </header>
 
-        <div class="input-group">
-            <input type="text" id="pinInput" placeholder="Paste link or text here...">
-            <button class="action-btn" onclick="addPin()">FIX / SAVE</button>
+        <div class="control-panel">
+            <div class="button-row">
+                <button class="action-btn" id="btnPin" onclick="getLocation()">PIN ⦿</button>
+                <button class="action-btn" id="btnSave" onclick="addPin()" disabled>SAVE ✓</button>
+            </div>
+            
+            <div class="coords-display" id="coordsDisplay">Coordinates: Not captured yet</div>
+            
+            <input type="text" class="note-input" id="noteInput" placeholder="Add a note for this location...">
         </div>
 
-        <div class="pins-list" id="pinsList">
-            <!-- Сюда JS будет рендерить текстовые пины -->
-        </div>
+        <div class="pins-list" id="pinsList"></div>
 
-        <!-- Контейнер для рекламы -->
         <div id="adContainer">
             <div class="ad-banner-mock">AdMob Banner Space</div>
             <a href="#" class="remove-ads-link" onclick="removeAdsPurchase(event)">Remove Ads ($1.99)</a>
         </div>
     </div>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <script>
+        // Инициализация переменных безопасности и данных
+        let pins = JSON.parse(localStorage.getItem('meore_pins')) || [];
+        let isAdsRemoved = localStorage.getItem('meore_no_ads') === 'true';
+        let currentCoords = null;
+        
+        // Переменные для работы с Google Drive API
+        let tokenClient;
+        let accessToken = null;
+        const CLIENT_ID = 'ВАШ_GOOGLE_CLIENT_://googleusercontent.com'; // Замените на ваш ID из Google Console
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPins();
+            checkAdsStatus();
+            gapiInit();
+        });
+
+        // 1. ФУНКЦИЯ ДЛЯ КНОПКИ "PIN": Получение геолокации
+        function getLocation() {
+            const display = document.getElementById('coordsDisplay');
+            const btnPin = document.getElementById('btnPin');
+            
+            if (!navigator.geolocation) {
+                display.innerText = "Geolocation is not supported by your browser.";
+                return;
+            }
+
+            display.innerText = "Locating...";
+            btnPin.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentCoords = {
+                        lat: position.coords.latitude.toFixed(6),
+                        lng: position.coords.longitude.toFixed(6)
+                    };
+                    display.innerHTML = `Lat: <b>${currentCoords.lat}</b> | Lng: <b>${currentCoords.lng}</b>`;
+                    document.getElementById('btnSave').disabled = false; // Разрешаем сохранение
+                    btnPin.disabled = false;
+                },
+                (error) => {
+                    display.innerText = "Error: " + error.message;
+                    btnPin.disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // 2. ФУНКЦИЯ ДЛЯ КНОПКИ "SAVE": Добавление пина в коллекцию
+        function addPin() {
+            const noteInput = document.getElementById('noteInput');
+            const noteText = noteInput.value.trim() || "Saved Location";
+
+            if (!currentCoords) return;
+
+            const newPin = {
+                id: Date.now(),
+                note: noteText,
+                lat: currentCoords.lat,
+                lng: currentCoords.lng,
+                date: new Date().toLocaleString()
+            };
+
+            pins.unshift(newPin);
+            saveToLocal();
+            renderPins();
+
+            // Сброс интерфейса формы после сохранения
+            noteInput.value = '';
+            currentCoords = null;
+            document.getElementById('coordsDisplay').innerText = "Coordinates: Not captured yet";
+            document.getElementById('btnSave').disabled = true;
+
+            // Если выполнен вход в Google — отправляем бэкап на диск
+            if (accessToken) {
+                savePinsToDrive();
+            }
+        }
+
+        function deletePin(id) {
+            pins = pins.filter(pin => pin.id !== id);
+            saveToLocal();
+            renderPins();
+            if (accessToken) savePinsToDrive();
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('meore_pins', JSON.stringify(pins));
+        }
+
+        // Рендер текстового списка пинов (без графической карты)
+        function renderPins() {
+            const listContainer = document.getElementById('pinsList');
+            listContainer.innerHTML = '';
+
+            if (pins.length === 0) {
+                listContainer.innerHTML = '<p style="color: #555; text-align: center; margin-top: 20px;">No saved locations yet.</p>';
+                return;
+            }
+
+            pins.forEach(pin => {
