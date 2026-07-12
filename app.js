@@ -1,57 +1,109 @@
+// Глобальные переменные для хранения текущей точки
+let currentLatitude = null;
+let currentLongitude = null;
+let currentAltitude = null;
+
+// Массив для сохраненных локаций (загружаем из памяти или создаем пустой)
+let savedLocations = JSON.parse(localStorage.getItem('meore_locations')) || [];
+
+// Вызываем отрисовку старых точек при загрузке страницы
+document.addEventListener("DOMContentLoaded", renderLocations);
+
 function getLocation() {
   const display = document.getElementById('coordinates-display');
   display.innerText = "Определяю местоположение...";
 
-  // Настройки для получения максимально точных данных (включая высоту)
-  const options = {
-    enableHighAccuracy: true, // Включает GPS на смартфонах для высокой точности
-    timeout: 10000,           // Ждать ответ не более 10 секунд
-    maximumAge: 0             // Не использовать старые кэшированные данные
-  };
+  const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
   } else {
-    display.innerText = "Геолокация не поддерживается вашим браузером.";
+    display.innerText = "Геолокация не поддерживается браузером.";
   }
 }
 
 function successCallback(position) {
   const display = document.getElementById('coordinates-display');
   
-  const latitude = position.coords.latitude;   // Широта
-  const longitude = position.coords.longitude; // Долгота
-  const altitude = position.coords.altitude;   // Высота над уровнем моря
+  // Записываем данные в глобальные переменные
+  currentLatitude = position.coords.latitude;
+  currentLongitude = position.coords.longitude;
+  currentAltitude = position.coords.altitude;
   
-  // Высота может быть null, если устройство (например, старый ПК) не умеет её определять
-  let altitudeText = "не определена (нужен GPS/смартфон)";
-  if (altitude !== null) {
-    altitudeText = `${altitude.toFixed(1)} метров`;
-  }
+  let altitudeText = currentAltitude !== null ? `${currentAltitude.toFixed(1)} м` : "не определена";
 
-  // Выводим данные на экран
   display.innerHTML = `
-    <strong>Широта (Latitude):</strong> ${latitude}<br>
-    <strong>Долгота (Longitude):</strong> ${longitude}<br>
+    <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
+    <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
     <strong>Высота над уровнем моря:</strong> ${altitudeText}
   `;
 }
 
 function errorCallback(error) {
-  const display = document.getElementById('coordinates-display');
-  
-  switch(error.code) {
-    case error.PERMISSION_DENIED:
-      display.innerText = "Ошибка: Вы запретили доступ к геолокации в браузере.";
-      break;
-    case error.POSITION_UNAVAILABLE:
-      display.innerText = "Ошибка: Не удалось определить координаты (нет связи со спутниками/сетью).";
-      break;
-    case error.TIMEOUT:
-      display.innerText = "Ошибка: Время ожидания запроса истекло.";
-      break;
-    default:
-      display.innerText = "Произошла неизвестная ошибка при получении геопозиции.";
-      break;
+  document.getElementById('coordinates-display').innerText = "Ошибка получения геопозиции.";
+}
+
+// ФУНКЦИЯ СОХРАНЕНИЯ
+function saveLocation() {
+  if (currentLatitude === null || currentLongitude === null) {
+    alert("Сначала нажмите кнопку PIN, чтобы получить координаты!");
+    return;
   }
+
+  const noteInput = document.getElementById('note-input');
+  const noteText = noteInput.value.trim() || "Без названия";
+
+  // Создаем объект новой локации
+  const newLocation = {
+    id: Date.now(), // Уникальный ID для удаления
+    lat: currentLatitude,
+    lng: currentLongitude,
+    alt: currentAltitude !== null ? `${currentAltitude.toFixed(1)} м` : "не определена",
+    note: noteText,
+    time: new Date().toLocaleString()
+  };
+
+  // Добавляем в массив, сохраняем в память и обновляем экран
+  savedLocations.push(newLocation);
+  localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
+  
+  renderLocations();
+  
+  // Очищаем поле ввода
+  noteInput.value = "";
+}
+
+// ФУНКЦИЯ ОТРИСОВКИ СПИСКА
+function renderLocations() {
+  const listContainer = document.getElementById('locations-list');
+  listContainer.innerHTML = ""; // Очищаем старый список
+
+  if (savedLocations.length === 0) {
+    listContainer.innerText = "Список пуст.";
+    return;
+  }
+
+  savedLocations.forEach(loc => {
+    const locDiv = document.createElement('div');
+    locDiv.style.border = "1px solid black"; // Минимальная визуальная граница без CSS-файлов
+    locDiv.style.margin = "10px 0";
+    locDiv.style.padding = "5px";
+
+    locDiv.innerHTML = `
+      <strong>${loc.note}</strong> 
+      <button onclick="deleteLocation(${loc.id})">X</button><br>
+      📍 ${loc.lat}, ${loc.lng}<br>
+      Высота: ${loc.alt}<br>
+      <small>${loc.time}</small>
+    `;
+    listContainer.appendChild(locDiv);
+  });
+}
+
+// ФУНКЦИЯ УДАЛЕНИЯ КАРТОЧКИ
+function deleteLocation(id) {
+  // Фильтруем массив, убирая элемент с нужным ID
+  savedLocations = savedLocations.filter(loc => loc.id !== id);
+  localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
+  renderLocations(); // Перерисовываем список
 }
