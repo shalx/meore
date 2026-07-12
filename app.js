@@ -93,3 +93,87 @@ function deleteLocation(id) {
   localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
   renderLocations();
 }
+// === БЛОК GOOGLE SYNC ===
+let tokenClient;
+let accessToken = null;
+
+// Сюда нужно будет вставить ваш Client ID из Google Cloud Console
+const CLIENT_ID = 'ВАШ_CLIENT_://googleusercontent.com';
+const SCOPES = 'https://googleapis.com';
+
+// Инициализация при загрузке скрипта Google
+function gapiLoaded() {
+  if (typeof google === 'undefined') return;
+  
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (tokenResponse) => {
+      if (tokenResponse && tokenResponse.access_token) {
+        accessToken = tokenResponse.access_token;
+        console.log("Авторизация в Google успешна!");
+        uploadDataToGoogleDrive(); // Запускаем выгрузку данных
+      }
+    },
+  });
+}
+
+// Обработчик клика на кнопку Google Sync
+function handleSyncClick() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    alert('Библиотека Google еще не загрузилась. Подождите секунду или проверьте сеть.');
+    return;
+  }
+
+  if (accessToken === null) {
+    // Запрашиваем доступ через всплывающее окно Google
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  } else {
+    // Если токен уже есть, сразу сохраняем в облако
+    uploadDataToGoogleDrive();
+  }
+}
+
+// Отправка JSON файла на Google Диск (в папку приложения)
+async function uploadDataToGoogleDrive() {
+  const locationsData = localStorage.getItem('meore_locations') || '[]';
+  
+  const fileMetadata = {
+    name: 'meore_backup.json',
+    parents: ['appDataFolder'] 
+  };
+
+  const boundary = 'foo_bar_baz';
+  const delimiter = `\r\n--${boundary}\r\n`;
+  const close_delim = `\r\n--${boundary}--`;
+
+  const body =
+      delimiter +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      JSON.stringify(fileMetadata) +
+      delimiter +
+      'Content-Type: application/json\r\n\r\n' +
+      locationsData +
+      close_delim;
+
+  try {
+    const response = await fetch('https://googleapis.com', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': `multipart/boundary=${boundary}`
+      },
+      body: body
+    });
+    
+    if (response.ok) {
+      alert('Успешно! Локации синхронизированы с вашим Google Диском.');
+    } else {
+      const errText = await response.text();
+      console.error('Ошибка Google Drive API:', errText);
+      alert('Ошибка при сохранении в Google. Проверьте Client ID.');
+    }
+  } catch (error) {
+    console.error('Ошибка сети:', error);
+  }
+}
