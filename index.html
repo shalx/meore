@@ -17,15 +17,20 @@
     <!-- Поле для заметки -->
     <input type="text" id="note-input" placeholder="Добавить заметку для локации...">
     
-    <!-- Кнопка сохранения -->
+    <!-- Кнопка сохранения локально -->
     <button id="save-btn" onclick="saveLocation()">SAVE ✓</button>
+
+    <!-- НОВАЯ КНОПКА: Синхронизация с Google -->
+    <button id="sync-btn" onclick="handleSyncClick()">Google Sync 🔄</button>
 
     <hr>
     <h3>Сохраненные локации:</h3>
-    <!-- Сюда будут добавляться карточки -->
     <div id="locations-list">Список пуст.</div>
 
-    <!-- Подключаем логику из отдельного файла -->
+    <!-- ПОДКЛЮЧЕНИЕ БИБЛИОТЕКИ GOOGLE (Обязательно перед app.js) -->
+    <script src="https://google.com" onload="gapiLoaded()" async defer></script>
+    
+    <!-- Подключаем логику -->
     <script src="app.js"></script>
 </body>
 </html>
