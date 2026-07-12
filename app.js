@@ -1,12 +1,9 @@
-// Глобальные переменные для хранения текущей точки
 let currentLatitude = null;
 let currentLongitude = null;
 let currentAltitude = null;
 
-// Массив для сохраненных локаций (загружаем из памяти или создаем пустой)
 let savedLocations = JSON.parse(localStorage.getItem('meore_locations')) || [];
 
-// Вызываем отрисовку старых точек при загрузке страницы
 document.addEventListener("DOMContentLoaded", renderLocations);
 
 function getLocation() {
@@ -25,7 +22,6 @@ function getLocation() {
 function successCallback(position) {
   const display = document.getElementById('coordinates-display');
   
-  // Записываем данные в глобальные переменные
   currentLatitude = position.coords.latitude;
   currentLongitude = position.coords.longitude;
   currentAltitude = position.coords.altitude;
@@ -43,7 +39,6 @@ function errorCallback(error) {
   document.getElementById('coordinates-display').innerText = "Ошибка получения геопозиции.";
 }
 
-// ФУНКЦИЯ СОХРАНЕНИЯ
 function saveLocation() {
   if (currentLatitude === null || currentLongitude === null) {
     alert("Сначала нажмите кнопку PIN, чтобы получить координаты!");
@@ -53,9 +48,8 @@ function saveLocation() {
   const noteInput = document.getElementById('note-input');
   const noteText = noteInput.value.trim() || "Без названия";
 
-  // Создаем объект новой локации
   const newLocation = {
-    id: Date.now(), // Уникальный ID для удаления
+    id: Date.now(),
     lat: currentLatitude,
     lng: currentLongitude,
     alt: currentAltitude !== null ? `${currentAltitude.toFixed(1)} м` : "не определена",
@@ -63,20 +57,16 @@ function saveLocation() {
     time: new Date().toLocaleString()
   };
 
-  // Добавляем в массив, сохраняем в память и обновляем экран
   savedLocations.push(newLocation);
   localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
   
   renderLocations();
-  
-  // Очищаем поле ввода
   noteInput.value = "";
 }
 
-// ФУНКЦИЯ ОТРИСОВКИ СПИСКА
 function renderLocations() {
   const listContainer = document.getElementById('locations-list');
-  listContainer.innerHTML = ""; // Очищаем старый список
+  listContainer.innerHTML = "";
 
   if (savedLocations.length === 0) {
     listContainer.innerText = "Список пуст.";
@@ -85,9 +75,7 @@ function renderLocations() {
 
   savedLocations.forEach(loc => {
     const locDiv = document.createElement('div');
-    locDiv.style.border = "1px solid black"; // Минимальная визуальная граница без CSS-файлов
-    locDiv.style.margin = "10px 0";
-    locDiv.style.padding = "5px";
+    locDiv.setAttribute('style', 'border: 1px solid black; margin: 10px 0; padding: 5px;');
 
     locDiv.innerHTML = `
       <strong>${loc.note}</strong> 
@@ -100,10 +88,8 @@ function renderLocations() {
   });
 }
 
-// ФУНКЦИЯ УДАЛЕНИЯ КАРТОЧКИ
 function deleteLocation(id) {
-  // Фильтруем массив, убирая элемент с нужным ID
   savedLocations = savedLocations.filter(loc => loc.id !== id);
   localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
-  renderLocations(); // Перерисовываем список
+  renderLocations();
 }
