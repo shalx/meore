@@ -98,7 +98,7 @@ let tokenClient;
 let accessToken = null;
 
 // Сюда нужно будет вставить ваш Client ID из Google Cloud Console
-const CLIENT_ID = 'ВАШ_CLIENT_://googleusercontent.com';
+const CLIENT_ID = '783371757942-u941c9rvsvna0c7sttr2nj9g0k2dcgei.apps.googleusercontent.com';
 const SCOPES = 'https://googleapis.com';
 
 // Инициализация при загрузке скрипта Google
