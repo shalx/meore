@@ -129,27 +129,21 @@ function initGoogleClient() {
   });
 }
 
-async function handleSyncClick() {
-  const syncBtn = document.getElementById('sync-btn');
-  syncBtn.innerText = "Загрузка Google API...";
+function handleSyncClick() {
+  // Прямая проверка — если объект google на месте, значит скрипт успешно загружен из head
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    alert("Критическая ошибка: Браузер или антивирус заблокировал соединение с accounts.google.com. Пожалуйста, проверьте консоль разработчика (F12) во вкладке Console.");
+    return;
+  }
 
-  try {
-    // Принудительно скачиваем библиотеку Google
-    await loadGoogleScript();
-    syncBtn.innerText = "Google Sync 🔄";
+  if (!tokenClient) {
+    initGoogleClient();
+  }
 
-    if (!tokenClient) {
-      initGoogleClient();
-    }
-
-    if (accessToken === null) {
-      tokenClient.requestAccessToken({ prompt: 'consent' });
-    } else {
-      uploadDataToGoogleDrive();
-    }
-  } catch (error) {
-    syncBtn.innerText = "Google Sync 🔄";
-    alert("Не удалось загрузить библиотеку Google. Проверьте подключение к интернету.");
+  if (accessToken === null) {
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  } else {
+    uploadDataToGoogleDrive();
   }
 }
 
