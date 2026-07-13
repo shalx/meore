@@ -7,29 +7,19 @@
 </head>
 <body>
 
-    <!-- Кнопка определения координат -->
     <button id="pin-btn" onclick="getLocation()">PIN 🎯</button>
-
-    <!-- Вывод текущих координат -->
     <div id="coordinates-display">Координаты еще не получены</div>
 
     <br>
-    <!-- Поле для заметки -->
     <input type="text" id="note-input" placeholder="Добавить заметку для локации...">
-    
-    <!-- Кнопка сохранения локально -->
     <button id="save-btn" onclick="saveLocation()">SAVE ✓</button>
-
-    <!-- НОВАЯ КНОПКА: Синхронизация с Google -->
     <button id="sync-btn" onclick="handleSyncClick()">Google Sync 🔄</button>
 
     <hr>
     <h3>Сохраненные локации:</h3>
     <div id="locations-list">Список пуст.</div>
 
-
-    
-    <!-- Подключаем логику -->
+    <!-- Оставляем только подключение вашего основного файла -->
     <script src="app.js"></script>
 </body>
 </html>
