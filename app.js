@@ -6,7 +6,8 @@ let currentAltitude = null;
 let tokenClient = null;
 let accessToken = null;
 const CLIENT_ID = '783371757942-u941c9rvsvna0c7sttr2nj9g0k2dcgei.apps.googleusercontent.com'; // ВСТАВЬТЕ СЮДА ВАШ ID ИЗ GOOGLE CONSOLE
-const SCOPES = 'https://googleapis.com';
+const SCOPES = 'https://www.googleapis.com';
+
 
 let savedLocations = JSON.parse(localStorage.getItem('meore_locations')) || [];
 
