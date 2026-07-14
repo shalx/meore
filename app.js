@@ -97,11 +97,16 @@ async function getWeather(lat, lng){
     };
 
     try {
+        // ИСПРАВЛЕНО: получаем высоту правильно из API
         let altURL = `https://open-meteo.com{lat}&longitude=${lng}`;
         let altResponse = await fetch(altURL);
         let altData = await altResponse.json();
-        result.altitude = altData.elevation;
+        
+        if (altData && altData.elevation) {
+            result.altitude = altData.elevation[0]; // Берем первый элемент из массива данных
+        }
 
+        // weather
         let url = `https://open-meteo.com{lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
         let response = await fetch(url);
         let data = await response.json();
@@ -205,6 +210,9 @@ function renderLocations(){
 
     savedLocations.forEach(x => {
 
+        // Формируем чистую ссылку для Google Maps
+        let mapUrl = `https://google.com{x.lat},${x.lng}`;
+
         box.innerHTML += `
         <div>
             <b>${x.note || "Without a note"}</b><br>
@@ -216,8 +224,8 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Передаем чистые числа без лишних кавычек. Браузер выполнит переход без сбоев -->
-            <button onclick="goToLocation(${x.lat}, ${x.lng})">MAP</button>
+            <!-- Кнопка-ссылка без JS-кликов, работает везде без блокировок -->
+            <button onclick="window.open('${mapUrl}', '_blank')">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -311,15 +319,4 @@ function importFromCSV(event){
 
     reader.readAsText(file);
 
-}
-
-
-// ================================
-// UNIVERSAL MAP NAVIGATION
-// ================================
-
-function goToLocation(lat, lng) {
-    // Этот кроссплатформенный URL-шаблон принудительно открывает приложение "Карты" на iOS/Android 
-    // или сайт в браузере на ПК, не вызывая ошибок блокировки окон
-    window.location.href = `https://google.com{lat},${lng}`;
 }
