@@ -190,10 +190,6 @@ function saveLocation(){
 }
 
 
-// ================================
-// LIST
-// ================================
-
 // =====================================
 // LIST
 // =====================================
@@ -207,19 +203,17 @@ function renderLocations(){
         return;
     }
 
-    // Очищаем контейнер и создаем внутри него маркированный список
     box.innerHTML = "<ul></ul>";
     let ul = box.querySelector("ul");
 
     savedLocations.forEach(x => {
 
-        // Текст для ссылки: используем заметку, если она есть, иначе адрес или координаты
         let linkText = x.note || x.address || `${x.lat}, ${x.lng}`;
 
         ul.innerHTML += `
         <li>
-            <!-- Простая ссылка на Google Maps по вашему шаблону -->
-            <a href="https://google.com{x.lat},${x.lng}&q=${x.lat},${x.lng}" target="_blank">
+            <!-- Используем onclick вместо href для обхода блокировки браузера -->
+            <a href="javascript:void(0)" onclick="goToLocation(${x.lat}, ${x.lng})">
                 ${linkText}
             </a>
             <br>
@@ -235,6 +229,18 @@ function renderLocations(){
 
     });
 
+}
+
+// =====================================
+// MAP NAVIGATION (Добавьте в самый конец файла)
+// =====================================
+
+function goToLocation(lat, lng) {
+    // Формируем чистый URL с параметрами центра (ll) и маркера (q)
+    const url = `https://google.com{lat},${lng}&q=${lat},${lng}`;
+    
+    // Безопасное открытие новой вкладки, разрешенное браузерами
+    window.open(url, "_blank");
 }
 
 
