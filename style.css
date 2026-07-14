@@ -152,3 +152,64 @@ hr {
     background:#9d00ff;
 
 }
+#pin-btn {
+
+    background:#ff0033;
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    width:160px;
+
+    height:160px;
+
+    border-radius:50%;
+
+    border:3px solid #ff6699;
+
+    box-shadow:
+    0 0 20px red,
+    0 0 50px red;
+
+    animation:pulse 1.5s infinite;
+
+}
+
+
+#pin-btn:hover {
+
+    transform:scale(1.1);
+
+}
+
+
+@keyframes pulse {
+
+    0% {
+
+        box-shadow:
+        0 0 15px red;
+
+    }
+
+
+    50% {
+
+        box-shadow:
+        0 0 50px red,
+        0 0 100px #ff0033;
+
+    }
+
+
+    100% {
+
+        box-shadow:
+        0 0 15px red;
+
+    }
+
+}
