@@ -23,10 +23,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("export-btn").onclick = exportToCSV;
 
-    document.getElementById("load-btn").onclick = () =>
-        document.getElementById("file-input").click();
+   let loadBtn = document.getElementById("load-btn");
+let fileInput = document.getElementById("file-input");
 
-    document.getElementById("file-input").onchange = importFromCSV;
+
+if(loadBtn && fileInput){
+
+    loadBtn.addEventListener("click", ()=>{
+
+        fileInput.value = "";
+
+        fileInput.click();
+
+    });
+
+
+    fileInput.addEventListener("change", importFromCSV);
+
+}
 
 });
 
