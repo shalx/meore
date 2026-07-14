@@ -1,9 +1,8 @@
 // =====================================
-// MEORE v2 PRO
-// GPS + Weather + Altitude + Address
-// LocalStorage + CSV
+// MEORE v2.1 PRO
+// GPS + Altitude + Address + Weather
+// Simple version
 // =====================================
-
 
 let currentData = null;
 
@@ -17,202 +16,129 @@ JSON.parse(localStorage.getItem("meore_locations")) || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    renderLocations();
 
-renderLocations();
+    document.getElementById("pin-btn").onclick = getLocation;
 
+    document.getElementById("save-btn").onclick = saveLocation;
 
-document.getElementById("pin-btn")
-.onclick = getLocation;
+    document.getElementById("export-btn").onclick = exportToCSV;
 
+    document.getElementById("load-btn").onclick = () =>
+        document.getElementById("file-input").click();
 
-document.getElementById("save-btn")
-.onclick = saveLocation;
-
-
-document.getElementById("export-btn")
-.onclick = exportToCSV;
-
-
-document.getElementById("load-btn")
-.onclick = () =>
-document.getElementById("file-input").click();
-
-
-document.getElementById("file-input")
-.onchange = importFromCSV;
-
+    document.getElementById("file-input").onchange = importFromCSV;
 
 });
-
 
 
 // ================================
 // GPS
 // ================================
 
-
 function getLocation(){
 
+    let display =
+    document.getElementById("coordinates-display");
 
-let display =
-document.getElementById("coordinates-display");
+    display.innerText =
+    "Получение GPS...";
 
 
-display.innerText =
-"Получение GPS...";
+    navigator.geolocation.getCurrentPosition(
 
+    async position => {
 
 
-navigator.geolocation.getCurrentPosition(
+        let lat = position.coords.latitude;
 
-async position => {
+        let lng = position.coords.longitude;
 
+        let accuracy = position.coords.accuracy;
 
-let lat =
-position.coords.latitude;
 
+        display.innerText =
+        "Получение данных...";
 
-let lng =
-position.coords.longitude;
 
+        let weather =
+        await getWeather(lat,lng);
 
-let accuracy =
-position.coords.accuracy;
 
+        let address =
+        await getAddress(lat,lng);
 
-let speed =
-position.coords.speed;
 
 
-let heading =
-position.coords.heading;
+        currentData = {
 
+            lat:lat,
 
+            lng:lng,
 
-display.innerText =
-"Получение данных...";
+            accuracy:accuracy,
 
+            altitude:weather.altitude,
 
+            address:address,
 
-let weather =
-await getWeather(lat,lng);
+            temperature:weather.temperature,
 
+            windSpeed:weather.windSpeed,
 
+            time:new Date().toLocaleString()
 
-let address =
-await getAddress(lat,lng);
+        };
 
 
+        showData();
 
-currentData = {
 
+    },
 
-lat:lat,
 
-lng:lng,
+    error => {
 
+        display.innerText =
+        "Ошибка GPS";
 
-accuracy:accuracy,
+    },
 
 
-speed:speed,
+    {
+        enableHighAccuracy:true,
+        timeout:15000,
+        maximumAge:0
+    }
 
-
-heading:heading,
-
-
-altitude:weather.altitude,
-
-
-address:address,
-
-
-temperature:weather.temperature,
-
-
-humidity:weather.humidity,
-
-
-windSpeed:weather.windSpeed,
-
-
-windDirection:weather.windDirection,
-
-
-pressure:weather.pressure,
-
-
-rain:weather.rain,
-
-
-weatherCode:weather.weatherCode,
-
-
-time:new Date().toLocaleString()
-
-
-};
-
-
-
-showData();
-
-
-
-},
-
-
-
-error=>{
-
-
-display.innerText =
-"Ошибка GPS";
-
-
-},
-
-
-{
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-}
-
-
-);
-
+    );
 
 }
 
 
 
-
 // ================================
-// ALTITUDE + WEATHER
+// WEATHER + ALTITUDE
 // ================================
-
 
 async function getWeather(lat,lng){
 
 
-let result={
+let result = {
 
-altitude:"N/A",
-temperature:"N/A",
-humidity:"N/A",
-windSpeed:"N/A",
-windDirection:"N/A",
-pressure:"N/A",
-rain:"N/A",
-weatherCode:"N/A"
+    altitude:"N/A",
+
+    temperature:"N/A",
+
+    windSpeed:"N/A"
 
 };
 
 
-
 try{
 
+
+// altitude
 
 let altURL =
 
@@ -223,20 +149,20 @@ let altResponse =
 await fetch(altURL);
 
 
-let alt =
+let altData =
 await altResponse.json();
 
 
 result.altitude =
-alt.elevation[0];
+altData.elevation[0];
 
 
 
+// weather
 
 let url =
 
-`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,pressure_msl,rain,weather_code`;
-
+`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
 
 
 let response =
@@ -251,34 +177,12 @@ let c =
 data.current;
 
 
-
 result.temperature =
 c.temperature_2m;
 
 
-result.humidity =
-c.relative_humidity_2m;
-
-
 result.windSpeed =
 c.wind_speed_10m;
-
-
-result.windDirection =
-c.wind_direction_10m;
-
-
-result.pressure =
-c.pressure_msl;
-
-
-result.rain =
-c.rain;
-
-
-result.weatherCode =
-c.weather_code;
-
 
 
 }
@@ -288,7 +192,6 @@ catch(e){
 console.log(e);
 
 }
-
 
 
 return result;
@@ -301,7 +204,6 @@ return result;
 // ================================
 // ADDRESS
 // ================================
-
 
 async function getAddress(lat,lng){
 
@@ -319,10 +221,8 @@ let response =
 await fetch(url);
 
 
-
 let data =
 await response.json();
-
 
 
 return data.display_name || "N/A";
@@ -332,9 +232,7 @@ return data.display_name || "N/A";
 
 catch(e){
 
-
 return "N/A";
-
 
 }
 
@@ -346,7 +244,6 @@ return "N/A";
 // ================================
 // DISPLAY
 // ================================
-
 
 function showData(){
 
@@ -369,6 +266,7 @@ ${d.lng.toFixed(6)}
 Accuracy:
 ${Math.round(d.accuracy)} m
 
+
 Altitude:
 ${d.altitude} m
 
@@ -380,36 +278,22 @@ ${d.address}
 Temperature:
 ${d.temperature} °C
 
-Humidity:
-${d.humidity} %
 
 Wind:
 ${d.windSpeed} km/h
 
-Wind direction:
-${d.windDirection}°
-
-Pressure:
-${d.pressure} hPa
-
-Rain:
-${d.rain} mm
-
 
 Time:
 ${d.time}
+
 `;
 
-
-
 }
-
 
 
 // ================================
 // SAVE
 // ================================
-
 
 function saveLocation(){
 
@@ -425,9 +309,7 @@ return;
 
 
 let note =
-document.getElementById(
-"note-input"
-).value;
+document.getElementById("note-input").value;
 
 
 
@@ -438,7 +320,6 @@ id:Date.now(),
 note:note,
 
 ...currentData
-
 
 });
 
@@ -470,19 +351,17 @@ renderLocations();
 // LIST
 // ================================
 
-
 function renderLocations(){
 
 
 let box =
-document.getElementById(
-"locations-list"
-);
+document.getElementById("locations-list");
 
 
 if(savedLocations.length===0){
 
-box.innerHTML="Список пуст.";
+box.innerHTML =
+"Список пуст.";
 
 return;
 
@@ -491,7 +370,6 @@ return;
 
 
 box.innerHTML="";
-
 
 
 savedLocations.forEach(x=>{
@@ -507,19 +385,22 @@ box.innerHTML +=
 
 ${x.address || "N/A"}<br>
 
-${x.lat},
+Lat:
+${x.lat}<br>
+
+Lng:
 ${x.lng}<br>
 
 Altitude:
-${x.altitude || "N/A"} m<br>
+${x.altitude} m<br>
 
 Temp:
-${x.temperature || "N/A"} °C
+${x.temperature} °C<br>
 
-<br>
+Wind:
+${x.windSpeed} km/h<br>
 
 ${x.time}
-
 
 <br>
 
@@ -530,8 +411,8 @@ DELETE
 <hr>
 
 </div>
-`;
 
+`;
 
 });
 
@@ -544,21 +425,19 @@ function deleteLocation(id){
 
 
 savedLocations =
-savedLocations.filter(
-x=>x.id!==id
-);
-
+savedLocations.filter(x=>x.id!==id);
 
 
 localStorage.setItem(
+
 "meore_locations",
+
 JSON.stringify(savedLocations)
+
 );
 
 
-
 renderLocations();
-
 
 }
 
@@ -568,12 +447,12 @@ renderLocations();
 // CSV EXPORT
 // ================================
 
-
 function safe(v){
 
-return (v===undefined || v===null)
-?"N/A"
-:v;
+if(v===undefined || v===null)
+return "N/A";
+
+return v;
 
 }
 
@@ -591,10 +470,9 @@ return;
 }
 
 
-
 let csv =
 
-"Note,Lat,Lng,Accuracy,Speed,Heading,Altitude,Address,Temp,Humidity,Wind,WindDir,Pressure,Rain,Time\n";
+"Note,Lat,Lng,Accuracy,Altitude,Address,Temperature,Wind,Time\n";
 
 
 
@@ -603,23 +481,7 @@ savedLocations.forEach(x=>{
 
 csv +=
 
-`"${safe(x.note)}",
-${safe(x.lat)},
-${safe(x.lng)},
-${safe(x.accuracy)},
-${safe(x.speed)},
-${safe(x.heading)},
-${safe(x.altitude)},
-"${safe(x.address)}",
-${safe(x.temperature)},
-${safe(x.humidity)},
-${safe(x.windSpeed)},
-${safe(x.windDirection)},
-${safe(x.pressure)},
-${safe(x.rain)},
-"${safe(x.time)}"\n`.replace(/\n/g,"");
-
-
+`"${safe(x.note)}",${safe(x.lat)},${safe(x.lng)},${safe(x.accuracy)},${safe(x.altitude)},"${safe(x.address)}",${safe(x.temperature)},${safe(x.windSpeed)},"${safe(x.time)}"\n`;
 
 });
 
@@ -632,7 +494,6 @@ new Blob(
 type:"text/csv;charset=utf-8"
 }
 );
-
 
 
 let a =
@@ -658,7 +519,6 @@ a.click();
 // CSV IMPORT
 // ================================
 
-
 function importFromCSV(event){
 
 
@@ -678,76 +538,45 @@ new FileReader();
 reader.onload=function(e){
 
 
-let lines =
+let rows =
 e.target.result.split("\n");
 
 
-lines.shift();
+rows.shift();
 
 
 
-lines.forEach(line=>{
+rows.forEach(line=>{
 
 
-let c =
-line.split(",");
+let c=line.split(",");
 
 
-
-if(c.length<10)return;
+if(c.length<9)return;
 
 
 
 savedLocations.push({
 
-
 id:Date.now()+Math.random(),
-
 
 note:c[0],
 
-
 lat:c[1],
-
 
 lng:c[2],
 
-
 accuracy:c[3],
 
+altitude:c[4],
 
-speed:c[4],
+address:c[5],
 
+temperature:c[6],
 
-heading:c[5],
+windSpeed:c[7],
 
-
-altitude:c[6],
-
-
-address:c[7],
-
-
-temperature:c[8],
-
-
-humidity:c[9],
-
-
-windSpeed:c[10],
-
-
-windDirection:c[11],
-
-
-pressure:c[12],
-
-
-rain:c[13],
-
-
-time:c[14]
-
+time:c[8]
 
 });
 
@@ -769,12 +598,10 @@ JSON.stringify(savedLocations)
 renderLocations();
 
 
-
 alert("CSV загружен");
 
 
 };
-
 
 
 reader.readAsText(file);
