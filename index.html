@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>meore - Geolocation Pins</title>
     
-    <!-- ПОДКЛЮЧЕНИЕ GOOGLE В HEAD БЕЗ ПЕРЕМЕННЫХ ОГРАНИЧЕНИЙ -->
-    <script src="https://accounts.google.com/gsi/client"></script>
+    <!-- ПОДКЛЮЧАЕМ БИБЛИОТЕКУ ДЛЯ РАБОТЫ С EXCEL (SheetJS) -->
+    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
 
@@ -16,7 +16,14 @@
     <br>
     <input type="text" id="note-input" placeholder="Добавить заметку для локации...">
     <button id="save-btn" onclick="saveLocation()">SAVE ✓</button>
-    <button id="sync-btn" onclick="handleSyncClick()">Google Sync 🔄</button>
+    
+    <br><br>
+    <!-- НОВЫЕ КНОПКИ ДЛЯ EXCEL -->
+    <button id="export-btn" onclick="exportToExcel()">Save to Excel 📥</button>
+    
+    <!-- Кнопка Load визуально запускает скрытый выбор файла -->
+    <button id="load-btn" onclick="document.getElementById('file-input').click()">Load from Excel 📤</button>
+    <input type="file" id="file-input" accept=".xlsx, .xls" onchange="importFromExcel(event)" style="display: none;">
 
     <hr>
     <h3>Сохраненные локации:</h3>
