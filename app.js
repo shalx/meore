@@ -194,6 +194,10 @@ function saveLocation(){
 // LIST
 // ================================
 
+// =====================================
+// LIST
+// =====================================
+
 function renderLocations(){
 
     let box = document.getElementById("locations-list");
@@ -203,37 +207,33 @@ function renderLocations(){
         return;
     }
 
-    box.innerHTML = "";
+    // Очищаем контейнер и создаем внутри него маркированный список
+    box.innerHTML = "<ul></ul>";
+    let ul = box.querySelector("ul");
 
     savedLocations.forEach(x => {
 
-        box.innerHTML += `
-        <div>
-            <b>${x.note || "Without a note"}</b><br>
-            ${x.address || "N/A"}<br>
-            Lat: ${x.lat}<br>
-            Lng: ${x.lng}<br>
-            Altitude: ${x.altitude} m<br>
-            Temp: ${x.temperature} °C<br>
-            Wind: ${x.windSpeed} km/h<br>
-            ${x.time}<br>
-            
-            <button onclick="goToLocation(${x.lat}, ${x.lng})">MAP</button>
-            <button onclick="deleteLocation(${x.id})">DELETE</button>
+        // Текст для ссылки: используем заметку, если она есть, иначе адрес или координаты
+        let linkText = x.note || x.address || `${x.lat}, ${x.lng}`;
+
+        ul.innerHTML += `
+        <li>
+            <!-- Простая ссылка на Google Maps по вашему шаблону -->
+            <a href="https://google.com{x.lat},${x.lng}&q=${x.lat},${x.lng}" target="_blank">
+                ${linkText}
+            </a>
+            <br>
+            <small>
+                Lat: ${x.lat} | Lng: ${x.lng} | Alt: ${x.altitude} m<br>
+                Temp: ${x.temperature} °C | Wind: ${x.windSpeed} km/h | ${x.time}
+            </small>
+            <br>
+            <button onclick="deleteLocation(${x.id})" style="margin-top: 5px; font-size: 11px;">DELETE</button>
             <hr>
-        </div>
+        </li>
         `;
 
     });
-
-}
-
-
-function deleteLocation(id){
-
-    savedLocations = savedLocations.filter(x => x.id !== id);
-    localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
-    renderLocations();
 
 }
 
