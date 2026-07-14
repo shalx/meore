@@ -681,7 +681,7 @@ function shareLocation(lat,lng,note){
 
 
     let text =
-`📍 MEORE GPS Location
+` MEORE GPS Location
 
 ${note}
 
