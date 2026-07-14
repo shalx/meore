@@ -218,13 +218,10 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Настоящая ссылка, оформленная как кнопка. Работает везде! -->
-            <a href="https://google.com{x.lat},${x.lng}" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               style="display: inline-block; padding: 5px 10px; background: #e1e1e1; color: black; text-decoration: none; border: 1px solid #adadad; border-radius: 3px; font-family: sans-serif; font-size: 13px; margin-right: 5px;">
-               MAP
-            </a>
+            <!-- Стандартная кнопка. Клик по ней перенаправляет на карту без риска блокировки окон -->
+            <button onclick="window.location.href='https://google.com{x.lat},${x.lng}'">
+                MAP
+            </button>
 
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
@@ -234,6 +231,7 @@ function renderLocations(){
     });
 
 }
+
 
 
 // =====================================
