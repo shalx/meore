@@ -390,14 +390,17 @@ function renderLocations(){
 
 
 
-        <button onclick="goToLocation(${x.lat},${x.lng})">
-        MAP
-        </button>
+  <button onclick="goToLocation(${x.lat},${x.lng})">
+MAP
+</button>
 
+<button onclick="shareLocation(${x.lat},${x.lng},'${x.note || ""}')">
+SHARE
+</button>
 
-        <button onclick="deleteLocation(${x.id})">
-        DELETE
-        </button>
+<button onclick="deleteLocation(${x.id})">
+DELETE
+</button>
 
 
 
@@ -642,6 +645,64 @@ function goToLocation(lat,lng){
 
 
     window.location.href=url;
+    // ================================
+// SHARE LOCATION
+// ================================
+
+function shareLocation(lat,lng,note){
+
+
+    let text =
+`📍 MEORE GPS Location
+
+${note}
+
+Latitude:
+${lat}
+
+Longitude:
+${lng}
+
+Google Maps:
+https://www.google.com/maps?q=${lat},${lng}`;
+
+
+
+    // Android / iPhone native share
+
+    if(navigator.share){
+
+
+        navigator.share({
+
+            title:"MEORE GPS Location",
+
+            text:text
+
+
+        })
+
+        .catch(err=>console.log(err));
+
+
+        return;
+
+    }
+
+
+
+    // WhatsApp fallback
+
+    let whatsapp =
+    "https://wa.me/?text=" +
+    encodeURIComponent(text);
+
+
+
+    window.open(whatsapp,"_blank");
+
+
+}
 
 
 }
