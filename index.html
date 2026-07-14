@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>meore - Geolocation Pins</title>
-    
-    <!-- ПОДКЛЮЧАЕМ БИБЛИОТЕКУ ДЛЯ РАБОТЫ С EXCEL (SheetJS) -->
-    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
 
@@ -18,12 +15,11 @@
     <button id="save-btn" onclick="saveLocation()">SAVE ✓</button>
     
     <br><br>
-    <!-- НОВЫЕ КНОПКИ ДЛЯ EXCEL -->
-    <button id="export-btn" onclick="exportToExcel()">Save to Excel 📥</button>
+    <!-- ОБНОВЛЕННЫЕ КНОПКИ ДЛЯ CSV -->
+    <button id="export-btn" onclick="exportToCSV()">Save to Excel (CSV) 📥</button>
     
-    <!-- Кнопка Load визуально запускает скрытый выбор файла -->
-    <button id="load-btn" onclick="document.getElementById('file-input').click()">Load from Excel 📤</button>
-    <input type="file" id="file-input" accept=".xlsx, .xls" onchange="importFromExcel(event)" style="display: none;">
+    <button id="load-btn" onclick="document.getElementById('file-input').click()">Load from Excel (CSV) 📤</button>
+    <input type="file" id="file-input" accept=".csv" onchange="importFromCSV(event)" style="display: none;">
 
     <hr>
     <h3>Сохраненные локации:</h3>
