@@ -1,30 +1,136 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>meore - Geolocation Pins</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meore - Geolocation Pins</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width:700px;
+    margin:30px auto;
+    padding:20px;
+}
+
+button{
+    padding:10px 18px;
+    margin:5px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+input{
+    width:100%;
+    max-width:400px;
+    padding:10px;
+    font-size:16px;
+    margin-top:10px;
+}
+
+#coordinates-display{
+    margin:15px 0;
+    padding:10px;
+    background:#f2f2f2;
+    border-radius:6px;
+    font-weight:bold;
+}
+
+#locations-list{
+    margin-top:15px;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    min-height:80px;
+}
+</style>
+
 </head>
 <body>
 
-    <button id="pin-btn" onclick="getLocation()">PIN 🎯</button>
-    <div id="coordinates-display">Координаты еще не получены</div>
+<h2>📍 Meore</h2>
 
-    <br>
-    <input type="text" id="note-input" placeholder="Добавить заметку для локации...">
-    <button id="save-btn" onclick="saveLocation()">SAVE ✓</button>
-    
-    <br><br>
-    <!-- ОБНОВЛЕННЫЕ КНОПКИ ДЛЯ CSV -->
-    <button id="export-btn" onclick="exportToCSV()">Save to Excel (CSV) 📥</button>
-    
-    <button id="load-btn" onclick="document.getElementById('file-input').click()">Load from Excel (CSV) 📤</button>
-    <input type="file" id="file-input" accept=".csv" onchange="importFromCSV(event)" style="display: none;">
+<button id="pin-btn" type="button">PIN 🎯</button>
 
-    <hr>
-    <h3>Сохраненные локации:</h3>
-    <div id="locations-list">Список пуст.</div>
+<div id="coordinates-display">
+Координаты еще не получены
+</div>
 
-    <script src="app.js"></script>
+<input
+type="text"
+id="note-input"
+placeholder="Добавить заметку..."
+autocomplete="off">
+
+<br>
+
+<button id="save-btn" type="button">SAVE ✓</button>
+
+<hr>
+
+<button id="export-btn" type="button">
+Save to Excel (CSV) 📥
+</button>
+
+<button id="load-btn" type="button">
+Load from Excel (CSV) 📤
+</button>
+
+<input
+type="file"
+id="file-input"
+accept=".csv"
+style="display:none;">
+
+<hr>
+
+<h3>Сохраненные локации</h3>
+
+<div id="locations-list">
+Список пуст.
+</div>
+
+<script src="app.js"></script>
+
+<script>
+// Назначаем обработчики после загрузки страницы
+
+document.getElementById("pin-btn").addEventListener("click", () => {
+    if (typeof getLocation === "function") {
+        getLocation();
+    } else {
+        alert("Функция getLocation() не найдена.");
+    }
+});
+
+document.getElementById("save-btn").addEventListener("click", () => {
+    if (typeof saveLocation === "function") {
+        saveLocation();
+    } else {
+        alert("Функция saveLocation() не найдена.");
+    }
+});
+
+document.getElementById("export-btn").addEventListener("click", () => {
+    if (typeof exportToCSV === "function") {
+        exportToCSV();
+    } else {
+        alert("Функция exportToCSV() не найдена.");
+    }
+});
+
+document.getElementById("load-btn").addEventListener("click", () => {
+    document.getElementById("file-input").click();
+});
+
+document.getElementById("file-input").addEventListener("change", (event) => {
+    if (typeof importFromCSV === "function") {
+        importFromCSV(event);
+    } else {
+        alert("Функция importFromCSV() не найдена.");
+    }
+});
+</script>
+
 </body>
 </html>
