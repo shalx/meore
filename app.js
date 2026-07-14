@@ -45,28 +45,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    if(loadBtn && fileInput){
+ if(loadBtn && fileInput){
+
+    loadBtn.onclick = function(){
+
+        fileInput.click();
+
+    };
 
 
-        loadBtn.addEventListener("click",()=>{
+    fileInput.onchange = function(event){
 
+        importFromCSV(event);
 
-            fileInput.value="";
+    };
 
-            fileInput.click();
-
-
-        });
-
-
-
-        fileInput.addEventListener(
-            "change",
-            importFromCSV
-        );
-
-
-    }
+}
 
 
 });
