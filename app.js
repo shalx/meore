@@ -541,11 +541,25 @@ function exportToCSV(){
 function importFromCSV(event){
 
 
-    let file =
-    event.target.files[0];
+    let file = event.target.files[0];
 
 
-    if(!file)return;
+    if(!file){
+
+        alert("No CSV file selected");
+
+        return;
+
+    }
+
+
+    if(!file.name.toLowerCase().endsWith(".csv")){
+
+        alert("Please select CSV file");
+
+        return;
+
+    }
 
 
 
