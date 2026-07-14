@@ -6,8 +6,7 @@
 
 let currentData = null;
 
-let savedLocations =
-JSON.parse(localStorage.getItem("meore_locations")) || [];
+let savedLocations = JSON.parse(localStorage.getItem("meore_locations")) || [];
 
 
 // ================================
@@ -38,66 +37,289 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function getLocation(){
 
-    let display =
-    document.getElementById("coordinates-display");
+    let display = document.getElementById("coordinates-display");
 
-    display.innerText =
-    "Получение GPS...";
-    "Receiving GPS...";
-
+    display.innerText = "Получение GPS...";
 
     navigator.geolocation.getCurrentPosition(
-@@ -58,7 +58,7 @@
 
+    async position => {
 
-        display.innerText =
-        "Получение данных...";
-        "Getting data...";
+        let lat = position.coords.latitude;
+        let lng = position.coords.longitude;
+        let accuracy = position.coords.accuracy;
 
+        display.innerText = "Получение данных...";
 
-        let weather =
-@@ -100,7 +100,7 @@
-    error => {
+        let weather = await getWeather(lat, lng);
+        let address = await getAddress(lat, lng);
 
-        display.innerText =
-        "Ошибка GPS";
-        "GPS error";
+        currentData = {
+            lat: lat,
+            lng: lng,
+            accuracy: accuracy,
+            altitude: weather.altitude,
+            address: address,
+            temperature: weather.temperature,
+            windSpeed: weather.windSpeed,
+            time: new Date().toLocaleString()
+        };
+
+        showData();
 
     },
 
-@@ -300,7 +300,7 @@
+    error => {
+        display.innerText = "Ошибка GPS";
+    },
 
-if(!currentData){
+    {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    }
 
-alert("Сначала нажмите PIN");
-alert("First press PIN");
+    );
 
-return;
-
-@@ -381,7 +381,7 @@
-`
-<div>
-
-<b>${x.note || "Без заметки"}</b><br>
-<b>${x.note || "Without a note"}</b><br>
-
-${x.address || "N/A"}<br>
-
-@@ -463,7 +463,7 @@
-
-if(savedLocations.length===0){
-
-alert("Нет данных");
-alert("No data");
-
-return;
-
-@@ -598,7 +598,7 @@
-renderLocations();
+}
 
 
-alert("CSV загружен");
-alert("CSV uploaded");
+// ================================
+// WEATHER + ALTITUDE
+// ================================
+
+async function getWeather(lat, lng){
+
+    let result = {
+        altitude: "N/A",
+        temperature: "N/A",
+        windSpeed: "N/A"
+    };
+
+    try {
+        // altitude
+        let altURL = `https://open-meteo.com{lat}&longitude=${lng}`;
+        let altResponse = await fetch(altURL);
+        let altData = await altResponse.json();
+        result.altitude = altData.elevation[0];
+
+        // weather
+        let url = `https://open-meteo.com{lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
+        let response = await fetch(url);
+        let data = await response.json();
+        let c = data.current;
+
+        result.temperature = c.temperature_2m;
+        result.windSpeed = c.wind_speed_10m;
+    }
+    catch(e) {
+        console.log(e);
+    }
+
+    return result;
+
+}
 
 
-};
+// ================================
+// ADDRESS
+// ================================
+
+async function getAddress(lat, lng){
+
+    try {
+        let url = `https://openstreetmap.org{lat}&lon=${lng}&zoom=18&accept-language=ru`;
+        let response = await fetch(url);
+        let data = await response.json();
+        return data.display_name || "N/A";
+    }
+    catch(e) {
+        return "N/A";
+    }
+
+}
+
+
+// ================================
+// DISPLAY
+// ================================
+
+function showData(){
+
+    let d = currentData;
+
+    document.getElementById("coordinates-display").innerHTML = `
+    Широта: ${d.lat.toFixed(6)}<br>
+    Долгота: ${d.lng.toFixed(6)}<br>
+    Точность: ${Math.round(d.accuracy)} м<br>
+    Высота: ${d.altitude} м<br>
+    Адрес: ${d.address}<br>
+    Температура: ${d.temperature} °C<br>
+    Ветер: ${d.windSpeed} км/ч<br>
+    Время: ${d.time}
+    `;
+
+}
+
+
+// ================================
+// SAVE
+// ================================
+
+function saveLocation(){
+
+    if(!currentData){
+        alert("Сначала нажмите PIN");
+        return;
+    }
+
+    let note = document.getElementById("note-input").value;
+
+    savedLocations.push({
+        id: Date.now(),
+        note: note,
+        ...currentData
+    });
+
+    localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
+
+    document.getElementById("note-input").value = "";
+
+    renderLocations();
+
+}
+
+
+// ================================
+// LIST
+// ================================
+
+function renderLocations(){
+
+    let box = document.getElementById("locations-list");
+
+    if(savedLocations.length === 0){
+        box.innerHTML = "Список пуст.";
+        return;
+    }
+
+    box.innerHTML = "";
+
+    savedLocations.forEach(x => {
+
+        box.innerHTML += `
+        <div>
+            <b>${x.note || "Без заметки"}</b><br>
+            ${x.address || "N/A"}<br>
+            Lat: ${x.lat}<br>
+            Lng: ${x.lng}<br>
+            Altitude: ${x.altitude} m<br>
+            Temp: ${x.temperature} °C<br>
+            Wind: ${x.windSpeed} km/h<br>
+            ${x.time}<br>
+            
+            <button onclick="goToLocation(${x.lat}, ${x.lng})">КАРТА</button>
+            <button onclick="deleteLocation(${x.id})">DELETE</button>
+            <hr>
+        </div>
+        `;
+
+    });
+
+}
+
+
+function deleteLocation(id){
+
+    savedLocations = savedLocations.filter(x => x.id !== id);
+    localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
+    renderLocations();
+
+}
+
+
+// ================================
+// CSV EXPORT
+// ================================
+
+function safe(v){
+    if(v === undefined || v === null) return "N/A";
+    return v;
+}
+
+
+function exportToCSV(){
+
+    if(savedLocations.length === 0){
+        alert("Нет данных");
+        return;
+    }
+
+    let csv = "Note,Lat,Lng,Accuracy,Altitude,Address,Temperature,Wind,Time\n";
+
+    savedLocations.forEach(x => {
+        csv += `"${safe(x.note)}",${safe(x.lat)},${safe(x.lng)},${safe(x.accuracy)},${safe(x.altitude)},"${safe(x.address)}",${safe(x.temperature)},${safe(x.windSpeed)},"${safe(x.time)}"\n`;
+    });
+
+    let blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "meore_locations.csv";
+    a.click();
+
+}
+
+
+// ================================
+// CSV IMPORT
+// ================================
+
+function importFromCSV(event){
+
+    let file = event.target.files[0];
+    if(!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(e){
+
+        let rows = e.target.result.split("\n");
+        rows.shift();
+
+        rows.forEach(line => {
+            let c = line.split(",");
+            if(c.length < 9) return;
+
+            savedLocations.push({
+                id: Date.now() + Math.random(),
+                note: c[0].replace(/"/g, ""), // очистка от лишних кавычек
+                lat: parseFloat(c[1]),
+                lng: parseFloat(c[2]),
+                accuracy: c[3],
+                altitude: c[4],
+                address: c[5].replace(/"/g, ""),
+                temperature: c[6],
+                windSpeed: c[7],
+                time: c[8].replace(/"/g, "")
+            });
+        });
+
+        localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
+        renderLocations();
+        alert("CSV загружен");
+
+    };
+
+    reader.readAsText(file);
+
+}
+
+
+// ================================
+// MAP NAVIGATION
+// ================================
+
+function goToLocation(lat, lng) {
+    const url = `https://google.com{lat},${lng}`;
+    window.open(url, "_blank");
+}
