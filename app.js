@@ -219,14 +219,8 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Настоящая ссылка, стилизованная под обычную кнопку. Не блокируется браузерами -->
-            <a href="https://google.com{x.lat},${x.lng}" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               style="display: inline-block; padding: 4px 10px; background: #f0f0f0; color: black; text-decoration: none; border: 1px solid #a1a1a1; border-radius: 3px; font-size: 13px; font-family: Arial, sans-serif; margin-right: 5px; cursor: pointer;">
-                MAP
-            </a>
-
+            <!-- Метод навигации без атрибутов тарджета и window.open - гарантирует обход "about:blank#blocked" -->
+            <button onclick="location.assign('https://google.com{x.lat},${x.lng}')">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -284,8 +278,8 @@ function exportToCSV(){
 
 function importFromCSV(event){
 
-    let file = event.target.files[0];
-    if(!file) return;
+    let file = event.target.files;
+    if(!file || file.length === 0) return;
 
     let reader = new FileReader();
 
@@ -298,7 +292,7 @@ function importFromCSV(event){
             let c = line.split(",");
             if(c.length < 9) return;
 
-            // ИСПРАВЛЕНО: Индексы массива [0]-[8] восстановлены корректно
+            // Восстановлен полный функционал импорта данных с индексами массивов
             savedLocations.push({
                 id: Date.now() + Math.random(),
                 note: c[0].replace(/"/g, ""), 
@@ -319,6 +313,6 @@ function importFromCSV(event){
 
     };
 
-    reader.readAsText(file);
+    reader.readAsText(file[0]);
 
 }
