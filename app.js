@@ -42,7 +42,7 @@ function getLocation(){
     document.getElementById("coordinates-display");
 
     display.innerText =
-    "Получение GPS...";
+    "Receiving GPS...";
 
 
     navigator.geolocation.getCurrentPosition(
@@ -58,7 +58,7 @@ function getLocation(){
 
 
         display.innerText =
-        "Получение данных...";
+        "Getting data...";
 
 
         let weather =
@@ -100,7 +100,7 @@ function getLocation(){
     error => {
 
         display.innerText =
-        "Ошибка GPS";
+        "GPS error";
 
     },
 
@@ -300,7 +300,7 @@ function saveLocation(){
 
 if(!currentData){
 
-alert("Сначала нажмите PIN");
+alert("First press PIN");
 
 return;
 
@@ -381,7 +381,7 @@ box.innerHTML +=
 `
 <div>
 
-<b>${x.note || "Без заметки"}</b><br>
+<b>${x.note || "Without a note"}</b><br>
 
 ${x.address || "N/A"}<br>
 
@@ -463,7 +463,7 @@ function exportToCSV(){
 
 if(savedLocations.length===0){
 
-alert("Нет данных");
+alert("No data");
 
 return;
 
@@ -598,7 +598,7 @@ JSON.stringify(savedLocations)
 renderLocations();
 
 
-alert("CSV загружен");
+alert("CSV uploaded");
 
 
 };
