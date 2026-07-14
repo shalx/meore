@@ -39,7 +39,7 @@ function getLocation(){
 
     let display = document.getElementById("coordinates-display");
 
-    display.innerText = "Получение GPS...";
+    display.innerText = "Receiving GPS...";
 
     navigator.geolocation.getCurrentPosition(
 
@@ -49,7 +49,7 @@ function getLocation(){
         let lng = position.coords.longitude;
         let accuracy = position.coords.accuracy;
 
-        display.innerText = "Получение данных...";
+        display.innerText = "Getting data...";
 
         let weather = await getWeather(lat, lng);
         let address = await getAddress(lat, lng);
@@ -70,7 +70,7 @@ function getLocation(){
     },
 
     error => {
-        display.innerText = "Ошибка GPS";
+        display.innerText = "GPS error";
     },
 
     {
@@ -101,7 +101,7 @@ async function getWeather(lat, lng){
         let altURL = `https://open-meteo.com{lat}&longitude=${lng}`;
         let altResponse = await fetch(altURL);
         let altData = await altResponse.json();
-        result.altitude = altData.elevation[0];
+        result.altitude = altData.elevation;
 
         // weather
         let url = `https://open-meteo.com{lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
@@ -128,7 +128,7 @@ async function getWeather(lat, lng){
 async function getAddress(lat, lng){
 
     try {
-        let url = `https://openstreetmap.org{lat}&lon=${lng}&zoom=18&accept-language=ru`;
+        let url = `https://openstreetmap.org{lat}&lon=${lng}&zoom=18&accept-language=en`;
         let response = await fetch(url);
         let data = await response.json();
         return data.display_name || "N/A";
@@ -149,14 +149,14 @@ function showData(){
     let d = currentData;
 
     document.getElementById("coordinates-display").innerHTML = `
-    Широта: ${d.lat.toFixed(6)}<br>
-    Долгота: ${d.lng.toFixed(6)}<br>
-    Точность: ${Math.round(d.accuracy)} м<br>
-    Высота: ${d.altitude} м<br>
-    Адрес: ${d.address}<br>
-    Температура: ${d.temperature} °C<br>
-    Ветер: ${d.windSpeed} км/ч<br>
-    Время: ${d.time}
+    Latitude: ${d.lat.toFixed(6)}<br>
+    Longitude: ${d.lng.toFixed(6)}<br>
+    Accuracy: ${Math.round(d.accuracy)} m<br>
+    Altitude: ${d.altitude} m<br>
+    Address: ${d.address}<br>
+    Temperature: ${d.temperature} °C<br>
+    Wind: ${d.windSpeed} km/h<br>
+    Time: ${d.time}
     `;
 
 }
@@ -169,7 +169,7 @@ function showData(){
 function saveLocation(){
 
     if(!currentData){
-        alert("Сначала нажмите PIN");
+        alert("First press PIN");
         return;
     }
 
@@ -199,7 +199,7 @@ function renderLocations(){
     let box = document.getElementById("locations-list");
 
     if(savedLocations.length === 0){
-        box.innerHTML = "Список пуст.";
+        box.innerHTML = "List is empty.";
         return;
     }
 
@@ -209,7 +209,7 @@ function renderLocations(){
 
         box.innerHTML += `
         <div>
-            <b>${x.note || "Без заметки"}</b><br>
+            <b>${x.note || "Without a note"}</b><br>
             ${x.address || "N/A"}<br>
             Lat: ${x.lat}<br>
             Lng: ${x.lng}<br>
@@ -218,7 +218,7 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <button onclick="goToLocation(${x.lat}, ${x.lng})">КАРТА</button>
+            <button onclick="goToLocation(${x.lat}, ${x.lng})">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -251,7 +251,7 @@ function safe(v){
 function exportToCSV(){
 
     if(savedLocations.length === 0){
-        alert("Нет данных");
+        alert("No data");
         return;
     }
 
@@ -292,7 +292,7 @@ function importFromCSV(event){
 
             savedLocations.push({
                 id: Date.now() + Math.random(),
-                note: c[0].replace(/"/g, ""), // очистка от лишних кавычек
+                note: c[0].replace(/"/g, ""), 
                 lat: parseFloat(c[1]),
                 lng: parseFloat(c[2]),
                 accuracy: c[3],
@@ -306,7 +306,7 @@ function importFromCSV(event){
 
         localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
         renderLocations();
-        alert("CSV загружен");
+        alert("CSV uploaded");
 
     };
 
