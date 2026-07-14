@@ -353,56 +353,19 @@ renderLocations();
 
 function renderLocations(){
 
-    let box = document.getElementById("locations-list");
 
-    if(savedLocations.length===0){
-        box.innerHTML = "Список пуст.";
-        return;
-    }
+let box =
+document.getElementById("locations-list");
 
-    box.innerHTML="";
 
-    savedLocations.forEach(x=>{
+if(savedLocations.length===0){
 
-        box.innerHTML += `
-        <div>
+box.innerHTML =
+"Список пуст.";
 
-        <b>${x.note || "Without a note"}</b><br>
-
-        ${x.address || "N/A"}<br>
-
-        Lat: ${x.lat}<br>
-
-        Lng: ${x.lng}<br>
-
-        Altitude: ${x.altitude} m<br>
-
-        Temp: ${x.temperature} °C<br>
-
-        Wind: ${x.windSpeed} km/h<br>
-
-        ${x.time}
-
-        <br>
-
-        <!-- Кнопка перехода на Google Maps -->
-        <button onclick="goToLocation(${x.lat}, ${x.lng})">
-            ПОКАЗАТЬ НА КАРТЕ
-        </button>
-
-        <button onclick="deleteLocation(${x.id})">
-            DELETE
-        </button>
-
-        <hr>
-
-        </div>
-        `;
-
-    });
+return;
 
 }
-
 
 
 
