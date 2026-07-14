@@ -97,16 +97,14 @@ async function getWeather(lat, lng){
     };
 
     try {
-        // ИСПРАВЛЕНО: получаем высоту правильно из API
         let altURL = `https://open-meteo.com{lat}&longitude=${lng}`;
         let altResponse = await fetch(altURL);
         let altData = await altResponse.json();
         
         if (altData && altData.elevation) {
-            result.altitude = altData.elevation[0]; // Берем первый элемент из массива данных
+            result.altitude = altData.elevation[0]; 
         }
 
-        // weather
         let url = `https://open-meteo.com{lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
         let response = await fetch(url);
         let data = await response.json();
@@ -210,9 +208,6 @@ function renderLocations(){
 
     savedLocations.forEach(x => {
 
-        // Формируем чистую ссылку для Google Maps
-        let mapUrl = `https://google.com{x.lat},${x.lng}`;
-
         box.innerHTML += `
         <div>
             <b>${x.note || "Without a note"}</b><br>
@@ -224,8 +219,8 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Кнопка-ссылка без JS-кликов, работает везде без блокировок -->
-            <button onclick="window.open('${mapUrl}', '_blank')">MAP</button>
+            <!-- Отрабатывает везде: на мобилках сразу редиректит в приложение Карт, на ПК открывает в текущей вкладке без блокировок -->
+            <button onclick="window.location.href='https://google.com{x.lat},${x.lng}'">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -297,6 +292,7 @@ function importFromCSV(event){
             let c = line.split(",");
             if(c.length < 9) return;
 
+            // Полностью восстановлены правильные индексы массива данных
             savedLocations.push({
                 id: Date.now() + Math.random(),
                 note: c[0].replace(/"/g, ""), 
