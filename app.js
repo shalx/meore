@@ -706,3 +706,8 @@ https://www.google.com/maps?q=${lat},${lng}`;
 
 
 }
+function openTracker(){
+
+    window.location.href="tracker.html";
+
+}
