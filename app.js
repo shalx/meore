@@ -3,10 +3,8 @@ let currentLatitude = null;
 let currentLongitude = null;
 let currentAltitude = null;
 
-// Загружаем данные из памяти браузера (localStorage) или создаем пустой массив [1]
 let savedLocations = JSON.parse(localStorage.getItem('meore_locations')) || [];
 
-// Отрисовываем сохраненные точки при старте страницы
 document.addEventListener("DOMContentLoaded", renderLocations);
 
 // === 1. ГЕОЛОКАЦИЯ ===
@@ -50,17 +48,19 @@ function saveLocation() {
   const noteInput = document.getElementById('note-input');
   const noteText = noteInput.value.trim() || "Без названия";
 
+  // Убираем точки с запятой из текста заметки, чтобы не ломать CSV структуру
+  const safeNote = noteText.replace(/;/g, ' ');
+
   const newLocation = {
     id: Date.now(),
     lat: currentLatitude,
     lng: currentLongitude,
     alt: currentAltitude !== null ? `${currentAltitude.toFixed(1)} м` : "не определена",
-    note: noteText,
+    note: safeNote,
     time: new Date().toLocaleString()
   };
 
   savedLocations.push(newLocation);
-  // Сохраняем в localStorage [1]
   localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
   
   renderLocations();
@@ -96,75 +96,86 @@ function deleteLocation(id) {
   renderLocations();
 }
 
-// === 3. ЭКСПОРТ В EXCEL (СКАЧИВАНИЕ ФАЙЛА) ===
-function exportToExcel() {
+// === 3. ЭКСПОРТ В CSV (ЧИСТЫЙ JS БЕЗ БИБЛИОТЕК) ===
+function exportToCSV() {
   if (savedLocations.length === 0) {
-    alert("Нет данных для сохранения в Excel!");
+    alert("Нет данных для сохранения!");
     return;
   }
 
-  // Форматируем данные в красивую таблицу для Excel [1]
-  const excelData = savedLocations.map(loc => ({
-    "Заметка (Note)": loc.note,
-    "Широта (Latitude)": loc.lat,
-    "Долгота (Longitude)": loc.lng,
-    "Высота (Altitude)": loc.alt,
-    "Дата и время": loc.time
-  }));
+  // Создаем заголовки колонок таблицы (разделяем точкой с запятой — стандарт для Excel)
+  let csvContent = "Заметка;Широта;Долгота;Высота;Дата и время\r\n";
 
-  // Создаем рабочую книгу Excel при помощи библиотеки SheetJS [1]
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Locations");
+  // Заполняем строками
+  savedLocations.forEach(loc => {
+    csvContent += `${loc.note};${loc.lat};${loc.lng};${loc.alt};${loc.time}\r\n`;
+  });
 
-  // Скачиваем готовый файл на компьютер или телефон [1]
-  XLSX.writeFile(workbook, "meore_locations.xlsx");
+  // Добавляем BOM маркер (EF BB BF) в начало файла, чтобы Excel сразу понимал русский язык и UTF-8
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: "text/csv;charset=utf-8;" });
+  
+  // Создаем невидимую временную ссылку для скачивания файла
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", "meore_locations.csv");
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click(); // Симулируем клик пользователя для старта скачивания
+  document.body.removeChild(link);
 }
 
-// === 4. ИМПОРТ ИЗ EXCEL (КНОПКА LOAD) ===
-function importFromExcel(event) {
+// === 4. ИМПОРТ ИЗ CSV (КНОПКА LOAD) ===
+function importFromCSV(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
+    const text = e.target.result;
     
-    // Читаем первую вкладку Excel-файла [1]
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    
-    // Превращаем строки Excel обратно в массив объектов JavaScript [1]
-    const importedRows = XLSX.utils.sheet_to_json(worksheet);
-
-    if (importedRows.length === 0) {
-      alert("Выбранный файл пуст или имеет неверный формат.");
+    // Разбиваем текст файла на строчки
+    const lines = text.split(/\r?\n/);
+    if (lines.length <= 1) {
+      alert("Файл пуст.");
       return;
     }
 
-    // Преобразуем формат Excel обратно в структуру нашего приложения [1]
-    const newLocations = importedRows.map((row, index) => ({
-      id: Date.now() + index, // генерируем новый уникальный ID [1]
-      lat: row["Широта (Latitude)"] || 0,
-      lng: row["Долгота (Longitude)"] || 0,
-      alt: row["Высота (Altitude)"] || "не определена",
-      note: row["Заметка (Note)"] || "Импортировано",
-      time: row["Дата и время"] || new Date().toLocaleString()
-    }));
+    const newLocations = [];
 
-    // Объединяем старые локации с новыми из файла [1]
+    // Читаем со второй строчки (первая — это заголовки)
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue; // пропускаем пустые строки
+
+      // Разделяем ячейки по точке с запятой
+      const columns = lines[i].split(';');
+      
+      if (columns.length >= 4) {
+        newLocations.push({
+          id: Date.now() + i,
+          note: columns[0] || "Импортировано",
+          lat: parseFloat(columns[1]) || 0,
+          lng: parseFloat(columns[2]) || 0,
+          alt: columns[3] || "не определена",
+          time: columns[4] || new Date().toLocaleString()
+        });
+      }
+    }
+
+    if (newLocations.length === 0) {
+      alert("Не удалось распознать формат данных в файле.");
+      return;
+    }
+
+    // Объединяем старые точки с новыми из файла
     savedLocations = savedLocations.concat(newLocations);
-    
-    // Сохраняем объединенный результат в localStorage и обновляем экран [1]
     localStorage.setItem('meore_locations', JSON.stringify(savedLocations));
     renderLocations();
 
-    alert(`Успешно импортировано точек: ${newLocations.length}`);
-    
-    // Сбрасываем поле выбора файла, чтобы можно было загрузить его повторно
-    event.target.value = "";
+    alert(`Успешно импортировано локаций: ${newLocations.length}`);
+    event.target.value = ""; // Сбрасываем выбор файла
   };
-  
-  reader.readAsArrayBuffer(file);
+
+  reader.readAsText(file, "UTF-8");
 }
