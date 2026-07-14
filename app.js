@@ -101,7 +101,7 @@ async function getWeather(lat, lng){
         let altResponse = await fetch(altURL);
         let altData = await altResponse.json();
         
-        if (altData && altData.elevation) {
+        if (altData && altData.elevation && altData.elevation.length > 0) {
             result.altitude = altData.elevation[0]; 
         }
 
@@ -219,8 +219,14 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Отрабатывает везде: на мобилках сразу редиректит в приложение Карт, на ПК открывает в текущей вкладке без блокировок -->
-            <button onclick="window.location.href='https://google.com{x.lat},${x.lng}'">MAP</button>
+            <!-- Настоящая ссылка, стилизованная под обычную кнопку. Не блокируется браузерами -->
+            <a href="https://google.com{x.lat},${x.lng}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               style="display: inline-block; padding: 4px 10px; background: #f0f0f0; color: black; text-decoration: none; border: 1px solid #a1a1a1; border-radius: 3px; font-size: 13px; font-family: Arial, sans-serif; margin-right: 5px; cursor: pointer;">
+                MAP
+            </a>
+
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -292,7 +298,7 @@ function importFromCSV(event){
             let c = line.split(",");
             if(c.length < 9) return;
 
-            // Полностью восстановлены правильные индексы массива данных
+            // ИСПРАВЛЕНО: Индексы массива [0]-[8] восстановлены корректно
             savedLocations.push({
                 id: Date.now() + Math.random(),
                 note: c[0].replace(/"/g, ""), 
