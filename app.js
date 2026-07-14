@@ -608,3 +608,10 @@ reader.readAsText(file);
 
 
 }
+function goToLocation(lat, lng) {
+
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
+
+    window.open(url, "_blank");
+
+}
