@@ -97,13 +97,11 @@ async function getWeather(lat, lng){
     };
 
     try {
-        // altitude
         let altURL = `https://open-meteo.com{lat}&longitude=${lng}`;
         let altResponse = await fetch(altURL);
         let altData = await altResponse.json();
         result.altitude = altData.elevation;
 
-        // weather
         let url = `https://open-meteo.com{lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m`;
         let response = await fetch(url);
         let data = await response.json();
@@ -190,9 +188,9 @@ function saveLocation(){
 }
 
 
-// =====================================
+// ================================
 // LIST
-// =====================================
+// ================================
 
 function renderLocations(){
 
@@ -218,11 +216,8 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Стандартная кнопка. Клик по ней перенаправляет на карту без риска блокировки окон -->
-            <button onclick="window.location.href='https://google.com{x.lat},${x.lng}'">
-                MAP
-            </button>
-
+            <!-- Передаем чистые числа без лишних кавычек. Браузер выполнит переход без сбоев -->
+            <button onclick="goToLocation(${x.lat}, ${x.lng})">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -233,17 +228,12 @@ function renderLocations(){
 }
 
 
+function deleteLocation(id){
 
-// =====================================
-// MAP NAVIGATION (Добавьте в самый конец файла)
-// =====================================
+    savedLocations = savedLocations.filter(x => x.id !== id);
+    localStorage.setItem("meore_locations", JSON.stringify(savedLocations));
+    renderLocations();
 
-function goToLocation(lat, lng) {
-    // Формируем чистый URL с параметрами центра (ll) и маркера (q)
-    const url = `https://google.com{lat},${lng}&q=${lat},${lng}`;
-    
-    // Безопасное открытие новой вкладки, разрешенное браузерами
-    window.open(url, "_blank");
 }
 
 
@@ -324,4 +314,12 @@ function importFromCSV(event){
 }
 
 
+// ================================
+// UNIVERSAL MAP NAVIGATION
+// ================================
 
+function goToLocation(lat, lng) {
+    // Этот кроссплатформенный URL-шаблон принудительно открывает приложение "Карты" на iOS/Android 
+    // или сайт в браузере на ПК, не вызывая ошибок блокировки окон
+    window.location.href = `https://google.com{lat},${lng}`;
+}
