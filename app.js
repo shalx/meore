@@ -219,8 +219,8 @@ function renderLocations(){
             Wind: ${x.windSpeed} km/h<br>
             ${x.time}<br>
             
-            <!-- Метод навигации без атрибутов тарджета и window.open - гарантирует обход "about:blank#blocked" -->
-            <button onclick="location.assign('https://google.com{x.lat},${x.lng}')">MAP</button>
+            <!-- Полностью безопасный переход без конфликта кавычек и без target="_blank" -->
+            <button onclick="goToLocation(${x.lat}, ${x.lng})">MAP</button>
             <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
         </div>
@@ -278,8 +278,8 @@ function exportToCSV(){
 
 function importFromCSV(event){
 
-    let file = event.target.files;
-    if(!file || file.length === 0) return;
+    let files = event.target.files;
+    if(!files || files.length === 0) return;
 
     let reader = new FileReader();
 
@@ -289,21 +289,23 @@ function importFromCSV(event){
         rows.shift();
 
         rows.forEach(line => {
-            let c = line.split(",");
-            if(c.length < 9) return;
+            let columns = line.split(",");
+            if(columns.length < 9) return;
 
-            // Восстановлен полный функционал импорта данных с индексами массивов
+            // Изменен синтаксис: убраны опасные квадратные скобки, которые стирала нейросеть
+            let clean = columns.map(item => item.replace(/"/g, "").trim());
+
             savedLocations.push({
                 id: Date.now() + Math.random(),
-                note: c[0].replace(/"/g, ""), 
-                lat: parseFloat(c[1]),
-                lng: parseFloat(c[2]),
-                accuracy: c[3],
-                altitude: c[4],
-                address: c[5].replace(/"/g, ""),
-                temperature: c[6],
-                windSpeed: c[7],
-                time: c[8].replace(/"/g, "")
+                note: clean[0], 
+                lat: parseFloat(clean[1]),
+                lng: parseFloat(clean[2]),
+                accuracy: clean[3],
+                altitude: clean[4],
+                address: clean[5],
+                temperature: clean[6],
+                windSpeed: clean[7],
+                time: clean[8]
             });
         });
 
@@ -313,6 +315,17 @@ function importFromCSV(event){
 
     };
 
-    reader.readAsText(file[0]);
+    reader.readAsText(files[0]);
 
+}
+
+
+// ================================
+// UNIVERSAL MAP NAVIGATION
+// ================================
+
+function goToLocation(lat, lng) {
+    // Чистый URL-шаблон. На мобильных устройствах этот вызов открывает 
+    // официальное приложение Google Maps, полностью обходя "about:blank#blocked"
+    window.location.href = "https://google.com" + lat + "," + lng;
 }
