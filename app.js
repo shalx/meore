@@ -203,33 +203,38 @@ function renderLocations(){
         return;
     }
 
-    box.innerHTML = "<ul></ul>";
-    let ul = box.querySelector("ul");
+    box.innerHTML = "";
 
     savedLocations.forEach(x => {
 
-        let linkText = x.note || x.address || `${x.lat}, ${x.lng}`;
-
-        ul.innerHTML += `
-        <li>
-            <!-- Используем onclick вместо href для обхода блокировки браузера -->
-            <a href="javascript:void(0)" onclick="goToLocation(${x.lat}, ${x.lng})">
-                ${linkText}
+        box.innerHTML += `
+        <div>
+            <b>${x.note || "Without a note"}</b><br>
+            ${x.address || "N/A"}<br>
+            Lat: ${x.lat}<br>
+            Lng: ${x.lng}<br>
+            Altitude: ${x.altitude} m<br>
+            Temp: ${x.temperature} °C<br>
+            Wind: ${x.windSpeed} km/h<br>
+            ${x.time}<br>
+            
+            <!-- Настоящая ссылка, оформленная как кнопка. Работает везде! -->
+            <a href="https://google.com{x.lat},${x.lng}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               style="display: inline-block; padding: 5px 10px; background: #e1e1e1; color: black; text-decoration: none; border: 1px solid #adadad; border-radius: 3px; font-family: sans-serif; font-size: 13px; margin-right: 5px;">
+               MAP
             </a>
-            <br>
-            <small>
-                Lat: ${x.lat} | Lng: ${x.lng} | Alt: ${x.altitude} m<br>
-                Temp: ${x.temperature} °C | Wind: ${x.windSpeed} km/h | ${x.time}
-            </small>
-            <br>
-            <button onclick="deleteLocation(${x.id})" style="margin-top: 5px; font-size: 11px;">DELETE</button>
+
+            <button onclick="deleteLocation(${x.id})">DELETE</button>
             <hr>
-        </li>
+        </div>
         `;
 
     });
 
 }
+
 
 // =====================================
 // MAP NAVIGATION (Добавьте в самый конец файла)
@@ -321,11 +326,4 @@ function importFromCSV(event){
 }
 
 
-// ================================
-// MAP NAVIGATION
-// ================================
 
-function goToLocation(lat, lng) {
-    const url = `https://google.com{lat},${lng}`;
-    window.open(url, "_blank");
-}
