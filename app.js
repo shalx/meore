@@ -22,23 +22,45 @@ function getLocation() {
 
 function successCallback(position) {
   const display = document.getElementById('coordinates-display');
+  
   currentLatitude = position.coords.latitude;
   currentLongitude = position.coords.longitude;
-  currentAltitude = position.coords.altitude;
-  let altitudeText = currentAltitude !== null ? `${currentAltitude.toFixed(1)} м` : "не определена";
-
+  
   display.innerHTML = `
     <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
     <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
-    <strong>Высота над уровнем моря:</strong> ${altitudeText}
+    <strong>Высота над уровнем моря:</strong> Запрашиваю 3D-модель Земли...
   `;
+
+  // Отправляем запрос к цифровой модели рельефа Земли
+  fetch(`https://open-elevation.com{currentLatitude},${currentLongitude}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.results && data.results[0]) {
+        // Получаем точную высоту из спутниковой модели рельефа
+        currentAltitude = data.results[0].elevation;
+        
+        display.innerHTML = `
+          <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
+          <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
+          <strong>Высота над уровнем моря:</strong> ${currentAltitude.toFixed(1)} м (из модели Земли 🌍)
+        `;
+      }
+    })
+    .catch(error => {
+      console.error("Ошибка запроса к модели рельефа:", error);
+      display.innerHTML = `
+        <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
+        <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
+        <strong>Высота над уровнем моря:</strong> не удалось загрузить модель рельефа
+      `;
+    });
 }
 
 function errorCallback(error) {
-  document.getElementById('coordinates-display').innerText = "Ошибка получения геопозиции.";
+  document.getElementById('coordinates-display').innerText = "Сигнал GPS отсутствует или доступ заблокирован.";
 }
 
-// === 2. ЛОКАЛЬНОЕ СОХРАНЕНИЕ ===
 function saveLocation() {
   if (currentLatitude === null || currentLongitude === null) {
     alert("Сначала нажмите кнопку PIN!");
