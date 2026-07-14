@@ -26,11 +26,36 @@ function successCallback(position) {
   currentLatitude = position.coords.latitude;
   currentLongitude = position.coords.longitude;
   
+  // Если у устройства сработал свой GPS датчик, сразу берем его цифру, иначе ставим 0
+  currentAltitude = position.coords.altitude !== null ? position.coords.altitude : 0;
+  
+  // Выводим только цифры
   display.innerHTML = `
     <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
     <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
-    <strong>Высота над уровнем моря:</strong> Запрашиваю 3D-модель Земли...
+    <strong>Высота над уровнем моря:</strong> ${currentAltitude.toFixed(1)} м
   `;
+
+  // Фоновое обновление цифры из 3D-модели (без вывода ошибок на экран)
+  fetch(`https://open-elevation.com{currentLatitude},${currentLongitude}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.results && data.results[0]) {
+        currentAltitude = data.results[0].elevation;
+        
+        // Обновляем только цифру, когда пришел ответ
+        display.innerHTML = `
+          <strong>Широта (Latitude):</strong> ${currentLatitude}<br>
+          <strong>Долгота (Longitude):</strong> ${currentLongitude}<br>
+          <strong>Высота над уровнем моря:</strong> ${currentAltitude.toFixed(1)} м
+        `;
+      }
+    })
+    .catch(() => {
+      // В случае ошибки сети или сервера мы просто ничего не пишем. На экране остаются чистые цифры.
+    });
+}
+
 
   // Отправляем запрос к цифровой модели рельефа Земли
   fetch(`https://open-elevation.com{currentLatitude},${currentLongitude}`)
