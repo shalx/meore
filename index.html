@@ -1,51 +1,72 @@
-```html
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <title>Meore v2 PRO</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Meore v3</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-    <h1>Meore v2 PRO</h1>
+<h1>Meore v3</h1>
 
-    <button id="pin-btn" type="button">
-        PIN
-    </button>
+<div class="buttons">
 
-    <button id="tracker-btn" type="button">
-        TRACKER MODE
-    </button>
+<button id="pin-btn">
+PIN
+</button>
 
-    <pre id="coordinates-display">Coordinates are not yet received</pre>
+<button id="tracker-btn">
+TRACKER
+</button>
 
-    <input
-        id="note-input"
-        type="text"
-        placeholder="Note"
-    >
+</div>
 
-    <button id="save-btn" type="button">
-        SAVE
-    </button>
 
-    <hr>
+<pre id="coordinates-display">
 
-    <h2>Saved points</h2>
+Press PIN
 
-    <div id="locations-list">
-        The list is empty.
-    </div>
+</pre>
 
-    <script src="app.js?v=100"></script>
+
+<input
+id="note-input"
+type="text"
+placeholder="Note...">
+
+
+<div class="buttons">
+
+<button id="save-btn">
+SAVE
+</button>
+
+</div>
+
+
+<hr>
+
+
+<h2>Saved points</h2>
+
+<div id="locations-list">
+
+No saved points.
+
+</div>
+
+
+<script src="app.js"></script>
 
 </body>
+
 </html>
-```
