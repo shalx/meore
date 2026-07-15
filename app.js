@@ -160,7 +160,12 @@ function renderLocations() {
 Lat: ${location.lat.toFixed(6)}
 Lng: ${location.lng.toFixed(6)}
 Accuracy: ${location.accuracy} m
-Altitude: ${location.altitude ?? "N/A"}
+Altitude: ${
+    location.altitude !== null &&
+    location.altitude !== undefined
+        ? Math.round(location.altitude) + " m"
+        : "Not available"
+}
 ${location.time}
 </pre>
 
