@@ -1,817 +1,569 @@
+```javascript
 // =====================================
 // MEORE v2.1 PRO
 // GPS + Altitude + Address + Weather
-// Simple version
 // =====================================
 
+const STORAGE_KEY = "meore_locations";
+
 let currentData = null;
+let savedLocations = loadLocations();
 
-let savedLocations =
-JSON.parse(localStorage.getItem("meore_locations")) || [];
+document.addEventListener("DOMContentLoaded", init);
 
 
-// ================================
-// START
-// ================================
+// =====================================
+// INITIALIZATION
+// =====================================
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
+    document
+        .getElementById("pin-btn")
+        ?.addEventListener("click", getLocation);
 
+    document
+        .getElementById("save-btn")
+        ?.addEventListener("click", saveLocation);
+
+    document
+        .getElementById("tracker-btn")
+        ?.addEventListener("click", openTracker);
+
+    document
+        .getElementById("locations-list")
+        ?.addEventListener("click", handleLocationAction);
 
     renderLocations();
-
-
-    let pinBtn = document.getElementById("pin-btn");
-    if(pinBtn)
-        pinBtn.onclick = getLocation;
-
-
-    let saveBtn = document.getElementById("save-btn");
-    if(saveBtn)
-        saveBtn.onclick = saveLocation;
-
-
-    let exportBtn = document.getElementById("export-btn");
-    if(exportBtn)
-        exportBtn.onclick = exportToCSV;
-
-
-
-    let loadBtn =
-    document.getElementById("load-btn");
-
-
-    let fileInput =
-    document.getElementById("file-input");
-
-
-
- if(loadBtn && fileInput){
-
-    loadBtn.onclick = function(){
-
-        fileInput.click();
-
-    };
-
-
-    fileInput.onchange = function(event){
-
-        importFromCSV(event);
-
-    };
-
 }
 
 
-});
+// =====================================
+// LOCAL STORAGE
+// =====================================
+
+function loadLocations() {
+    try {
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error("Cannot read saved locations:", error);
+        return [];
+    }
+}
 
 
+function saveLocations() {
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(savedLocations)
+        );
+    } catch (error) {
+        console.error("Cannot save locations:", error);
+        alert("Unable to save data on this device.");
+    }
+}
 
-// ================================
+
+// =====================================
 // GPS
-// ================================
+// =====================================
 
-function getLocation(){
+function getLocation() {
+    const display = document.getElementById(
+        "coordinates-display"
+    );
 
-
-    let display =
-    document.getElementById("coordinates-display");
-
-
-    display.innerHTML =
-    "Receiving GPS...";
-
-
-
-    if(!navigator.geolocation){
-
-
-        display.innerHTML =
-        "GPS not supported";
-
+    if (!display) {
         return;
-
     }
 
+    if (!navigator.geolocation) {
+        display.textContent = "GPS is not supported.";
+        return;
+    }
 
+    currentData = null;
+    display.textContent = "Receiving GPS...";
 
     navigator.geolocation.getCurrentPosition(
-
-
-    async position=>{
-
-
-        let lat =
-        position.coords.latitude;
-
-
-        let lng =
-        position.coords.longitude;
-
-
-        let accuracy =
-        position.coords.accuracy;
-
-
-
-        display.innerHTML =
-        "Getting data...";
-
-
-
-        let weather =
-        await getWeather(lat,lng);
-
-
-
-        let address =
-        await getAddress(lat,lng);
-
-
-
-        currentData = {
-
-
-            lat:lat,
-
-            lng:lng,
-
-            accuracy:accuracy,
-
-            altitude:weather.altitude,
-
-            address:address,
-
-            temperature:weather.temperature,
-
-            windSpeed:weather.windSpeed,
-
-            time:new Date().toLocaleString()
-
-
-        };
-
-
-
-        showData();
-
-
-
-    },
-
-
-    error=>{
-
-
-        display.innerHTML =
-        "GPS Error: " + error.message;
-
-
-    },
-
-
-    {
-
-
-        enableHighAccuracy:true,
-
-        timeout:15000,
-
-        maximumAge:0
-
-
-    }
-
-
+        handleLocationSuccess,
+        handleLocationError,
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
     );
-
-
 }
 
 
+async function handleLocationSuccess(position) {
+    const display = document.getElementById(
+        "coordinates-display"
+    );
 
-// ================================
-// WEATHER + ALTITUDE
-// ================================
+    const {
+        latitude: lat,
+        longitude: lng,
+        accuracy,
+        altitude: deviceAltitude
+    } = position.coords;
 
-async function getWeather(lat,lng){
+    if (display) {
+        display.textContent = "Getting additional data...";
+    }
 
+    const [weather, address] = await Promise.all([
+        getWeather(lat, lng),
+        getAddress(lat, lng)
+    ]);
 
-    let result={
-
-
-        altitude:"N/A",
-
-        temperature:"N/A",
-
-        windSpeed:"N/A"
-
-
+    currentData = {
+        lat,
+        lng,
+        accuracy,
+        altitude:
+            deviceAltitude !== null
+                ? Math.round(deviceAltitude)
+                : weather.altitude,
+        address,
+        temperature: weather.temperature,
+        windSpeed: weather.windSpeed,
+        time: new Date().toLocaleString()
     };
 
-
-
-    try{
-
-
-        let url =
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m&timezone=auto`;
-
-
-
-        let response =
-        await fetch(url);
-
-
-
-        let data =
-        await response.json();
-
-
-
-        if(data.elevation){
-
-
-            result.altitude =
-            Math.round(data.elevation);
-
-
-        }
-
-
-
-        if(data.current){
-
-
-            result.temperature =
-            data.current.temperature_2m;
-
-
-
-            result.windSpeed =
-            data.current.wind_speed_10m;
-
-
-        }
-
-
-
-    }
-
-
-    catch(e){
-
-        console.log(e);
-
-    }
-
-
-
-    return result;
-
-
+    showData();
 }
 
 
-
-// ================================
-// ADDRESS
-// ================================
-
-async function getAddress(lat,lng){
-
-
-    try{
-
-
-        let url =
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`;
-
-
-
-        let response =
-        await fetch(url);
-
-
-
-        let data =
-        await response.json();
-
-
-
-        return data.display_name || "N/A";
-
-
-    }
-
-
-    catch(e){
-
-
-        return "N/A";
-
-
-    }
-
-
-}
-// ================================
-// DISPLAY
-// ================================
-
-function showData(){
-
-    let d = currentData;
-
-
-    document.getElementById("coordinates-display").innerHTML = `
-
-    Latitude: ${d.lat.toFixed(6)}<br>
-
-    Longitude: ${d.lng.toFixed(6)}<br>
-
-    Accuracy: ${Math.round(d.accuracy)} m<br>
-
-    Altitude: ${d.altitude} m<br>
-
-    Address: ${d.address}<br>
-
-    Temperature: ${d.temperature} °C<br>
-
-    Wind: ${d.windSpeed} km/h<br>
-
-    Time: ${d.time}
-
-    `;
-
-}
-
-
-
-// ================================
-// SAVE
-// ================================
-
-function saveLocation(){
-
-
-    if(!currentData){
-
-        alert("First press PIN");
-
-        return;
-
-    }
-
-
-
-    let note =
-    document.getElementById("note-input").value;
-
-
-
-    savedLocations.push({
-
-
-        id:Date.now(),
-
-        note:note,
-
-        ...currentData
-
-
-    });
-
-
-
-    localStorage.setItem(
-
-        "meore_locations",
-
-        JSON.stringify(savedLocations)
-
+function handleLocationError(error) {
+    const display = document.getElementById(
+        "coordinates-display"
     );
 
-
-
-    document.getElementById("note-input").value="";
-
-
-    renderLocations();
-
-
-}
-
-
-
-// ================================
-// LIST
-// ================================
-
-function renderLocations(){
-
-
-    let box =
-    document.getElementById("locations-list");
-
-
-    if(!box)return;
-
-
-
-    if(savedLocations.length===0){
-
-
-        box.innerHTML =
-        "List is empty.";
-
+    if (!display) {
         return;
-
-
     }
 
+    const messages = {
+        1: "Location permission denied.",
+        2: "Location is unavailable.",
+        3: "GPS request timed out."
+    };
 
-
-    box.innerHTML="";
-
-
-
-    savedLocations.forEach(x=>{
-
-
-        box.innerHTML += `
-
-
-        <div>
-
-
-        <b>${x.note || "Without note"}</b><br>
-
-
-        ${x.address || "N/A"}<br>
-
-
-        Lat: ${x.lat}<br>
-
-        Lng: ${x.lng}<br>
-
-        Accuracy: ${x.accuracy} m<br>
-
-        Altitude: ${x.altitude} m<br>
-
-        Temp: ${x.temperature} °C<br>
-
-        Wind: ${x.windSpeed} km/h<br>
-
-        ${x.time}<br><br>
-
-
-
-        <button onclick="goToLocation(${x.lat},${x.lng})">
-
-        MAP
-
-        </button>
-
-
-
-        <button onclick="shareLocation(${x.lat},${x.lng},'${x.note || ""}')">
-
-        SHARE
-
-        </button>
-
-
-
-        <button onclick="deleteLocation(${x.id})">
-
-        DELETE
-
-        </button>
-
-
-
-        <hr>
-
-
-        </div>
-
-
-        `;
-
-
-    });
-
-
+    display.textContent =
+        messages[error.code] || `GPS error: ${error.message}`;
 }
 
 
-
-// ================================
-// DELETE
-// ================================
-
-function deleteLocation(id){
-
-
-    savedLocations =
-    savedLocations.filter(x=>x.id!==id);
-
-
-
-    localStorage.setItem(
-
-        "meore_locations",
-
-        JSON.stringify(savedLocations)
-
-    );
-
-
-
-    renderLocations();
-
-
-}
-
-
-
-// ================================
-// CSV EXPORT
-// ================================
-
-function safe(v){
-
-    if(v===undefined || v===null)
-
-        return "N/A";
-
-
-    return v;
-
-}
-
-
-
-function exportToCSV(){
-
-
-    if(savedLocations.length===0){
-
-        alert("No data");
-
-        return;
-
-    }
-
-
-
-    let csv =
-`Note,Lat,Lng,Accuracy,Altitude,Address,Temperature,Wind,Time\n`;
-
-
-
-    savedLocations.forEach(x=>{
-
-
-        csv +=
-`"${safe(x.note)}",${safe(x.lat)},${safe(x.lng)},${safe(x.accuracy)},${safe(x.altitude)},"${safe(x.address)}",${safe(x.temperature)},${safe(x.windSpeed)},"${safe(x.time)}"\n`;
-
-
-    });
-
-
-
-    let blob =
-    new Blob([csv],
-    {type:"text/csv;charset=utf-8"});
-
-
-
-    let a =
-    document.createElement("a");
-
-
-
-    a.href =
-    URL.createObjectURL(blob);
-
-
-
-    a.download =
-    "meore_locations.csv";
-
-
-
-    a.click();
-
-
-}
-
-
-
-// ================================
-// CSV IMPORT
-// ================================
-
-function importFromCSV(event){
-
-
-    let file =
-    event.target.files[0];
-
-
-
-    if(!file){
-
-        alert("No CSV file selected");
-
-        return;
-
-    }
-
-
-
-    let reader =
-    new FileReader();
-
-
-
-    reader.onload=function(e){
-
-
-        let lines =
-        e.target.result.split(/\r?\n/);
-
-
-
-        lines.shift();
-
-
-
-        lines.forEach(line=>{
-
-
-            if(!line.trim()) return;
-
-
-
-            let c =
-            line.split(",");
-
-
-
-            if(c.length < 9) return;
-
-
-
-            savedLocations.push({
-
-
-                id:Date.now()+Math.random(),
-
-
-                note:c[0].replace(/"/g,""),
-
-
-                lat:parseFloat(c[1]),
-
-
-                lng:parseFloat(c[2]),
-
-
-                accuracy:c[3],
-
-
-                altitude:c[4],
-
-
-                address:c[5].replace(/"/g,""),
-
-
-                temperature:c[6],
-
-
-                windSpeed:c[7],
-
-
-                time:c[8].replace(/"/g,"")
-
-
-            });
-
-
+// =====================================
+// WEATHER + ALTITUDE
+// =====================================
+
+async function getWeather(lat, lng) {
+    const result = {
+        altitude: "N/A",
+        temperature: "N/A",
+        windSpeed: "N/A"
+    };
+
+    try {
+        const params = new URLSearchParams({
+            latitude: lat,
+            longitude: lng,
+            current: "temperature_2m,wind_speed_10m",
+            timezone: "auto"
         });
 
-
-
-        localStorage.setItem(
-
-            "meore_locations",
-
-            JSON.stringify(savedLocations)
-
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?${params}`
         );
 
+        if (!response.ok) {
+            throw new Error(`Weather HTTP ${response.status}`);
+        }
 
+        const data = await response.json();
 
-        renderLocations();
+        if (Number.isFinite(data.elevation)) {
+            result.altitude = Math.round(data.elevation);
+        }
 
+        if (data.current) {
+            if (Number.isFinite(data.current.temperature_2m)) {
+                result.temperature =
+                    data.current.temperature_2m;
+            }
 
-        alert("CSV uploaded");
-
-
-    };
-
-
-
-    reader.readAsText(file);
-
-
-}
-
-
-
-// ================================
-// GOOGLE MAPS
-// ================================
-
-function goToLocation(lat,lng){
-
-
-    let url =
-    `https://www.google.com/maps?q=${lat},${lng}`;
-
-
-    window.location.href=url;
-
-
-}
-
-
-
-// ================================
-// SHARE
-// ================================
-
-function shareLocation(lat,lng,note){
-
-
-    let text =
-`MEORE GPS Location
-
-${note || ""}
-
-Latitude:
-${lat}
-
-Longitude:
-${lng}
-
-Google Maps:
-https://www.google.com/maps?q=${lat},${lng}`;
-
-
-
-    if(navigator.share){
-
-
-        navigator.share({
-
-            title:"MEORE GPS Location",
-
-            text:text
-
-        });
-
-
-        return;
-
+            if (Number.isFinite(data.current.wind_speed_10m)) {
+                result.windSpeed =
+                    data.current.wind_speed_10m;
+            }
+        }
+    } catch (error) {
+        console.error("Weather request failed:", error);
     }
 
-
-
-    let whatsapp =
-    "https://wa.me/?text=" +
-    encodeURIComponent(text);
-
-
-
-    window.open(whatsapp,"_blank");
-
-
+    return result;
 }
 
 
+// =====================================
+// ADDRESS
+// =====================================
 
-// ================================
+async function getAddress(lat, lng) {
+    try {
+        const params = new URLSearchParams({
+            lat,
+            lon: lng,
+            format: "json",
+            "accept-language": "en"
+        });
+
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?${params}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`Address HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        return data.display_name || "N/A";
+    } catch (error) {
+        console.error("Address request failed:", error);
+        return "N/A";
+    }
+}
+
+
+// =====================================
+// CURRENT LOCATION DISPLAY
+// =====================================
+
+function showData() {
+    const display = document.getElementById(
+        "coordinates-display"
+    );
+
+    if (!display || !currentData) {
+        return;
+    }
+
+    const data = currentData;
+
+    display.textContent = [
+        `Latitude: ${formatCoordinate(data.lat)}`,
+        `Longitude: ${formatCoordinate(data.lng)}`,
+        `Accuracy: ${formatValue(data.accuracy, " m", true)}`,
+        `Altitude: ${formatValue(data.altitude, " m")}`,
+        `Address: ${data.address || "N/A"}`,
+        `Temperature: ${formatValue(data.temperature, " °C")}`,
+        `Wind: ${formatValue(data.windSpeed, " km/h")}`,
+        `Time: ${data.time}`
+    ].join("\n");
+}
+
+
+// =====================================
+// SAVE LOCATION
+// =====================================
+
+function saveLocation() {
+    if (!currentData) {
+        alert("First press PIN.");
+        return;
+    }
+
+    const noteInput = document.getElementById("note-input");
+    const note = noteInput?.value.trim() || "";
+
+    savedLocations.unshift({
+        id: createLocationId(),
+        note,
+        ...currentData
+    });
+
+    saveLocations();
+    renderLocations();
+
+    if (noteInput) {
+        noteInput.value = "";
+    }
+}
+
+
+// =====================================
+// SAVED LOCATIONS LIST
+// =====================================
+
+function renderLocations() {
+    const container = document.getElementById(
+        "locations-list"
+    );
+
+    if (!container) {
+        return;
+    }
+
+    container.replaceChildren();
+
+    if (savedLocations.length === 0) {
+        container.textContent = "The list is empty.";
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    savedLocations.forEach(location => {
+        fragment.appendChild(
+            createLocationElement(location)
+        );
+    });
+
+    container.appendChild(fragment);
+}
+
+
+function createLocationElement(location) {
+    const item = document.createElement("article");
+    item.className = "location-item";
+    item.dataset.id = String(location.id);
+
+    const title = document.createElement("strong");
+    title.textContent =
+        location.note || "Without note";
+
+    const details = document.createElement("pre");
+    details.className = "location-details";
+    details.textContent = [
+        location.address || "N/A",
+        `Lat: ${formatCoordinate(location.lat)}`,
+        `Lng: ${formatCoordinate(location.lng)}`,
+        `Accuracy: ${formatValue(
+            location.accuracy,
+            " m",
+            true
+        )}`,
+        `Altitude: ${formatValue(
+            location.altitude,
+            " m"
+        )}`,
+        `Temperature: ${formatValue(
+            location.temperature,
+            " °C"
+        )}`,
+        `Wind: ${formatValue(
+            location.windSpeed,
+            " km/h"
+        )}`,
+        location.time || ""
+    ].join("\n");
+
+    const buttons = document.createElement("div");
+    buttons.className = "location-actions";
+
+    buttons.append(
+        createActionButton("GO TO", "map"),
+        createActionButton("SHARE", "share"),
+        createActionButton("DELETE", "delete")
+    );
+
+    item.append(title, details, buttons);
+
+    return item;
+}
+
+
+function createActionButton(text, action) {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.textContent = text;
+    button.dataset.action = action;
+
+    return button;
+}
+
+
+function handleLocationAction(event) {
+    const button = event.target.closest(
+        "button[data-action]"
+    );
+
+    if (!button) {
+        return;
+    }
+
+    const item = button.closest(".location-item");
+
+    if (!item) {
+        return;
+    }
+
+    const location = savedLocations.find(
+        entry => String(entry.id) === item.dataset.id
+    );
+
+    if (!location) {
+        return;
+    }
+
+    switch (button.dataset.action) {
+        case "map":
+            goToLocation(location);
+            break;
+
+        case "share":
+            shareLocation(location);
+            break;
+
+        case "delete":
+            deleteLocation(location.id);
+            break;
+    }
+}
+
+
+// =====================================
+// DELETE
+// =====================================
+
+function deleteLocation(id) {
+    savedLocations = savedLocations.filter(
+        location => location.id !== id
+    );
+
+    saveLocations();
+    renderLocations();
+}
+
+
+// =====================================
+// GOOGLE MAPS
+// =====================================
+
+function goToLocation(location) {
+    const url = createMapsUrl(
+        location.lat,
+        location.lng
+    );
+
+    window.open(url, "_blank", "noopener,noreferrer");
+}
+
+
+function createMapsUrl(lat, lng) {
+    return (
+        "https://www.google.com/maps/search/" +
+        `?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
+    );
+}
+
+
+// =====================================
+// SHARE
+// =====================================
+
+async function shareLocation(location) {
+    const mapsUrl = createMapsUrl(
+        location.lat,
+        location.lng
+    );
+
+    const text = [
+        "MEORE GPS Location",
+        "",
+        location.note || "",
+        "",
+        `Latitude: ${location.lat}`,
+        `Longitude: ${location.lng}`,
+        "",
+        `Google Maps: ${mapsUrl}`
+    ].join("\n");
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: "MEORE GPS Location",
+                text
+            });
+
+            return;
+        } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+
+            console.error("Share failed:", error);
+        }
+    }
+
+    const whatsappUrl =
+        "https://wa.me/?text=" +
+        encodeURIComponent(text);
+
+    window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer"
+    );
+}
+
+
+// =====================================
 // TRACKER
-// ================================
+// =====================================
 
-function openTracker(){
-
-
-    window.location.href="tracker.html";
-
-
+function openTracker() {
+    window.location.href = "tracker.html";
 }
+
+
+// =====================================
+// HELPERS
+// =====================================
+
+function createLocationId() {
+    if (crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random()
+        .toString(16)
+        .slice(2)}`;
+}
+
+
+function formatCoordinate(value) {
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number.toFixed(6)
+        : "N/A";
+}
+
+
+function formatValue(value, suffix = "", round = false) {
+    if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === "N/A"
+    ) {
+        return "N/A";
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return `${value}${suffix}`;
+    }
+
+    return `${round ? Math.round(number) : number}${suffix}`;
+}
+```
