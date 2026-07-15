@@ -1,59 +1,75 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Meore v2 PRO</title>
-
-    <link rel="stylesheet" href="style.css">
+<title>Meore v2 PRO</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<script src="app.js?v=3"></script>
-    <main>
-        <h1>Meore v2 PRO</h1>
 
-        <section class="controls">
-            <button id="pin-btn" type="button">
-                PIN
-            </button>
+<h2> Meore v2 PRO</h2>
 
-            <button id="tracker-btn" type="button">
-                TRACKER MODE
-            </button>
-        </section>
 
-        <pre id="coordinates-display">Coordinates are not yet received</pre>
+<button id="pin-btn">PIN</button>
 
-        <input
-            id="note-input"
-            type="text"
-            placeholder="Note"
-            autocomplete="off"
-        >
 
-        <button id="save-btn" type="button">
-            SAVE ✓
-        </button>
+<pre id="coordinates-display">
+Coordinates are not yet received
+</pre>
 
-        <hr>
 
-        <section>
-            <h2>Saved points</h2>
+<input 
+id="note-input"
+type="text"
+placeholder="Note">
 
-            <div id="locations-list">
-                The list is empty.
-            </div>
-        </section>
-    </main>
 
-    <script src="app.js"></script>
+<br><br>
+
+
+<button id="save-btn">
+SAVE ✓
+</button>
+
+
+<hr>
+
+
+<button id="export-btn">
+Save CSV 
+</button>
+
+
+<button id="load-btn">
+Load CSV 
+</button>
+
+
+<input
+id="file-input"
+type="file"
+accept=".csv"
+style="display:none;">
+
+
+<hr>
+
+
+<h3>
+Saved points
+</h3>
+
+
+<div id="locations-list">
+The list is empty.
+</div>
+
+
+<script src="app.js"></script>
+
 
 </body>
 </html>
-```
