@@ -1,155 +1,185 @@
-body {
+*{
+    box-sizing:border-box;
+}
+
+body{
+
     margin:0;
     padding:20px;
-    background:#090014;
-    color:#ffffff;
-    font-family:Arial,sans-serif;
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    background:#f5f5f5;
+
+    color:#222;
 }
 
 
-.container {
-
-    max-width:500px;
-    margin:auto;
-
-    background:#120021;
-
-    border:1px solid #8a2be2;
-
-    border-radius:20px;
-
-    padding:20px;
-
-    box-shadow:
-    0 0 15px #8a2be2,
-    0 0 40px #4b0082;
-
-}
-
-
-h1 {
+h1{
 
     text-align:center;
 
-    color:#d580ff;
-
-    font-size:32px;
-
-    text-shadow:
-    0 0 10px #d580ff,
-    0 0 25px #8a2be2;
+    margin-bottom:25px;
 
 }
 
 
+h2{
 
-#coordinates-display {
-
-    margin-top:20px;
-
-    padding:20px;
-
-    background:#050008;
-
-    border-radius:15px;
-
-    border:1px solid #b000ff;
-
-    color:#00ffff;
-
-    font-size:18px;
-
-    line-height:1.6;
-
-    box-shadow:
-    inset 0 0 15px #8a2be2;
+    margin-top:35px;
 
 }
 
 
+.buttons{
 
-input {
+    display:flex;
 
-    width:90%;
+    gap:10px;
 
-    padding:12px;
-
-    margin-top:15px;
-
-    background:#050008;
-
-    color:white;
-
-    border:1px solid #9d00ff;
-
-    border-radius:10px;
+    margin-bottom:15px;
 
 }
 
 
+button{
 
-button {
+    flex:1;
 
-    margin:6px;
+    padding:14px;
 
-    padding:12px 18px;
+    font-size:16px;
 
     border:none;
 
-    border-radius:12px;
+    border-radius:8px;
 
-    background:#7b00ff;
+    background:#1976d2;
 
     color:white;
 
-    font-size:15px;
-
     cursor:pointer;
 
-    box-shadow:
-    0 0 10px #a000ff;
+}
+
+
+button:hover{
+
+    background:#1565c0;
 
 }
 
 
+button:active{
 
-button:hover {
-
-    background:#b400ff;
-
-    box-shadow:
-    0 0 20px #ff00ff,
-    0 0 40px #8a2be2;
+    transform:scale(.98);
 
 }
 
 
+#coordinates-display{
 
-#locations-list div {
+    min-height:180px;
 
-    background:#0b0015;
+    padding:15px;
+
+    background:white;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    white-space:pre-wrap;
+
+    font-family:Consolas,monospace;
+
+    font-size:15px;
+
+    margin-bottom:15px;
+
+}
+
+
+#note-input{
+
+    width:100%;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border:1px solid #bbb;
+
+    border-radius:8px;
+
+    margin-bottom:15px;
+
+}
+
+
+.location{
+
+    background:white;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
 
     padding:15px;
 
     margin-bottom:15px;
 
-    border-radius:15px;
+}
 
-    border-left:4px solid #ff00ff;
 
-    box-shadow:
-    0 0 15px #5a00aa;
+.location pre{
+
+    white-space:pre-wrap;
+
+    margin:10px 0;
 
 }
 
 
-hr {
+.location-buttons{
 
-    border:0;
+    display:flex;
 
-    height:1px;
+    gap:8px;
 
-    background:#9d00ff;
+    margin-top:10px;
 
 }
 
+
+.location-buttons button{
+
+    flex:1;
+
+}
+
+
+hr{
+
+    margin:30px 0;
+
+}
+
+
+@media (max-width:600px){
+
+    body{
+
+        padding:12px;
+
+    }
+
+    button{
+
+        font-size:15px;
+
+        padding:15px;
+
+    }
+
+}
