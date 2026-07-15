@@ -1,231 +1,147 @@
-```javascript
-var STORAGE_KEY = "meore_locations";
+const STORAGE_KEY = "meore_locations";
 
-var currentData = null;
-var savedLocations = [];
+let currentLocation = null;
+let savedLocations = loadLocations();
 
-try {
-    savedLocations =
-        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-} catch (error) {
-    savedLocations = [];
-}
+document.addEventListener("DOMContentLoaded", init);
 
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    document.getElementById("pin-btn").onclick =
-        getLocation;
-
-    document.getElementById("save-btn").onclick =
-        saveLocation;
-
-    document.getElementById("tracker-btn").onclick =
-        openTracker;
+function init() {
+    document.getElementById("pin-btn").addEventListener("click", getLocation);
+    document.getElementById("save-btn").addEventListener("click", saveLocation);
+    document.getElementById("tracker-btn").addEventListener("click", openTracker);
 
     renderLocations();
-});
+}
 
+function loadLocations() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveLocations() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedLocations));
+}
 
 function getLocation() {
 
-    var display =
-        document.getElementById("coordinates-display");
+    const display = document.getElementById("coordinates-display");
+
+    display.textContent = "Receiving GPS...";
 
     if (!navigator.geolocation) {
         display.textContent = "GPS is not supported.";
         return;
     }
 
-    display.textContent = "Receiving GPS...";
+    navigator.geolocation.getCurrentPosition(position => {
 
-    navigator.geolocation.getCurrentPosition(
+        currentLocation = {
+            id: Date.now(),
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: Math.round(position.coords.accuracy),
+            altitude: position.coords.altitude,
+            time: new Date().toLocaleString()
+        };
 
-        function (position) {
+        display.textContent =
+`Latitude : ${currentLocation.lat.toFixed(6)}
+Longitude: ${currentLocation.lng.toFixed(6)}
+Accuracy : ${currentLocation.accuracy} m
+Altitude : ${currentLocation.altitude ?? "N/A"}
+Time      : ${currentLocation.time}`;
 
-            currentData = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                accuracy: position.coords.accuracy,
-                time: new Date().toLocaleString()
-            };
+    }, error => {
 
-            display.textContent =
-                "Latitude: " +
-                currentData.lat.toFixed(6) +
-                "\n" +
+        display.textContent = error.message;
 
-                "Longitude: " +
-                currentData.lng.toFixed(6) +
-                "\n" +
+    }, {
 
-                "Accuracy: " +
-                Math.round(currentData.accuracy) +
-                " m\n" +
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
 
-                "Time: " +
-                currentData.time;
-        },
-
-        function (error) {
-
-            display.textContent =
-                "GPS error: " + error.message;
-        },
-
-        {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0
-        }
-    );
+    });
 }
-
 
 function saveLocation() {
 
-    if (!currentData) {
-        alert("First press PIN");
+    if (!currentLocation) {
+        alert("Press PIN first.");
         return;
     }
 
-    var noteInput =
-        document.getElementById("note-input");
+    const note = document.getElementById("note-input").value.trim();
 
-    var newLocation = {
-        id: Date.now(),
-        note: noteInput.value.trim(),
-        lat: currentData.lat,
-        lng: currentData.lng,
-        accuracy: currentData.accuracy,
-        time: currentData.time
-    };
+    savedLocations.unshift({
+        ...currentLocation,
+        note
+    });
 
-    savedLocations.unshift(newLocation);
+    saveLocations();
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(savedLocations)
-    );
-
-    noteInput.value = "";
+    document.getElementById("note-input").value = "";
 
     renderLocations();
 }
 
-
 function renderLocations() {
 
-    var list =
-        document.getElementById("locations-list");
+    const list = document.getElementById("locations-list");
 
     list.innerHTML = "";
 
     if (savedLocations.length === 0) {
-        list.textContent = "The list is empty.";
+        list.textContent = "No saved points.";
         return;
     }
 
-    savedLocations.forEach(function (location) {
+    savedLocations.forEach(location => {
 
-        var block =
-            document.createElement("div");
+        const card = document.createElement("div");
+        card.className = "location";
 
-        var title =
-            document.createElement("b");
+        card.innerHTML = `
+<b>${location.note || "Without note"}</b>
 
-        var information =
-            document.createElement("pre");
+<pre>
+Lat: ${location.lat.toFixed(6)}
+Lng: ${location.lng.toFixed(6)}
+Accuracy: ${location.accuracy} m
+Altitude: ${location.altitude ?? "N/A"}
+${location.time}
+</pre>
 
-        var goButton =
-            document.createElement("button");
+<div class="location-buttons">
+<button>GO TO</button>
+<button>DELETE</button>
+</div>
+`;
 
-        var deleteButton =
-            document.createElement("button");
+        const buttons = card.querySelectorAll("button");
 
-        var separator =
-            document.createElement("hr");
-
-
-        title.textContent =
-            location.note || "Without note";
-
-
-        information.textContent =
-            "Latitude: " +
-            Number(location.lat).toFixed(6) +
-            "\n" +
-
-            "Longitude: " +
-            Number(location.lng).toFixed(6) +
-            "\n" +
-
-            "Accuracy: " +
-            Math.round(location.accuracy) +
-            " m\n" +
-
-            "Time: " +
-            location.time;
-
-
-        goButton.type = "button";
-        goButton.textContent = "GO TO";
-
-        goButton.onclick = function () {
-            goToLocation(
-                location.lat,
-                location.lng
+        buttons[0].onclick = () =>
+            window.open(
+                `https://www.google.com/maps?q=${location.lat},${location.lng}`,
+                "_blank"
             );
+
+        buttons[1].onclick = () => {
+
+            savedLocations =
+                savedLocations.filter(x => x.id !== location.id);
+
+            saveLocations();
+            renderLocations();
         };
 
-
-        deleteButton.type = "button";
-        deleteButton.textContent = "DELETE";
-
-        deleteButton.onclick = function () {
-            deleteLocation(location.id);
-        };
-
-
-        block.appendChild(title);
-        block.appendChild(information);
-        block.appendChild(goButton);
-        block.appendChild(deleteButton);
-        block.appendChild(separator);
-
-        list.appendChild(block);
+        list.appendChild(card);
     });
 }
 
-
-function deleteLocation(id) {
-
-    savedLocations =
-        savedLocations.filter(function (location) {
-            return location.id !== id;
-        });
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(savedLocations)
-    );
-
-    renderLocations();
-}
-
-
-function goToLocation(lat, lng) {
-
-    window.location.href =
-        "https://www.google.com/maps?q=" +
-        lat +
-        "," +
-        lng;
-}
-
-
 function openTracker() {
-
     window.location.href = "tracker.html";
 }
-```
