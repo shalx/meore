@@ -27,7 +27,8 @@ function saveLocations() {
 
 function getLocation() {
 
-    const display = document.getElementById("coordinates-display");
+    const display =
+        document.getElementById("coordinates-display");
 
     display.textContent = "Receiving GPS...";
 
@@ -35,6 +36,54 @@ function getLocation() {
         display.textContent = "GPS is not supported.";
         return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function (position) {
+
+            let altitude = position.coords.altitude;
+
+            if (altitude !== null) {
+                altitude = Math.round(altitude);
+            }
+
+            currentLocation = {
+                id: Date.now(),
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                accuracy: Math.round(
+                    position.coords.accuracy
+                ),
+                altitude: altitude,
+                time: new Date().toLocaleString()
+            };
+
+            display.textContent =
+`Latitude : ${currentLocation.lat.toFixed(6)}
+Longitude: ${currentLocation.lng.toFixed(6)}
+Accuracy : ${currentLocation.accuracy} m
+Altitude : ${
+    currentLocation.altitude !== null
+        ? currentLocation.altitude + " m"
+        : "Not available"
+}
+Time     : ${currentLocation.time}`;
+
+        },
+
+        function (error) {
+
+            display.textContent =
+                "GPS error: " + error.message;
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        }
+    );
+}
 
     navigator.geolocation.getCurrentPosition(position => {
 
