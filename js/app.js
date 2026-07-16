@@ -22,3 +22,8 @@ function init() {
     renderLocations();
 
 }
+function openTracker() {
+
+    window.location.href = "./tracker/";
+
+}
