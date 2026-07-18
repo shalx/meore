@@ -1,1 +1,14 @@
+document.addEventListener(
+    "tracker:marker-add",
+    (event) => {
+        const marker = event.detail.marker;
 
+        console.log(
+            marker.label,
+            marker.latitude,
+            marker.longitude
+        );
+
+        // marker.label будет #1, #2, #3...
+    }
+);
