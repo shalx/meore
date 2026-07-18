@@ -45,6 +45,8 @@ function stopMission() {
 
     console.log("Mission stopped.");
 
+    stopMissionGPS();
+
 }
 
 
@@ -130,3 +132,4 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("stop-btn").disabled = true;
 
 });
+startMissionGPS();
