@@ -412,3 +412,16 @@ Mission.getPoint = function (id) {
     return null;
 
 };
+// ======================================
+// GET REMAINING POINTS
+// ======================================
+
+Mission.getRemainingPoints = function () {
+
+    return MissionState.points.filter(
+
+        point => !point.reached
+
+    );
+
+};
