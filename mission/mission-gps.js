@@ -1,176 +1,167 @@
-// =====================================
-// MISSION GPS
-// =====================================
+// ======================================
+// mission-gps.js
+// GPS for Mission
+// ======================================
 
-const MISSION_RADIUS = 70;      // meters
-const GPS_INTERVAL = 5000;      // 5 sec
+const MissionGPS = {};
 
-let gpsTimer = null;
+MissionGPS.watchId = null;
 
-
-// =====================================
-
-function startMissionGPS() {
-
-    if (gpsTimer)
-        clearInterval(gpsTimer);
-
-    checkMission();
-
-    gpsTimer = setInterval(checkMission, GPS_INTERVAL);
-
-}
+MissionGPS.lastPosition = null;
 
 
-// =====================================
+// ======================================
+// START GPS
+// ======================================
 
-function stopMissionGPS() {
+MissionGPS.start = function () {
 
-    if (gpsTimer) {
+    if (!navigator.geolocation) {
 
-        clearInterval(gpsTimer);
+        alert("Geolocation is not supported.");
 
-        gpsTimer = null;
+        return;
 
     }
 
-}
+    if (MissionGPS.watchId !== null) {
 
-
-// =====================================
-
-function checkMission() {
-
-    if (!missionRunning)
         return;
 
-    navigator.geolocation.getCurrentPosition(
+    }
 
-        position => {
+    MissionGPS.watchId = navigator.geolocation.watchPosition(
 
-            const myLat = position.coords.latitude;
-            const myLng = position.coords.longitude;
+        MissionGPS.success,
 
-            missionPoints.forEach((point, index) => {
-
-                if (!point.selected)
-                    return;
-
-                if (point.reached)
-                    return;
-
-                const distance = getDistance(
-
-                    myLat,
-                    myLng,
-
-                    point.lat,
-                    point.lng
-
-                );
-
-                if (distance <= MISSION_RADIUS) {
-
-                    point.reached = true;
-                    point.reachedAt =
-                        new Date().toLocaleString();
-
-                    const status =
-                        document.getElementById(
-                            "status-" + index
-                        );
-
-                    if (status)
-                        status.innerHTML =
-                            "✅ REACHED";
-
-                    saveMissionState();
-
-                    updateProgress();
-
-                }
-
-            });
-
-            checkMissionCompleted();
-
-        },
-
-        error => {
-
-            console.log(error);
-
-        },
+        MissionGPS.error,
 
         {
+
             enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 10000
+
+            timeout: 10000,
+
+            maximumAge: 0
+
         }
 
     );
 
-}
+};
 
 
-// =====================================
+// ======================================
+// STOP GPS
+// ======================================
 
-function checkMissionCompleted() {
+MissionGPS.stop = function () {
 
-    const selected =
-        missionPoints.filter(p => p.selected);
+    if (MissionGPS.watchId === null) {
 
-    const reached =
-        selected.filter(p => p.reached);
-
-    if (
-        selected.length > 0 &&
-        reached.length === selected.length
-    ) {
-
-        stopMission();
-
-        alert("MISSION COMPLETE");
+        return;
 
     }
 
-}
+    navigator.geolocation.clearWatch(
+
+        MissionGPS.watchId
+
+    );
+
+    MissionGPS.watchId = null;
+
+};
 
 
-// =====================================
+// ======================================
+// SUCCESS
+// ======================================
 
-function getDistance(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-) {
+MissionGPS.success = function (position) {
 
-    const R = 6371000;
+    MissionGPS.lastPosition = position;
 
-    const dLat =
-        (lat2 - lat1) * Math.PI / 180;
+    const latitude = position.coords.latitude;
 
-    const dLon =
-        (lon2 - lon1) * Math.PI / 180;
+    const longitude = position.coords.longitude;
 
-    const a =
+    const accuracy = position.coords.accuracy;
 
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
+    Mission.checkPosition(
 
-        Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
+        latitude,
 
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+        longitude,
 
-    const c =
-        2 * Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
+        accuracy
+
+    );
+
+    if (typeof MissionUI !== "undefined") {
+
+        MissionUI.updateGps(
+
+            latitude,
+
+            longitude,
+
+            accuracy
+
         );
 
-    return R * c;
+    }
 
-}
+};
+
+
+// ======================================
+// ERROR
+// ======================================
+
+MissionGPS.error = function (error) {
+
+    console.error(
+
+        "GPS Error:",
+
+        error.message
+
+    );
+
+};
+
+
+// ======================================
+// GET LAST POSITION
+// ======================================
+
+MissionGPS.getPosition = function () {
+
+    return MissionGPS.lastPosition;
+
+};
+
+
+// ======================================
+// IS RUNNING
+// ======================================
+
+MissionGPS.isRunning = function () {
+
+    return MissionGPS.watchId !== null;
+
+};
+
+
+// ======================================
+// RESTART
+// ======================================
+
+MissionGPS.restart = function () {
+
+    MissionGPS.stop();
+
+    MissionGPS.start();
+
+};
