@@ -437,3 +437,19 @@ Mission.getReachedPoints = function () {
     );
 
 };
+// ======================================
+// REMOVE POINT
+// (optional)
+// ======================================
+
+Mission.removePoint = function (id) {
+
+    MissionState.points = MissionState.points.filter(
+
+        point => point.id !== id
+
+    );
+
+    MissionStorage.save();
+
+};
