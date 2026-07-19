@@ -320,3 +320,19 @@ MissionUI.refresh = function () {
     MissionUI.update();
 
 };
+function openGoogleMaps(latitude, longitude) {
+    if (
+        typeof latitude !== "number" ||
+        typeof longitude !== "number"
+    ) {
+        showMessage("Координаты точки не найдены");
+        return;
+    }
+
+    const url =
+        `https://www.google.com/maps/dir/?api=1` +
+        `&destination=${latitude},${longitude}` +
+        `&travelmode=driving`;
+
+    window.open(url, "_blank");
+}
