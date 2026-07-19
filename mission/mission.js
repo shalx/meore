@@ -479,3 +479,12 @@ Mission.addPoint = function (point) {
     MissionStorage.save();
 
 };
+// ======================================
+// DEBUG
+// ======================================
+
+Mission.print = function () {
+
+    console.log(MissionState);
+
+};
