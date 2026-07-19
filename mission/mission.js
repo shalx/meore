@@ -351,3 +351,24 @@ Mission.reachPoint = function (pointId) {
     Mission.checkCompleted();
 
 };
+// ======================================
+// CHECK COMPLETED
+// ======================================
+
+Mission.checkCompleted = function () {
+
+    for (const point of MissionState.points) {
+
+        if (!point.reached) {
+
+            return false;
+
+        }
+
+    }
+
+    Mission.complete();
+
+    return true;
+
+};
