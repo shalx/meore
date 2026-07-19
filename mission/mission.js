@@ -393,3 +393,22 @@ Mission.complete = function () {
     }
 
 };
+// ======================================
+// GET POINT
+// ======================================
+
+Mission.getPoint = function (id) {
+
+    for (const point of MissionState.points) {
+
+        if (point.id === id) {
+
+            return point;
+
+        }
+
+    }
+
+    return null;
+
+};
