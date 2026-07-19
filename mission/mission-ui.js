@@ -1,129 +1,154 @@
-// =====================================
-// MISSION UI
-// =====================================
+// ======================================
+// mission-ui.js
+// Mission User Interface
+// ======================================
 
-let missionPoints = [];
+const MissionUI = {};
 
-function loadMissionPoints() {
+MissionUI.elements = {};
 
-    const list = document.getElementById("mission-list");
 
-    missionPoints =
-        JSON.parse(localStorage.getItem("meore_locations")) || [];
+// ======================================
+// INIT
+// ======================================
 
-    if (missionPoints.length === 0) {
+MissionUI.init = function () {
 
-        list.innerHTML = `
-            <p>No saved locations.</p>
-        `;
+    MissionUI.elements.points =
+        document.getElementById("mission-points");
 
-        updateProgress();
+    MissionUI.elements.progress =
+        document.getElementById("mission-progress");
 
-        return;
+    MissionUI.elements.status =
+        document.getElementById("mission-status");
+
+    MissionUI.elements.gps =
+        document.getElementById("mission-gps");
+
+    MissionUI.elements.message =
+        document.getElementById("mission-message");
+
+};
+
+
+// ======================================
+// UPDATE
+// ======================================
+
+MissionUI.update = function () {
+
+    MissionUI.updateProgress();
+
+    MissionUI.renderPoints();
+
+};
+
+
+// ======================================
+// PROGRESS
+// ======================================
+
+MissionUI.updateProgress = function () {
+
+    const progress = Mission.getProgress();
+
+    if (!MissionUI.elements.progress) return;
+
+    MissionUI.elements.progress.innerHTML =
+
+        progress.reached +
+
+        " / " +
+
+        progress.total +
+
+        " (" +
+
+        progress.percent +
+
+        "%)";
+
+};
+
+
+// ======================================
+// RENDER POINTS
+// ======================================
+
+MissionUI.renderPoints = function () {
+
+    const container = MissionUI.elements.points;
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const points = Mission.getPoints();
+
+    for (const point of points) {
+
+        const row = document.createElement("div");
+
+        row.className = "mission-row";
+
+        const status = point.reached
+
+            ? "✅"
+
+            : "⭕";
+
+        row.innerHTML =
+
+            "<span>" +
+
+            status +
+
+            "</span> " +
+
+            point.note;
+
+        container.appendChild(row);
+
     }
 
-    renderMissionList();
-}
+};
 
 
-// =====================================
+// ======================================
+// GPS
+// ======================================
 
-function renderMissionList() {
+MissionUI.updateGps = function (
 
-    const list = document.getElementById("mission-list");
+    lat,
 
-    list.innerHTML = "";
+    lng,
 
-    missionPoints.forEach((point, index) => {
+    accuracy
 
-        if (point.selected === undefined)
-            point.selected = false;
+) {
 
-        if (point.reached === undefined)
-            point.reached = false;
+    if (!MissionUI.elements.gps) return;
 
-        const card = document.createElement("div");
+    MissionUI.elements.gps.innerHTML =
 
-        card.className = "mission-card";
+        "Lat: " +
 
-        card.innerHTML = `
+        lat.toFixed(6) +
 
-<label>
+        "<br>" +
 
-<input
-type="checkbox"
-${point.selected ? "checked" : ""}
-onchange="toggleMission(${index}, this.checked)">
+        "Lng: " +
 
-<b>${point.note || "Point " + (index + 1)}</b>
+        lng.toFixed(6) +
 
-</label>
+        "<br>" +
 
-<br><br>
+        "Accuracy: " +
 
-Latitude:
-${point.lat}
+        Math.round(accuracy) +
 
-<br>
+        " m";
 
-Longitude:
-${point.lng}
-
-<br><br>
-
-Status:
-<span id="status-${index}">
-
-${point.reached ? "✅ REACHED" : "NOT STARTED"}
-
-</span>
-
-<hr>
-
-`;
-
-        list.appendChild(card);
-
-    });
-
-    updateProgress();
-
-}
-
-
-// =====================================
-
-function toggleMission(index, checked) {
-
-    missionPoints[index].selected = checked;
-
-    updateProgress();
-
-}
-
-
-// =====================================
-
-function updateProgress() {
-
-    const total =
-        missionPoints.filter(p => p.selected).length;
-
-    const reached =
-        missionPoints.filter(
-            p => p.selected && p.reached
-        ).length;
-
-    document.getElementById("progress-text").innerHTML =
-        `${reached} / ${total} Completed`;
-
-}
-
-
-// =====================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    loadMissionPoints();
-
-});
+};
