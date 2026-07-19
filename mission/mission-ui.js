@@ -336,3 +336,22 @@ function openGoogleMaps(latitude, longitude) {
 
     window.open(url, "_blank");
 }
+const goToButton = document.createElement("button");
+
+goToButton.className = "mission-go-to-btn";
+goToButton.textContent = "GO TO";
+
+goToButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    openGoogleMaps(
+        Number(location.latitude),
+        Number(location.longitude)
+    );
+});
+
+card.appendChild(goToButton);
+openGoogleMaps(
+    Number(location.lat),
+    Number(location.lng)
+);
