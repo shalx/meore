@@ -419,7 +419,19 @@ Mission.getPoint = function (id) {
 Mission.getRemainingPoints = function () {
 
     return MissionState.points.filter(
+// ======================================
+// GET REACHED POINTS
+// ======================================
 
+Mission.getReachedPoints = function () {
+
+    return MissionState.points.filter(
+
+        point => point.reached
+
+    );
+
+};
         point => !point.reached
 
     );
