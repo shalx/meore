@@ -152,3 +152,171 @@ MissionUI.updateGps = function (
         " m";
 
 };
+// ======================================
+// SHOW REACHED
+// ======================================
+
+MissionUI.showReached = function (pointId) {
+
+    const point = Mission.getPoint(pointId);
+
+    if (!point) return;
+
+    MissionUI.showMessage(
+
+        "✅ " +
+
+        point.note +
+
+        " reached"
+
+    );
+
+};
+
+
+// ======================================
+// SHOW COMPLETED
+// ======================================
+
+MissionUI.showCompleted = function () {
+
+    const duration = MissionUtils.formatDuration(
+
+        Mission.getDuration()
+
+    );
+
+    MissionUI.showMessage(
+
+        "🎉 MISSION COMPLETED<br><br>" +
+
+        "Duration: " +
+
+        duration
+
+    );
+
+    MissionUI.setStatus(
+
+        "Completed"
+
+    );
+
+    MissionUI.update();
+
+};
+
+
+// ======================================
+// SHOW MESSAGE
+// ======================================
+
+MissionUI.showMessage = function (text) {
+
+    if (!MissionUI.elements.message) return;
+
+    MissionUI.elements.message.innerHTML = text;
+
+    MissionUI.elements.message.style.display = "block";
+
+    clearTimeout(
+
+        MissionUI.messageTimer
+
+    );
+
+    MissionUI.messageTimer = setTimeout(
+
+        MissionUI.clearMessage,
+
+        3000
+
+    );
+
+};
+
+
+// ======================================
+// CLEAR MESSAGE
+// ======================================
+
+MissionUI.clearMessage = function () {
+
+    if (!MissionUI.elements.message) return;
+
+    MissionUI.elements.message.innerHTML = "";
+
+    MissionUI.elements.message.style.display = "none";
+
+};
+
+
+// ======================================
+// STATUS
+// ======================================
+
+MissionUI.setStatus = function (text) {
+
+    if (!MissionUI.elements.status) return;
+
+    MissionUI.elements.status.innerHTML = text;
+
+};
+
+
+// ======================================
+// EMPTY
+// ======================================
+
+MissionUI.showEmptyMission = function () {
+
+    if (!MissionUI.elements.points) return;
+
+    MissionUI.elements.points.innerHTML =
+
+        "<p>No active mission.</p>";
+
+    MissionUI.updateProgress();
+
+};
+
+
+// ======================================
+// RESET UI
+// ======================================
+
+MissionUI.reset = function () {
+
+    MissionUI.clearMessage();
+
+    MissionUI.showEmptyMission();
+
+    MissionUI.setStatus("Ready");
+
+    if (MissionUI.elements.gps) {
+
+        MissionUI.elements.gps.innerHTML = "";
+
+    }
+
+};
+
+
+// ======================================
+// REFRESH
+// ======================================
+
+MissionUI.refresh = function () {
+
+    if (Mission.getTotalPoints() === 0) {
+
+        MissionUI.showEmptyMission();
+
+        return;
+
+    }
+
+    MissionUI.update();
+
+};
