@@ -1,50 +1,53 @@
 let currentLocation = null;
 
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+document.addEventListener("DOMContentLoaded", init);
 
 function init() {
 
-    document
-        .getElementById("pin-btn")
-        .addEventListener("click", getLocation);
+    const pinBtn = document.getElementById("pin-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const searchInput = document.getElementById("search-input");
 
-    document
-        .getElementById("save-btn")
-        .addEventListener("click", saveLocation);
+    if (pinBtn) {
+        pinBtn.addEventListener("click", getLocation);
+    }
 
-    document
-        .getElementById("tracker-btn")
-        .addEventListener("click", openTracker);
+    if (saveBtn) {
+        saveBtn.addEventListener("click", saveLocation);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", searchLocations);
+    }
 
     renderLocations();
-
 }
-function openTracker() {
 
-    window.location.href = "./tracker/";
 
-}
-document.getElementById("search-input")
-    .addEventListener("input", searchLocations);
+// ================================
+// ПОИСК ПО NOTE
+// ================================
+
 function searchLocations() {
 
-    const text = document
-        .getElementById("search-input")
-        .value
+    const searchInput = document.getElementById("search-input");
+
+    if (!searchInput) {
+        return;
+    }
+
+    const text = searchInput.value
         .trim()
         .toLowerCase();
 
-    const filtered = savedLocations.filter(location => {
+    const filteredLocations = savedLocations.filter(location => {
 
-        const note = (location.note || "").toLowerCase();
+        const note = String(location.note || "")
+            .toLowerCase();
 
         return note.includes(text);
 
     });
 
-    renderLocations(filtered);
-
+    renderLocations(filteredLocations);
 }
