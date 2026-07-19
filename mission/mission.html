@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Meore - Mission</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>MISSION</title>
 
 <link rel="stylesheet" href="../style.css">
 
@@ -13,56 +16,126 @@
 
 <body>
 
-<div class="container">
+<h2>
 
-<h1>MISSION</h1>
+MISSION
 
-<div class="mission-progress">
+</h2>
 
-<h3>Progress</h3>
-
-<div id="progress-text">
-0 / 0 Completed
-</div>
-
-</div>
 
 <hr>
 
-<div id="mission-list">
 
-Loading...
+<div id="mission-status">
+
+Ready
 
 </div>
 
+
+<br>
+
+
+<div id="mission-progress">
+
+0 / 0
+
+</div>
+
+
 <hr>
 
-<div class="buttons">
+
+<h3>
+
+GPS
+
+</h3>
+
+
+<div id="mission-gps">
+
+Waiting GPS...
+
+</div>
+
+
+<hr>
+
+
+<h3>
+
+Mission Points
+
+</h3>
+
+
+<div id="mission-points">
+
+No active mission.
+
+</div>
+
+
+<hr>
+
+
+<div id="mission-message"
+style="display:none;">
+
+</div>
+
+
+<hr>
+
 
 <button id="start-btn">
-START MISSION
+
+START
+
 </button>
+
 
 <button id="stop-btn">
+
 STOP
+
 </button>
+
 
 <button id="reset-btn">
+
 RESET
+
 </button>
 
-<button onclick="location.href='../index.html'">
+
+<hr>
+
+
+<button
+onclick="history.back()">
+
 BACK
+
 </button>
 
-</div>
 
-</div>
+
+<script src="../js/locations.js"></script>
+
+<script src="mission-utils.js"></script>
+
+<script src="mission-storage.js"></script>
 
 <script src="mission.js"></script>
+
 <script src="mission-ui.js"></script>
+
 <script src="mission-gps.js"></script>
+
 <script src="app.js"></script>
 
 </body>
+
 </html>
