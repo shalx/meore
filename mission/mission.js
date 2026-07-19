@@ -372,3 +372,24 @@ Mission.checkCompleted = function () {
     return true;
 
 };
+// ======================================
+// COMPLETE
+// ======================================
+
+Mission.complete = function () {
+
+    MissionState.active = false;
+
+    MissionState.completed = true;
+
+    MissionState.finishedAt = Date.now();
+
+    MissionStorage.save();
+
+    if (typeof MissionUI !== "undefined") {
+
+        MissionUI.showCompleted();
+
+    }
+
+};
