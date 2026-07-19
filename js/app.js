@@ -1,53 +1,29 @@
 let currentLocation = null;
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
 
 function init() {
 
-    const pinBtn = document.getElementById("pin-btn");
-    const saveBtn = document.getElementById("save-btn");
-    const searchInput = document.getElementById("search-input");
+    document
+        .getElementById("pin-btn")
+        .addEventListener("click", getLocation);
 
-    if (pinBtn) {
-        pinBtn.addEventListener("click", getLocation);
-    }
+    document
+        .getElementById("save-btn")
+        .addEventListener("click", saveLocation);
 
-    if (saveBtn) {
-        saveBtn.addEventListener("click", saveLocation);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener("input", searchLocations);
-    }
+    document
+        .getElementById("tracker-btn")
+        .addEventListener("click", openTracker);
 
     renderLocations();
+
 }
+function openTracker() {
 
+    window.location.href = "./tracker/";
 
-// ================================
-// ПОИСК ПО NOTE
-// ================================
-
-function searchLocations() {
-
-    const searchInput = document.getElementById("search-input");
-
-    if (!searchInput) {
-        return;
-    }
-
-    const text = searchInput.value
-        .trim()
-        .toLowerCase();
-
-    const filteredLocations = savedLocations.filter(location => {
-
-        const note = String(location.note || "")
-            .toLowerCase();
-
-        return note.includes(text);
-
-    });
-
-    renderLocations(filteredLocations);
 }
