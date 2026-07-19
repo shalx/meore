@@ -285,3 +285,38 @@ Mission.getDuration = function () {
            MissionState.startedAt;
 
 };
+// ======================================
+// CHECK POSITION
+// Called from mission-gps.js
+// ======================================
+
+Mission.checkPosition = function (lat, lng, accuracy) {
+
+    if (!MissionState.active) return;
+
+    if (MissionState.completed) return;
+
+    if (accuracy > MissionConfig.minAccuracy) return;
+
+    for (const point of MissionState.points) {
+
+        if (point.reached) continue;
+
+        const distance = MissionUtils.distance(
+
+            lat,
+            lng,
+            point.lat,
+            point.lng
+
+        );
+
+        if (distance <= MissionConfig.reachRadius) {
+
+            Mission.reachPoint(point.id);
+
+        }
+
+    }
+
+};
