@@ -320,3 +320,34 @@ Mission.checkPosition = function (lat, lng, accuracy) {
     }
 
 };
+// ======================================
+// REACH POINT
+// ======================================
+
+Mission.reachPoint = function (pointId) {
+
+    for (const point of MissionState.points) {
+
+        if (point.id !== pointId) continue;
+
+        point.reached = true;
+
+        point.reachedTime = Date.now();
+
+        break;
+
+    }
+
+    MissionStorage.save();
+
+    if (typeof MissionUI !== "undefined") {
+
+        MissionUI.update();
+
+        MissionUI.showReached(pointId);
+
+    }
+
+    Mission.checkCompleted();
+
+};
