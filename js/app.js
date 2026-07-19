@@ -27,3 +27,24 @@ function openTracker() {
     window.location.href = "./tracker/";
 
 }
+document.getElementById("search-input")
+    .addEventListener("input", searchLocations);
+function searchLocations() {
+
+    const text = document
+        .getElementById("search-input")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const filtered = savedLocations.filter(location => {
+
+        const note = (location.note || "").toLowerCase();
+
+        return note.includes(text);
+
+    });
+
+    renderLocations(filtered);
+
+}
