@@ -453,3 +453,29 @@ Mission.removePoint = function (id) {
     MissionStorage.save();
 
 };
+// ======================================
+// ADD POINT
+// (optional)
+// ======================================
+
+Mission.addPoint = function (point) {
+
+    MissionState.points.push({
+
+        id: point.id,
+
+        note: point.note,
+
+        lat: point.lat,
+
+        lng: point.lng,
+
+        reached: false,
+
+        reachedTime: null
+
+    });
+
+    MissionStorage.save();
+
+};
