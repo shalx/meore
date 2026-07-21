@@ -813,3 +813,33 @@ async function restoreFromDrive() {
     }
 
 }
+if(savedLocations.length===0){
+
+    setTimeout(async()=>{
+
+        const file=
+            await findBackupFile();
+
+        if(!file){
+
+            return;
+
+        }
+
+        const answer=confirm(
+
+            "Найдена резервная копия Google Drive.\n\nВосстановить?"
+
+        );
+
+        if(answer){
+
+            await restoreFromDrive();
+
+            location.reload();
+
+        }
+
+    },1000);
+
+}
