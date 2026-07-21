@@ -313,8 +313,8 @@ function saveLocation() {
 
 
     if (
-        typeof Storage === "undefined" ||
-        typeof Storage.save !== "function"
+        typeof MeoreStorage === "undefined" ||
+        typeof MeoreStorage.save !== "function"
     ) {
 
         showStatus(
@@ -331,22 +331,23 @@ function saveLocation() {
         : "";
 
 
-    const savedLocation = Storage.save({
+    const savedLocation =
+        MeoreStorage.save({
 
-        note,
+            note,
 
-        latitude:
-            currentLocation.latitude,
+            latitude:
+                currentLocation.latitude,
 
-        longitude:
-            currentLocation.longitude,
+            longitude:
+                currentLocation.longitude,
 
-        accuracy:
-            currentLocation.accuracy,
+            accuracy:
+                currentLocation.accuracy,
 
-        time:
-            currentLocation.time
-    });
+            time:
+                currentLocation.time
+        });
 
 
     if (!savedLocation) {
