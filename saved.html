@@ -1,1 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#08110d"
+    >
+
+    <title>Saved Points</title>
+
+    <link
+        rel="stylesheet"
+        href="css/saved.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="container">
+
+        <!-- ===================== -->
+        <!-- HEADER -->
+        <!-- ===================== -->
+
+        <header>
+
+            <button
+                id="back-btn"
+                type="button"
+            >
+                ← BACK
+            </button>
+
+            <h1>
+                SAVED POINTS
+            </h1>
+
+        </header>
+
+
+        <!-- ===================== -->
+        <!-- SEARCH -->
+        <!-- ===================== -->
+
+        <section class="search-section">
+
+            <input
+
+                id="search-input"
+
+                type="text"
+
+                placeholder="Search note..."
+
+                autocomplete="off"
+
+            >
+
+        </section>
+
+
+        <!-- ===================== -->
+        <!-- INFO -->
+        <!-- ===================== -->
+
+        <section class="info-section">
+
+            <span>
+
+                Total:
+
+                <strong id="total-count">
+
+                    0
+
+                </strong>
+
+            </span>
+
+        </section>
+
+
+        <!-- ===================== -->
+        <!-- LIST -->
+        <!-- ===================== -->
+
+        <section>
+
+            <div id="locations-list">
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================== -->
+        <!-- FOOTER -->
+        <!-- ===================== -->
+
+        <footer>
+
+            <button
+
+                id="goto-selected-btn"
+
+                type="button"
+
+            >
+
+                GO TO SELECTED
+
+            </button>
+
+        </footer>
+
+    </main>
+
+
+    <!-- ===================== -->
+    <!-- SCRIPTS -->
+    <!-- ===================== -->
+
+    <script src="js/storage.js"></script>
+
+    <script src="js/maps.js"></script>
+
+    <script src="js/saved.js"></script>
+
+</body>
+
+</html>
