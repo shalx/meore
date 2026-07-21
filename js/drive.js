@@ -816,32 +816,6 @@ async function restoreFromDrive() {
 const savedLocations = MeoreStorage.getAll();
 
 
-if (MeoreStorage.count() === 0) {
-    setTimeout(async()=>{
 
-        const file=
-            await findBackupFile();
-
-        if(!file){
-
-            return;
-
-        }
-
-        const answer=confirm(
-
-            "Найдена резервная копия Google Drive.\n\nВосстановить?"
-
-        );
-
-        if(answer){
-
-            await restoreFromDrive();
-
-            location.reload();
-
-        }
-
-    },1000);
 
 }
