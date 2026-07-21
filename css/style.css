@@ -1,1 +1,323 @@
+/*
+=========================================
+MEORE FREE
+style.css
+Главная страница
+=========================================
+*/
 
+
+/* =====================================
+RESET
+===================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* =====================================
+BODY
+===================================== */
+
+body {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #163326 0%,
+            #08110d 45%,
+            #030806 100%
+        );
+
+    color: #ffffff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+
+/* =====================================
+MAIN CONTAINER
+===================================== */
+
+.app-container {
+    width: min(100%, 520px);
+
+    background: rgba(15, 31, 23, 0.96);
+
+    border: 1px solid #245239;
+
+    border-radius: 22px;
+
+    padding: 28px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.45),
+        0 0 30px rgba(76, 255, 136, 0.08);
+}
+
+
+/* =====================================
+TITLE
+===================================== */
+
+h1 {
+    margin-bottom: 26px;
+
+    color: #4cff88;
+
+    text-align: center;
+
+    font-size: 32px;
+    letter-spacing: 2px;
+
+    text-shadow:
+        0 0 14px rgba(76, 255, 136, 0.35);
+}
+
+
+/* =====================================
+BUTTONS
+===================================== */
+
+button {
+    width: 100%;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 14px 18px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.2s ease,
+        opacity 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.42;
+
+    transform: none;
+}
+
+
+/* =====================================
+PIN BUTTON
+===================================== */
+
+#pin-btn {
+    margin-bottom: 20px;
+
+    background: #4cff88;
+
+    color: #06100a;
+}
+
+#pin-btn:hover:not(:disabled) {
+    background: #39e978;
+}
+
+
+/* =====================================
+COORDINATES
+===================================== */
+
+.coordinates-box {
+    margin-bottom: 18px;
+
+    padding: 18px;
+
+    background: #0a1710;
+
+    border: 1px solid #1f4932;
+
+    border-radius: 14px;
+}
+
+.coordinates-box p {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+    font-size: 15px;
+}
+
+.coordinates-box p:last-child {
+    border-bottom: none;
+}
+
+.coordinates-box span {
+    color: #74ffa1;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+
+/* =====================================
+STATUS
+===================================== */
+
+#status-message {
+    min-height: 22px;
+
+    margin-bottom: 20px;
+
+    color: #9fdcb3;
+
+    text-align: center;
+
+    font-size: 14px;
+}
+
+#status-message.error {
+    color: #ff6f66;
+}
+
+
+/* =====================================
+NOTE
+===================================== */
+
+label[for="note-input"] {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #bde9cb;
+
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#note-input {
+    width: 100%;
+
+    margin-bottom: 16px;
+
+    padding: 14px 15px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    border: 2px solid transparent;
+    border-radius: 12px;
+
+    outline: none;
+
+    font-size: 16px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#note-input:focus {
+    border-color: #4cff88;
+
+    box-shadow:
+        0 0 0 4px rgba(76, 255, 136, 0.12);
+}
+
+
+/* =====================================
+SAVE BUTTON
+===================================== */
+
+#save-btn {
+    margin-bottom: 12px;
+
+    background: #27ae60;
+
+    color: #ffffff;
+}
+
+#save-btn:hover:not(:disabled) {
+    background: #219150;
+}
+
+
+/* =====================================
+SAVED POINTS BUTTON
+===================================== */
+
+#saved-points-btn {
+    background: #1b3024;
+
+    color: #ffffff;
+
+    border: 1px solid #315f43;
+}
+
+#saved-points-btn:hover {
+    background: #274835;
+}
+
+
+/* =====================================
+MOBILE
+===================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        align-items: flex-start;
+
+        padding: 14px;
+    }
+
+    .app-container {
+        margin-top: 18px;
+
+        padding: 22px 18px;
+
+        border-radius: 18px;
+    }
+
+    h1 {
+        font-size: 27px;
+    }
+
+    .coordinates-box p {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .coordinates-box span {
+        text-align: left;
+    }
+
+    button {
+        padding: 15px;
+    }
+}
