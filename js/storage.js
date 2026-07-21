@@ -97,6 +97,53 @@ const Storage = (() => {
     };
 
 })();
+function save(location) {
+
+    if (!location || typeof location !== "object") {
+        return null;
+    }
+
+    const latitude = Number(location.latitude);
+    const longitude = Number(location.longitude);
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+        return null;
+    }
+
+    const locations = read();
+
+    const newLocation = {
+
+        id: generateId(),
+
+        note: String(location.note || "").trim(),
+
+        latitude,
+
+        longitude,
+
+        accuracy: Number.isFinite(Number(location.accuracy))
+            ? Number(location.accuracy)
+            : null,
+
+        time: location.time || new Date().toISOString(),
+
+        savedAt: new Date().toISOString()
+    };
+
+    locations.push(newLocation);
+
+    const success = write(locations);
+
+    if (!success) {
+        return null;
+    }
+
+    return newLocation;
+}
 function generateId() {
 
     if (
