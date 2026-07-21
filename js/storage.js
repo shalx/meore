@@ -1,28 +1,31 @@
-const STORAGE_KEY = "meore_locations";
+"use strict";
 
-let savedLocations = loadLocations();
+/*
+=========================================
+MEORE FREE
+storage.js
+Работа с localStorage
+=========================================
+*/
 
-function loadLocations() {
+const Storage = (() => {
 
-    try {
+    const STORAGE_KEY = "meore_locations";
 
-        return JSON.parse(
-            localStorage.getItem(STORAGE_KEY)
-        ) || [];
+    // ===============================
+    // PRIVATE FUNCTIONS
+    // ===============================
 
-    } catch {
 
-        return [];
 
-    }
+    // ===============================
+    // PUBLIC FUNCTIONS
+    // ===============================
 
-}
 
-function saveLocations() {
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(savedLocations)
-    );
+    return {
 
-}
+    };
+
+})();
