@@ -381,6 +381,43 @@ function saveLocation() {
 
 }
 // =====================================
+// OPEN SAVED POINTS
+// =====================================
+
+function openSavedPoints() {
+
+    window.location.href =
+        "saved.html";
+}
+
+
+// =====================================
+// CLEAR COORDINATES
+// =====================================
+
+function clearCoordinates() {
+
+    setText(
+        "latitude-value",
+        "—"
+    );
+
+    setText(
+        "longitude-value",
+        "—"
+    );
+
+    setText(
+        "accuracy-value",
+        "—"
+    );
+
+    setText(
+        "time-value",
+        "—"
+    );
+}
+// =====================================
 // STATUS MESSAGE
 // =====================================
 
