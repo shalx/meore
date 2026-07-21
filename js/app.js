@@ -316,32 +316,51 @@ function saveLocation() {
             : "";
 
 
-    const newLocation = {
+    const savedLocation =
+        MeoreStorage.save({
 
-        id:
-            Date.now(),
+            note,
 
-        latitude:
-            currentLocation.latitude,
+            latitude:
+                currentLocation.latitude,
 
-        longitude:
-            currentLocation.longitude,
+            longitude:
+                currentLocation.longitude,
 
-        accuracy:
-            currentLocation.accuracy,
+            accuracy:
+                currentLocation.accuracy,
 
-        time:
-            currentLocation.time,
+            time:
+                currentLocation.time
 
-        note:
-            note
-
-    };
+        });
 
 
-    saveLocationToStorage(
-        newLocation
+    if (!savedLocation) {
+
+        alert(
+            "Не удалось сохранить точку."
+        );
+
+        return;
+    }
+
+
+    alert(
+        "Точка сохранена."
     );
+
+
+    if (noteInput) {
+
+        noteInput.value = "";
+
+    }
+
+
+    currentLocation = null;
+
+    clearCoordinates();
 
 
     if (
@@ -360,25 +379,7 @@ function saveLocation() {
 
     }
 
-
-    if (noteInput) {
-
-        noteInput.value = "";
-
-    }
-
-
-    currentLocation = null;
-
-    clearCoordinates();
-
-
-    alert(
-        "Точка сохранена."
-    );
-
 }
-
 // =====================================
 // STATUS MESSAGE
 // =====================================
