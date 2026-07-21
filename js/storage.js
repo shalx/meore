@@ -8,7 +8,7 @@ storage.js
 =========================================
 */
 
-const Storage = (() => {
+const MeoreStorage = (() => {
 
     const STORAGE_KEY = "meore_locations";
 
