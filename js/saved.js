@@ -48,7 +48,6 @@ function init() {
             "click",
             openMainPage
         );
-
     }
 
 
@@ -58,7 +57,6 @@ function init() {
             "input",
             searchLocations
         );
-
     }
 
 
@@ -68,12 +66,10 @@ function init() {
             "click",
             goToSelected
         );
-
     }
 
 
     loadLocations();
-
 }
 
 
@@ -83,12 +79,23 @@ function init() {
 
 function loadLocations() {
 
-    locations = Storage.getAll();
+    if (
+        typeof MeoreStorage === "undefined" ||
+        typeof MeoreStorage.getAll !== "function"
+    ) {
+
+        window.alert(
+            "Файл storage.js не подключён."
+        );
+
+        return;
+    }
+
+    locations = MeoreStorage.getAll();
 
     filteredLocations = [...locations];
 
     renderLocations();
-
 }
 
 
@@ -114,23 +121,17 @@ function renderLocations() {
     if (filteredLocations.length === 0) {
 
         list.innerHTML =
-
             "<p>No saved points.</p>";
 
         return;
-
     }
 
     filteredLocations.forEach(location => {
 
         list.appendChild(
-
             createLocationCard(location)
-
         );
-
     });
-
 }
 
 
@@ -147,6 +148,16 @@ function createLocationCard(location) {
         "location-card";
 
 
+    const latitude =
+        Number(location.latitude);
+
+    const longitude =
+        Number(location.longitude);
+
+    const accuracy =
+        Number(location.accuracy);
+
+
     card.innerHTML = `
 
 <div class="location-header">
@@ -156,7 +167,7 @@ function createLocationCard(location) {
 <input
 type="checkbox"
 class="location-check"
-data-id="${location.id}"
+data-id="${escapeHtml(location.id)}"
 >
 
 </label>
@@ -164,7 +175,7 @@ data-id="${location.id}"
 <div class="location-title">
 
 ${escapeHtml(
-location.note || "No note"
+    location.note || "No note"
 )}
 
 </div>
@@ -175,8 +186,9 @@ location.note || "No note"
 <div class="location-data">
 
 Latitude:
-${Number(location.latitude)
-.toFixed(6)}
+${Number.isFinite(latitude)
+    ? latitude.toFixed(6)
+    : "—"}
 
 </div>
 
@@ -184,8 +196,9 @@ ${Number(location.latitude)
 <div class="location-data">
 
 Longitude:
-${Number(location.longitude)
-.toFixed(6)}
+${Number.isFinite(longitude)
+    ? longitude.toFixed(6)
+    : "—"}
 
 </div>
 
@@ -193,7 +206,9 @@ ${Number(location.longitude)
 <div class="location-data">
 
 Accuracy:
-${location.accuracy ?? "-"}
+${Number.isFinite(accuracy)
+    ? Math.round(accuracy) + " m"
+    : "—"}
 
 </div>
 
@@ -210,7 +225,8 @@ ${formatDate(location.time)}
 
 <button
 class="goto-btn"
-data-id="${location.id}"
+data-id="${escapeHtml(location.id)}"
+type="button"
 >
 
 GO TO
@@ -220,7 +236,8 @@ GO TO
 
 <button
 class="delete-btn"
-data-id="${location.id}"
+data-id="${escapeHtml(location.id)}"
+type="button"
 >
 
 DELETE
@@ -231,41 +248,46 @@ DELETE
 
 `;
 
-    card
-        .querySelector(".goto-btn")
-        .addEventListener(
 
+    const gotoBtn =
+        card.querySelector(".goto-btn");
+
+    const deleteBtn =
+        card.querySelector(".delete-btn");
+
+
+    if (gotoBtn) {
+
+        gotoBtn.addEventListener(
             "click",
-
             () => {
 
                 goToLocation(
                     location.id
                 );
-
             }
-
         );
+    }
 
-    card
-        .querySelector(".delete-btn")
-        .addEventListener(
 
+    if (deleteBtn) {
+
+        deleteBtn.addEventListener(
             "click",
-
             () => {
 
                 deleteLocation(
                     location.id
                 );
-
             }
-
         );
+    }
+
 
     return card;
-
 }
+
+
 // =====================================
 // SEARCH
 // =====================================
@@ -273,26 +295,35 @@ DELETE
 function searchLocations() {
 
     const searchInput =
-        document.getElementById("search-input");
+        document.getElementById(
+            "search-input"
+        );
 
     const searchText = searchInput
-        ? searchInput.value.trim().toLowerCase()
+        ? searchInput.value
+            .trim()
+            .toLowerCase()
         : "";
+
 
     if (!searchText) {
 
-        filteredLocations = [...locations];
+        filteredLocations =
+            [...locations];
 
     } else {
 
-        filteredLocations = locations.filter(location => {
+        filteredLocations =
+            locations.filter(location => {
 
-            const note = String(
-                location.note || ""
-            ).toLowerCase();
+                const note = String(
+                    location.note || ""
+                ).toLowerCase();
 
-            return note.includes(searchText);
-        });
+                return note.includes(
+                    searchText
+                );
+            });
     }
 
     renderLocations();
@@ -305,24 +336,32 @@ function searchLocations() {
 
 function deleteLocation(id) {
 
-    const location = Storage.getById(id);
+    const location =
+        MeoreStorage.getById(id);
 
     if (!location) {
+
+        window.alert(
+            "Точка не найдена."
+        );
+
         return;
     }
 
     const pointName =
         location.note || "эту точку";
 
-    const confirmed = window.confirm(
-        `Удалить точку "${pointName}"?`
-    );
+    const confirmed =
+        window.confirm(
+            `Удалить точку "${pointName}"?`
+        );
 
     if (!confirmed) {
         return;
     }
 
-    const removed = Storage.remove(id);
+    const removed =
+        MeoreStorage.remove(id);
 
     if (!removed) {
 
@@ -343,7 +382,8 @@ function deleteLocation(id) {
 
 function goToLocation(id) {
 
-    const location = Storage.getById(id);
+    const location =
+        MeoreStorage.getById(id);
 
     if (!location) {
 
@@ -383,8 +423,10 @@ function goToSelected() {
 
     const selectedIds =
         Array.from(checkboxes).map(
-            checkbox => checkbox.dataset.id
+            checkbox =>
+                checkbox.dataset.id
         );
+
 
     if (selectedIds.length === 0) {
 
@@ -395,6 +437,7 @@ function goToSelected() {
         return;
     }
 
+
     if (selectedIds.length > 9) {
 
         window.alert(
@@ -404,12 +447,18 @@ function goToSelected() {
         return;
     }
 
+
     const selectedLocations =
         selectedIds
-            .map(id => Storage.getById(id))
+            .map(id =>
+                MeoreStorage.getById(id)
+            )
             .filter(Boolean);
 
-    if (selectedLocations.length === 0) {
+
+    if (
+        selectedLocations.length === 0
+    ) {
 
         window.alert(
             "Выбранные точки не найдены."
@@ -417,6 +466,7 @@ function goToSelected() {
 
         return;
     }
+
 
     if (
         typeof Maps === "undefined" ||
@@ -430,7 +480,10 @@ function goToSelected() {
         return;
     }
 
-    Maps.openMultiple(selectedLocations);
+
+    Maps.openMultiple(
+        selectedLocations
+    );
 }
 
 
@@ -450,7 +503,9 @@ function updateCounter() {
     }
 
     totalCount.textContent =
-        String(filteredLocations.length);
+        String(
+            filteredLocations.length
+        );
 }
 
 
@@ -460,7 +515,8 @@ function updateCounter() {
 
 function openMainPage() {
 
-    window.location.href = "index.html";
+    window.location.href =
+        "index.html";
 }
 
 
@@ -474,13 +530,20 @@ function formatDate(value) {
         return "—";
     }
 
-    const date = new Date(value);
+    const date =
+        new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
         return "—";
     }
 
-    return date.toLocaleString("ru-RU");
+    return date.toLocaleString(
+        "ru-RU"
+    );
 }
 
 
