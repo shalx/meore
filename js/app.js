@@ -35,6 +35,20 @@ function init() {
             "click",
             getLocation
         );
+const restoreBtn =
+    document.getElementById(
+        "restore-btn"
+    );
+
+if (restoreBtn) {
+
+    restoreBtn.addEventListener(
+        "click",
+        restoreFromGoogleDrive
+    );
+
+}
+        
     }
 
 
@@ -500,4 +514,44 @@ function registerServiceWorker() {
                 });
         }
     );
+}
+// =====================================
+// RESTORE FROM GOOGLE DRIVE
+// =====================================
+
+async function restoreFromGoogleDrive() {
+
+    try {
+
+        const restored =
+            await restoreFromDrive();
+
+        if (!restored) {
+
+            alert(
+                "No backup found in Google Drive."
+            );
+
+            return;
+        }
+
+        alert(
+            "Restore completed."
+        );
+
+        window.location.href =
+            "saved.html";
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Restore failed."
+        );
+
+    }
+
 }
