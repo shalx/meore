@@ -813,9 +813,3 @@ async function restoreFromDrive() {
     }
 
 }
-const savedLocations = MeoreStorage.getAll();
-
-
-
-
-}
