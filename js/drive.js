@@ -815,8 +815,8 @@ async function restoreFromDrive() {
 }
 const savedLocations = MeoreStorage.getAll();
 
-if (savedLocations.length === 0) {
 
+if (MeoreStorage.count() === 0) {
     setTimeout(async()=>{
 
         const file=
