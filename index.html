@@ -1,77 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
+    <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta
+        name="theme-color"
+        content="#08110d"
+    >
 
-<title>Meore v3</title>
+    <title>Meore Free</title>
 
-<link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
 
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
 </head>
 
 <body>
- 
 
-<h1>Meore v3</h1>
+    <main class="app-container">
 
-<div class="buttons">
+        <h1>MEORE FREE</h1>
 
-<button id="pin-btn">
-PIN
-</button>
-<button id="tracker-btn">
-    TRACKER MODE
-</button>
-
-</div>
+        <!-- Получение координат -->
+        <button
+            id="pin-btn"
+            type="button"
+        >
+            PIN
+        </button>
 
 
-<pre id="coordinates-display">
+        <!-- Координаты -->
+        <section class="coordinates-box">
 
-Press PIN
+            <p>
+                Latitude:
+                <span id="latitude-value">—</span>
+            </p>
 
-</pre>
+            <p>
+                Longitude:
+                <span id="longitude-value">—</span>
+            </p>
 
+            <p>
+                Accuracy:
+                <span id="accuracy-value">—</span>
+            </p>
 
-<input
-id="note-input"
-type="text"
-placeholder="Note...">
+            <p>
+                Time:
+                <span id="time-value">—</span>
+            </p>
 
-
-<div class="buttons">
-
-<button id="save-btn">
-SAVE
-</button>
-
-</div>
-
-
-<hr>
-
-
-<h2>Saved points</h2>
-
-<div id="locations-list">
-
-No saved points.
-
-</div>
-<script src="./js/storage.js?v=3"></script>
-<script src="./js/gps.js?v=3"></script>
-<script src="./js/ui.js?v=3"></script>
-<script src="./js/locations.js?v=3"></script>
-<script src="./js/maps.js?v=3"></script>
-<script src="./js/tracker.js?v=3"></script>
-<script src="./js/app.js?v=3"></script>
+        </section>
 
 
+        <!-- Статус -->
+        <p id="status-message">
+            Координаты ещё не получены
+        </p>
+
+
+        <!-- Заметка -->
+        <label for="note-input">
+            NOTE
+        </label>
+
+        <input
+            id="note-input"
+            type="text"
+            maxlength="200"
+            autocomplete="off"
+            placeholder="Введите заметку"
+        >
+
+
+        <!-- Сохранение -->
+        <button
+            id="save-btn"
+            type="button"
+            disabled
+        >
+            SAVE
+        </button>
+
+
+        <!-- Переход к сохранённым точкам -->
+        <button
+            id="saved-points-btn"
+            type="button"
+        >
+            SAVED POINTS
+        </button>
+
+    </main>
+
+
+    <script src="js/app.js"></script>
 
 </body>
 
