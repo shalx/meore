@@ -813,7 +813,9 @@ async function restoreFromDrive() {
     }
 
 }
-if(savedLocations.length===0){
+const savedLocations = MeoreStorage.getAll();
+
+if (savedLocations.length === 0) {
 
     setTimeout(async()=>{
 
