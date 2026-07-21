@@ -719,3 +719,42 @@ async function backupToDrive() {
     }
 
 }
+// =====================================
+// DOWNLOAD BACKUP
+// =====================================
+
+async function downloadBackupFile(fileId) {
+
+    const accessToken =
+        await getGoogleAccessToken();
+
+    const response = await fetch(
+
+        "https://www.googleapis.com/drive/v3/files/" +
+        fileId +
+        "?alt=media",
+
+        {
+
+            headers: {
+
+                Authorization:
+                    `Bearer ${accessToken}`
+
+            }
+
+        }
+
+    );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Не удалось скачать резервную копию."
+        );
+
+    }
+
+    return await response.json();
+
+}
