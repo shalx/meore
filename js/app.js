@@ -294,67 +294,90 @@ function displayCoordinates() {
 
 function saveLocation() {
 
-    // проверки координат и NOTE...
+    if (!currentLocation) {
 
-    locations.push(newLocation);
-
-    localStorage.setItem(
-        "meore_locations",
-        JSON.stringify(locations)
-    );
-
-    backupToDrive().catch(error => {
-
-        console.error(
-            "Автоматический backup не выполнен:",
-            error
+        alert(
+            "Сначала нажмите PIN и получите координаты."
         );
 
-    });
+        return;
+    }
 
-    alert("Точка сохранена.");
+
+    const noteInput =
+        document.getElementById(
+            "note-input"
+        );
+
+
+    const note =
+        noteInput
+            ? noteInput.value.trim()
+            : "";
+
+
+    const newLocation = {
+
+        id:
+            Date.now(),
+
+        latitude:
+            currentLocation.latitude,
+
+        longitude:
+            currentLocation.longitude,
+
+        accuracy:
+            currentLocation.accuracy,
+
+        time:
+            currentLocation.time,
+
+        note:
+            note
+
+    };
+
+
+    saveLocationToStorage(
+        newLocation
+    );
+
+
+    if (
+        typeof backupToDrive ===
+        "function"
+    ) {
+
+        backupToDrive().catch(error => {
+
+            console.error(
+                "Автоматический backup не выполнен:",
+                error
+            );
+
+        });
+
+    }
+
+
+    if (noteInput) {
+
+        noteInput.value = "";
+
+    }
+
+
+    currentLocation = null;
+
+    clearCoordinates();
+
+
+    alert(
+        "Точка сохранена."
+    );
 
 }
-
-
-// =====================================
-// OPEN SAVED POINTS
-// =====================================
-
-function openSavedPoints() {
-
-    window.location.href =
-        "saved.html";
-}
-
-
-// =====================================
-// CLEAR COORDINATES
-// =====================================
-
-function clearCoordinates() {
-
-    setText(
-        "latitude-value",
-        "—"
-    );
-
-    setText(
-        "longitude-value",
-        "—"
-    );
-
-    setText(
-        "accuracy-value",
-        "—"
-    );
-
-    setText(
-        "time-value",
-        "—"
-    );
-}
-
 
 // =====================================
 // STATUS MESSAGE
