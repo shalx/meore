@@ -294,89 +294,26 @@ function displayCoordinates() {
 
 function saveLocation() {
 
-    const noteInput =
-        document.getElementById("note-input");
+    // проверки координат и NOTE...
 
-    const saveBtn =
-        document.getElementById("save-btn");
+    locations.push(newLocation);
 
+    localStorage.setItem(
+        "meore_locations",
+        JSON.stringify(locations)
+    );
 
-    if (!currentLocation) {
+    backupToDrive().catch(error => {
 
-        showStatus(
-            "Сначала нажмите PIN.",
-            true
+        console.error(
+            "Автоматический backup не выполнен:",
+            error
         );
 
-        return;
-    }
+    });
 
+    alert("Точка сохранена.");
 
-    if (
-        typeof MeoreStorage === "undefined" ||
-        typeof MeoreStorage.save !== "function"
-    ) {
-
-        showStatus(
-            "Файл storage.js не подключён.",
-            true
-        );
-
-        return;
-    }
-
-
-    const note = noteInput
-        ? noteInput.value.trim()
-        : "";
-
-
-    const savedLocation =
-        MeoreStorage.save({
-
-            note,
-
-            latitude:
-                currentLocation.latitude,
-
-            longitude:
-                currentLocation.longitude,
-
-            accuracy:
-                currentLocation.accuracy,
-
-            time:
-                currentLocation.time
-        });
-
-
-    if (!savedLocation) {
-
-        showStatus(
-            "Не удалось сохранить точку.",
-            true
-        );
-
-        return;
-    }
-
-
-    if (noteInput) {
-        noteInput.value = "";
-    }
-
-
-    currentLocation = null;
-
-    clearCoordinates();
-
-
-    if (saveBtn) {
-        saveBtn.disabled = true;
-    }
-
-
-    showStatus("Точка сохранена.");
 }
 
 
