@@ -141,3 +141,22 @@ function read() {
     }
 
 }
+function write(locations) {
+
+    try {
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(locations)
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error("Storage write error:", error);
+
+        return false;
+    }
+
+}
