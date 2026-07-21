@@ -115,3 +115,29 @@ function generateId() {
     );
 
 }
+function read() {
+
+    try {
+
+        const data = localStorage.getItem(STORAGE_KEY);
+
+        if (!data) {
+            return [];
+        }
+
+        const locations = JSON.parse(data);
+
+        if (!Array.isArray(locations)) {
+            return [];
+        }
+
+        return locations;
+
+    } catch (error) {
+
+        console.error("Storage read error:", error);
+
+        return [];
+    }
+
+}
