@@ -758,3 +758,58 @@ async function downloadBackupFile(fileId) {
     return await response.json();
 
 }
+// =====================================
+// RESTORE FROM DRIVE
+// =====================================
+
+async function restoreFromDrive() {
+
+    try {
+
+        const file =
+            await findBackupFile();
+
+        if (!file) {
+
+            return false;
+
+        }
+
+        const backup =
+            await downloadBackupFile(
+                file.id
+            );
+
+        if (!backup.locations) {
+
+            return false;
+
+        }
+
+        localStorage.setItem(
+
+            "meore_locations",
+
+            JSON.stringify(
+                backup.locations
+            )
+
+        );
+
+        alert(
+            "Резервная копия восстановлена."
+        );
+
+        return true;
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        return false;
+
+    }
+
+}
