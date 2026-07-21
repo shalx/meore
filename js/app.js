@@ -230,3 +230,201 @@ function displayCoordinates() {
     );
 
 }
+// =====================================
+// SAVE LOCATION
+// =====================================
+
+function saveLocation() {
+
+    const noteInput =
+        document.getElementById("note-input");
+
+    if (!currentLocation) {
+
+        showStatus(
+            "Сначала нажмите PIN.",
+            true
+        );
+
+        return;
+    }
+
+    if (
+        typeof Storage === "undefined" ||
+        typeof Storage.save !== "function"
+    ) {
+
+        showStatus(
+            "Storage не подключён.",
+            true
+        );
+
+        return;
+    }
+
+    const note = noteInput
+        ? noteInput.value.trim()
+        : "";
+
+    const savedLocation = Storage.save({
+
+        note,
+
+        latitude: currentLocation.latitude,
+
+        longitude: currentLocation.longitude,
+
+        accuracy: currentLocation.accuracy,
+
+        time: currentLocation.time
+
+    });
+
+    if (!savedLocation) {
+
+        showStatus(
+            "Не удалось сохранить точку.",
+            true
+        );
+
+        return;
+    }
+
+    if (noteInput) {
+        noteInput.value = "";
+    }
+
+    currentLocation = null;
+
+    clearCoordinates();
+
+    showStatus("Точка сохранена.");
+
+}
+
+
+// =====================================
+// OPEN SAVED POINTS
+// =====================================
+
+function openSavedPoints() {
+
+    window.location.href = "saved.html";
+
+}
+
+
+// =====================================
+// CLEAR COORDINATES
+// =====================================
+
+function clearCoordinates() {
+
+    setText(
+        "latitude-value",
+        "—"
+    );
+
+    setText(
+        "longitude-value",
+        "—"
+    );
+
+    setText(
+        "accuracy-value",
+        "—"
+    );
+
+    setText(
+        "time-value",
+        "—"
+    );
+
+}
+
+
+// =====================================
+// STATUS MESSAGE
+// =====================================
+
+function showStatus(
+    message,
+    isError = false
+) {
+
+    const status =
+        document.getElementById(
+            "status-message"
+        );
+
+    if (!status) {
+        return;
+    }
+
+    status.textContent = message;
+
+    if (isError) {
+
+        status.classList.add("error");
+
+    } else {
+
+        status.classList.remove("error");
+
+    }
+
+}
+
+
+// =====================================
+// SET TEXT
+// =====================================
+
+function setText(
+    elementId,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            elementId
+        );
+
+    if (element) {
+        element.textContent = value;
+    }
+
+}
+
+
+// =====================================
+// SERVICE WORKER
+// =====================================
+
+function registerServiceWorker() {
+
+    if (
+        !("serviceWorker" in navigator)
+    ) {
+        return;
+    }
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            navigator.serviceWorker
+                .register("sw.js")
+                .catch(error => {
+
+                    console.error(
+                        "Service Worker error:",
+                        error
+                    );
+
+                });
+
+        }
+    );
+
+}
