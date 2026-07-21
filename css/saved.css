@@ -1,1 +1,299 @@
+/*
+=========================================
+MEORE FREE
+saved.css
+=========================================
+*/
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    background:#08110d;
+
+    color:#ffffff;
+
+    font-family:Arial, Helvetica, sans-serif;
+
+}
+
+.container{
+
+    width:min(900px,95%);
+
+    margin:auto;
+
+    padding:20px;
+
+}
+
+header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+h1{
+
+    font-size:28px;
+
+    color:#4cff88;
+
+}
+
+#back-btn{
+
+    background:#1b3024;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:10px 20px;
+
+    cursor:pointer;
+
+}
+
+#back-btn:hover{
+
+    background:#284833;
+
+}
+
+.search-section{
+
+    margin-bottom:20px;
+
+}
+
+#search-input{
+
+    width:100%;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    border:none;
+
+    outline:none;
+
+    font-size:16px;
+
+}
+
+.info-section{
+
+    margin-bottom:20px;
+
+    font-size:16px;
+
+}
+
+#total-count{
+
+    color:#4cff88;
+
+}
+
+#locations-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+
+/* ===========================
+CARD
+=========================== */
+
+.location-card{
+
+    background:#14211a;
+
+    border:1px solid #23402e;
+
+    border-radius:12px;
+
+    padding:18px;
+
+}
+
+.location-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+.location-title{
+
+    color:#4cff88;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+}
+
+.location-data{
+
+    margin-bottom:6px;
+
+    word-break:break-word;
+
+}
+
+.location-buttons{
+
+    margin-top:18px;
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}
+
+.goto-btn{
+
+    flex:1;
+
+    background:#27ae60;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+}
+
+.goto-btn:hover{
+
+    background:#219150;
+
+}
+
+.delete-btn{
+
+    flex:1;
+
+    background:#c0392b;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+}
+
+.delete-btn:hover{
+
+    background:#a93226;
+
+}
+
+
+/* ===========================
+FOOTER
+=========================== */
+
+footer{
+
+    margin-top:30px;
+
+}
+
+#goto-selected-btn{
+
+    width:100%;
+
+    background:#4cff88;
+
+    color:black;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:15px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+#goto-selected-btn:hover{
+
+    background:#3be275;
+
+}
+
+
+/* ===========================
+MOBILE
+=========================== */
+
+@media(max-width:600px){
+
+    h1{
+
+        font-size:22px;
+
+    }
+
+    header{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    .location-buttons{
+
+        flex-direction:column;
+
+    }
+
+}
