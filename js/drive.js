@@ -339,3 +339,70 @@ function disconnectGoogleDrive() {
     );
 
 }
+// =====================================
+// FIND BACKUP FILE
+// =====================================
+
+async function findBackupFile() {
+
+    const accessToken =
+        await getGoogleAccessToken();
+
+    const query =
+        encodeURIComponent(
+            "name='meore_backup.json' and trashed=false"
+        );
+
+    const url =
+        "https://www.googleapis.com/drive/v3/files" +
+        "?spaces=appDataFolder" +
+        `&q=${query}` +
+        "&pageSize=1" +
+        "&fields=files(id,name,modifiedTime)";
+
+    const response = await fetch(url, {
+
+        headers: {
+
+            Authorization:
+                `Bearer ${accessToken}`
+
+        }
+
+    });
+
+    if (!response.ok) {
+
+        const errorText =
+            await response.text();
+
+        throw new Error(
+            `Ошибка Drive API ${response.status}: ${errorText}`
+        );
+
+    }
+
+    const result =
+        await response.json();
+
+    if (
+        !result.files ||
+        result.files.length === 0
+    ) {
+
+        console.log(
+            "Резервная копия пока не найдена."
+        );
+
+        return null;
+
+    }
+
+    console.log(
+        "Резервная копия найдена:",
+        result.files[0]
+    );
+
+    return result.files[0];
+
+}
