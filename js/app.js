@@ -8,11 +8,6 @@ app.js
 =========================================
 */
 
-
-// =====================================
-// GLOBAL
-// =====================================
-
 let currentLocation = null;
 
 
@@ -20,10 +15,7 @@ let currentLocation = null;
 // START
 // =====================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+document.addEventListener("DOMContentLoaded", init);
 
 
 function init() {
@@ -47,10 +39,13 @@ function init() {
 
 
     if (saveBtn) {
+
         saveBtn.addEventListener(
             "click",
             saveLocation
         );
+
+        saveBtn.disabled = true;
     }
 
 
@@ -63,7 +58,6 @@ function init() {
 
 
     registerServiceWorker();
-
 }
 
 
@@ -73,17 +67,45 @@ function init() {
 
 function getLocation() {
 
+    const pinBtn =
+        document.getElementById("pin-btn");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
+
     if (!navigator.geolocation) {
 
         showStatus(
-            "Geolocation is not supported.",
+            "Геолокация не поддерживается.",
             true
         );
 
         return;
     }
 
-    showStatus("Receiving GPS...");
+
+    currentLocation = null;
+
+    clearCoordinates();
+
+
+    if (pinBtn) {
+
+        pinBtn.disabled = true;
+
+        pinBtn.textContent =
+            "RECEIVING GPS...";
+    }
+
+
+    if (saveBtn) {
+        saveBtn.disabled = true;
+    }
+
+
+    showStatus("Получаем координаты...");
+
 
     navigator.geolocation.getCurrentPosition(
 
@@ -92,17 +114,11 @@ function getLocation() {
         locationError,
 
         {
-
             enableHighAccuracy: true,
-
             timeout: 20000,
-
             maximumAge: 0
-
         }
-
     );
-
 }
 
 
@@ -111,6 +127,13 @@ function getLocation() {
 // =====================================
 
 function locationSuccess(position) {
+
+    const pinBtn =
+        document.getElementById("pin-btn");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
 
     currentLocation = {
 
@@ -121,20 +144,36 @@ function locationSuccess(position) {
             position.coords.longitude,
 
         accuracy:
-            position.coords.accuracy,
+            Number.isFinite(
+                position.coords.accuracy
+            )
+                ? position.coords.accuracy
+                : null,
 
         time:
             new Date(
                 position.timestamp
             ).toISOString()
-
     };
 
 
     displayCoordinates();
 
-    showStatus("GPS received.");
 
+    if (pinBtn) {
+
+        pinBtn.disabled = false;
+
+        pinBtn.textContent = "PIN";
+    }
+
+
+    if (saveBtn) {
+        saveBtn.disabled = false;
+    }
+
+
+    showStatus("Координаты получены.");
 }
 
 
@@ -144,39 +183,64 @@ function locationSuccess(position) {
 
 function locationError(error) {
 
+    const pinBtn =
+        document.getElementById("pin-btn");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
+
+    currentLocation = null;
+
+
+    if (pinBtn) {
+
+        pinBtn.disabled = false;
+
+        pinBtn.textContent = "PIN";
+    }
+
+
+    if (saveBtn) {
+        saveBtn.disabled = true;
+    }
+
+
     let message =
-        "GPS error.";
+        "Ошибка получения GPS.";
+
 
     switch (error.code) {
 
         case error.PERMISSION_DENIED:
 
             message =
-                "Permission denied.";
+                "Доступ к геолокации запрещён.";
 
             break;
+
 
         case error.POSITION_UNAVAILABLE:
 
             message =
-                "Location unavailable.";
+                "Местоположение недоступно.";
 
             break;
+
 
         case error.TIMEOUT:
 
             message =
-                "GPS timeout.";
+                "Время ожидания GPS истекло.";
 
             break;
-
     }
+
 
     showStatus(
         message,
         true
     );
-
 }
 
 
@@ -190,46 +254,40 @@ function displayCoordinates() {
         return;
     }
 
-    setText(
 
+    setText(
         "latitude-value",
-
         currentLocation.latitude.toFixed(6)
-
     );
 
 
     setText(
-
         "longitude-value",
-
         currentLocation.longitude.toFixed(6)
-
     );
 
 
     setText(
-
         "accuracy-value",
-
-        Math.round(
+        Number.isFinite(
             currentLocation.accuracy
-        ) + " m"
-
+        )
+            ? Math.round(
+                currentLocation.accuracy
+            ) + " m"
+            : "—"
     );
 
 
     setText(
-
         "time-value",
-
         new Date(
             currentLocation.time
-        ).toLocaleString()
-
+        ).toLocaleString("ru-RU")
     );
-
 }
+
+
 // =====================================
 // SAVE LOCATION
 // =====================================
@@ -238,6 +296,10 @@ function saveLocation() {
 
     const noteInput =
         document.getElementById("note-input");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
 
     if (!currentLocation) {
 
@@ -249,36 +311,43 @@ function saveLocation() {
         return;
     }
 
+
     if (
         typeof Storage === "undefined" ||
         typeof Storage.save !== "function"
     ) {
 
         showStatus(
-            "Storage не подключён.",
+            "Файл storage.js не подключён.",
             true
         );
 
         return;
     }
 
+
     const note = noteInput
         ? noteInput.value.trim()
         : "";
+
 
     const savedLocation = Storage.save({
 
         note,
 
-        latitude: currentLocation.latitude,
+        latitude:
+            currentLocation.latitude,
 
-        longitude: currentLocation.longitude,
+        longitude:
+            currentLocation.longitude,
 
-        accuracy: currentLocation.accuracy,
+        accuracy:
+            currentLocation.accuracy,
 
-        time: currentLocation.time
-
+        time:
+            currentLocation.time
     });
+
 
     if (!savedLocation) {
 
@@ -290,16 +359,23 @@ function saveLocation() {
         return;
     }
 
+
     if (noteInput) {
         noteInput.value = "";
     }
+
 
     currentLocation = null;
 
     clearCoordinates();
 
-    showStatus("Точка сохранена.");
 
+    if (saveBtn) {
+        saveBtn.disabled = true;
+    }
+
+
+    showStatus("Точка сохранена.");
 }
 
 
@@ -309,8 +385,8 @@ function saveLocation() {
 
 function openSavedPoints() {
 
-    window.location.href = "saved.html";
-
+    window.location.href =
+        "saved.html";
 }
 
 
@@ -339,7 +415,6 @@ function clearCoordinates() {
         "time-value",
         "—"
     );
-
 }
 
 
@@ -357,11 +432,14 @@ function showStatus(
             "status-message"
         );
 
+
     if (!status) {
         return;
     }
 
+
     status.textContent = message;
+
 
     if (isError) {
 
@@ -370,9 +448,7 @@ function showStatus(
     } else {
 
         status.classList.remove("error");
-
     }
-
 }
 
 
@@ -390,10 +466,10 @@ function setText(
             elementId
         );
 
+
     if (element) {
         element.textContent = value;
     }
-
 }
 
 
@@ -409,6 +485,7 @@ function registerServiceWorker() {
         return;
     }
 
+
     window.addEventListener(
         "load",
         () => {
@@ -421,10 +498,7 @@ function registerServiceWorker() {
                         "Service Worker error:",
                         error
                     );
-
                 });
-
         }
     );
-
 }
