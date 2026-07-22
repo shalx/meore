@@ -2,13 +2,50 @@
 =========================================
 MEORE FREE
 style.css
-Главная страница
+Главная страница — Material Design
 =========================================
 */
 
 
 /* =====================================
-RESET
+   ROOT
+===================================== */
+
+:root {
+    --background: #f5f5fa;
+    --surface: #ffffff;
+    --surface-soft: #faf9ff;
+
+    --primary: #7c4dff;
+    --primary-dark: #6236df;
+    --primary-light: #eee8ff;
+
+    --text: #202124;
+    --text-secondary: #6d7078;
+    --border: #dedde5;
+
+    --success: #2e9d60;
+    --success-dark: #247e4d;
+
+    --danger: #d93025;
+
+    --shadow-small:
+        0 2px 6px rgba(0, 0, 0, 0.08);
+
+    --shadow-medium:
+        0 8px 24px rgba(0, 0, 0, 0.11);
+
+    --radius-small: 12px;
+    --radius-medium: 16px;
+    --radius-large: 22px;
+
+    --transition-fast: 160ms ease;
+    --transition-normal: 240ms ease;
+}
+
+
+/* =====================================
+   RESET
 ===================================== */
 
 * {
@@ -17,307 +54,519 @@ RESET
     box-sizing: border-box;
 }
 
-
-/* =====================================
-BODY
-===================================== */
+html {
+    min-height: 100%;
+    background: var(--background);
+}
 
 body {
     min-height: 100vh;
 
+    padding:
+        28px
+        16px
+        calc(28px + env(safe-area-inset-bottom));
+
     background:
-        radial-gradient(
-            circle at top,
-            #163326 0%,
-            #08110d 45%,
-            #030806 100%
+        linear-gradient(
+            180deg,
+            #faf9ff 0%,
+            var(--background) 100%
         );
 
-    color: #ffffff;
+    color: var(--text);
 
     font-family:
+        Roboto,
         Arial,
         Helvetica,
         sans-serif;
 
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 
-    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input {
+    font: inherit;
 }
 
 
 /* =====================================
-MAIN CONTAINER
+   MAIN CONTAINER
 ===================================== */
 
 .app-container {
     width: min(100%, 520px);
 
-    background: rgba(15, 31, 23, 0.96);
-
-    border: 1px solid #245239;
-
-    border-radius: 22px;
-
     padding: 28px;
 
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.45),
-        0 0 30px rgba(76, 255, 136, 0.08);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+
+    background: var(--surface);
+
+    box-shadow: var(--shadow-medium);
 }
 
 
 /* =====================================
-TITLE
+   HEADER
 ===================================== */
 
-h1 {
+.app-header {
     margin-bottom: 26px;
 
-    color: #4cff88;
-
     text-align: center;
+}
 
-    font-size: 32px;
-    letter-spacing: 2px;
+h1 {
+    color: var(--text);
 
-    text-shadow:
-        0 0 14px rgba(76, 255, 136, 0.35);
+    font-size: clamp(29px, 7vw, 36px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 1.2px;
+}
+
+.app-subtitle {
+    margin-top: 8px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 
 /* =====================================
-BUTTONS
+   BUTTONS
 ===================================== */
 
 button {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     width: 100%;
+    min-height: 52px;
+
+    padding: 13px 18px;
+
+    overflow: hidden;
 
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-small);
+    outline: none;
 
-    padding: 14px 18px;
+    background: var(--primary);
+    color: #ffffff;
 
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
+
+    box-shadow:
+        0 4px 10px rgba(92, 55, 190, 0.24);
 
     cursor: pointer;
+    user-select: none;
 
     transition:
-        transform 0.15s ease,
-        background 0.2s ease,
-        opacity 0.2s ease;
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background-color var(--transition-fast),
+        opacity var(--transition-fast);
 }
 
-button:active {
-    transform: scale(0.98);
+button::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    opacity: 0;
+
+    transition: opacity var(--transition-fast);
+}
+
+button:hover:not(:disabled) {
+    background: var(--primary-dark);
+
+    box-shadow:
+        0 6px 14px rgba(92, 55, 190, 0.3);
+
+    transform: translateY(-1px);
+}
+
+button:hover:not(:disabled)::before {
+    opacity: 1;
+}
+
+button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+button:focus-visible {
+    box-shadow:
+        0 0 0 4px rgba(124, 77, 255, 0.2);
 }
 
 button:disabled {
-    cursor: not-allowed;
+    background: #bdb9c5;
+    color: #eeeeee;
 
-    opacity: 0.42;
+    box-shadow: none;
+
+    cursor: not-allowed;
+    opacity: 0.72;
 
     transform: none;
 }
 
 
 /* =====================================
-PIN BUTTON
+   PIN BUTTON
 ===================================== */
 
 #pin-btn {
     margin-bottom: 20px;
-
-    background: #4cff88;
-
-    color: #06100a;
-}
-
-#pin-btn:hover:not(:disabled) {
-    background: #39e978;
 }
 
 
 /* =====================================
-COORDINATES
+   COORDINATES CARD
 ===================================== */
 
 .coordinates-box {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
+    padding: 8px 18px;
 
-    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
 
-    background: #0a1710;
+    background: var(--surface-soft);
 
-    border: 1px solid #1f4932;
-
-    border-radius: 14px;
+    box-shadow: var(--shadow-small);
 }
 
-.coordinates-box p {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
+.coordinate-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
 
-    padding: 8px 0;
+    min-height: 48px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-
-    font-size: 15px;
+    border-bottom: 1px solid #eceaf2;
 }
 
-.coordinates-box p:last-child {
+.coordinate-row:last-child {
     border-bottom: none;
 }
 
-.coordinates-box span {
-    color: #74ffa1;
+.coordinate-label {
+    color: var(--text);
 
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.coordinate-value {
+    min-width: 0;
+
+    color: var(--primary);
+
+    font-size: 15px;
+    font-weight: 600;
     text-align: right;
 
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 
 /* =====================================
-STATUS
+   STATUS
 ===================================== */
 
-#status-message {
+.status-message {
     min-height: 22px;
-
     margin-bottom: 20px;
 
-    color: #9fdcb3;
-
-    text-align: center;
+    color: var(--text-secondary);
 
     font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
 }
 
+.status-message.error,
 #status-message.error {
-    color: #ff6f66;
+    color: var(--danger);
 }
 
 
 /* =====================================
-NOTE
+   NOTE
 ===================================== */
 
-label[for="note-input"] {
+.note-section {
+    margin-bottom: 16px;
+}
+
+.input-label {
     display: block;
 
     margin-bottom: 8px;
 
-    color: #bde9cb;
+    color: var(--text);
 
     font-size: 14px;
-    font-weight: bold;
-    letter-spacing: 1px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
 }
 
+.note-input,
 #note-input {
     width: 100%;
+    height: 54px;
 
-    margin-bottom: 16px;
+    padding: 0 16px;
 
-    padding: 14px 15px;
-
-    background: #ffffff;
-
-    color: #111111;
-
-    border: 2px solid transparent;
-    border-radius: 12px;
-
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
     outline: none;
+
+    background: var(--surface);
+    color: var(--text);
 
     font-size: 16px;
 
+    box-shadow: var(--shadow-small);
+
     transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background-color var(--transition-fast);
 }
 
+.note-input::placeholder,
+#note-input::placeholder {
+    color: #94969d;
+}
+
+.note-input:hover,
+#note-input:hover {
+    border-color: #c7c2d4;
+}
+
+.note-input:focus,
 #note-input:focus {
-    border-color: #4cff88;
+    border-color: var(--primary);
 
     box-shadow:
-        0 0 0 4px rgba(76, 255, 136, 0.12);
+        0 0 0 4px rgba(124, 77, 255, 0.12),
+        var(--shadow-small);
 }
 
 
 /* =====================================
-SAVE BUTTON
+   MAIN ACTIONS
 ===================================== */
 
+.main-actions {
+    display: grid;
+    gap: 12px;
+}
+
 #save-btn {
-    margin-bottom: 12px;
+    background: var(--success);
 
-    background: #27ae60;
-
-    color: #ffffff;
+    box-shadow:
+        0 4px 10px rgba(46, 157, 96, 0.23);
 }
 
 #save-btn:hover:not(:disabled) {
-    background: #219150;
+    background: var(--success-dark);
+
+    box-shadow:
+        0 6px 14px rgba(46, 157, 96, 0.28);
+}
+
+#save-btn:focus-visible {
+    box-shadow:
+        0 0 0 4px rgba(46, 157, 96, 0.18);
 }
 
 
 /* =====================================
-SAVED POINTS BUTTON
+   SAVED POINTS
 ===================================== */
 
+.outlined-button,
 #saved-points-btn {
-    background: #1b3024;
+    border: 1px solid var(--primary);
 
-    color: #ffffff;
+    background: transparent;
+    color: var(--primary);
 
-    border: 1px solid #315f43;
+    box-shadow: none;
 }
 
-#saved-points-btn:hover {
-    background: #274835;
+.outlined-button:hover:not(:disabled),
+#saved-points-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+
+    box-shadow: none;
 }
 
 
 /* =====================================
-MOBILE
+   GOOGLE DRIVE
+===================================== */
+
+.drive-section {
+    margin-top: 14px;
+    padding-top: 14px;
+
+    border-top: 1px solid #ebe9f0;
+}
+
+.text-button,
+#restore-btn {
+    min-height: 46px;
+
+    border: none;
+
+    background: transparent;
+    color: var(--text-secondary);
+
+    box-shadow: none;
+
+    font-size: 13px;
+    letter-spacing: 0.45px;
+}
+
+.text-button:hover:not(:disabled),
+#restore-btn:hover:not(:disabled) {
+    background: #f2f0f8;
+    color: var(--primary);
+
+    box-shadow: none;
+}
+
+
+/* =====================================
+   MOBILE
 ===================================== */
 
 @media (max-width: 600px) {
 
     body {
-        align-items: flex-start;
-
-        padding: 14px;
+        padding:
+            14px
+            12px
+            calc(20px + env(safe-area-inset-bottom));
     }
 
     .app-container {
-        margin-top: 18px;
+        width: 100%;
 
         padding: 22px 18px;
 
         border-radius: 18px;
     }
 
+    .app-header {
+        margin-bottom: 22px;
+    }
+
     h1 {
-        font-size: 27px;
+        font-size: 28px;
     }
 
-    .coordinates-box p {
-        flex-direction: column;
-        gap: 4px;
+    .coordinate-row {
+        grid-template-columns: 94px minmax(0, 1fr);
+        gap: 10px;
     }
 
-    .coordinates-box span {
-        text-align: left;
+    .coordinate-label,
+    .coordinate-value {
+        font-size: 14px;
     }
 
     button {
-        padding: 15px;
+        min-height: 50px;
+    }
+}
+
+
+/* =====================================
+   VERY SMALL PHONES
+===================================== */
+
+@media (max-width: 360px) {
+
+    .app-container {
+        padding: 20px 15px;
+    }
+
+    .coordinates-box {
+        padding: 6px 14px;
+    }
+
+    .coordinate-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+
+        padding: 10px 0;
+    }
+
+    .coordinate-value {
+        text-align: left;
+    }
+}
+
+
+/* =====================================
+   TABLETS
+===================================== */
+
+@media (min-width: 768px) {
+
+    body {
+        padding-top: 44px;
+    }
+
+    .app-container {
+        padding: 34px;
+    }
+}
+
+
+/* =====================================
+   REDUCED MOTION
+===================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
     }
 }
