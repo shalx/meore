@@ -185,42 +185,60 @@ ${escapeHtml(
 
 <div class="location-data">
 
-Latitude:
+<span class="location-label">
+Latitude
+</span>
+
+<span class="location-value">
 ${Number.isFinite(latitude)
     ? latitude.toFixed(6)
     : "—"}
+</span>
 
 </div>
 
 
 <div class="location-data">
 
-Longitude:
+<span class="location-label">
+Longitude
+</span>
+
+<span class="location-value">
 ${Number.isFinite(longitude)
     ? longitude.toFixed(6)
     : "—"}
+</span>
 
 </div>
 
 
 <div class="location-data">
 
-Accuracy:
+<span class="location-label">
+Accuracy
+</span>
+
+<span class="location-value">
 ${Number.isFinite(accuracy)
     ? Math.round(accuracy) + " m"
     : "—"}
+</span>
 
 </div>
 
 
 <div class="location-data">
 
-Time:
+<span class="location-label">
+Time
+</span>
+
+<span class="location-value">
 ${formatDate(location.time)}
+</span>
 
 </div>
-
-
 <div class="location-buttons">
 
 <button
