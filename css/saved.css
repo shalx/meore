@@ -1049,3 +1049,15 @@ FIX FOR CURRENT saved.js MARKUP
         grid-template-columns: 1fr;
     }
 }
+.location-label {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.location-value {
+    min-width: 0;
+
+    color: var(--color-text-secondary);
+
+    overflow-wrap: anywhere;
+}
