@@ -2,6 +2,7 @@
 <html lang="ru">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -11,120 +12,224 @@
 
     <meta
         name="theme-color"
-        content="#08110d"
+        content="#7c4dff"
     >
 
     <title>Meore Free</title>
 
- <link rel="stylesheet" href="css/style.css?v=5">
 
+    <!-- Основной стиль -->
+    <link
+        rel="stylesheet"
+        href="css/style.css?v=6"
+    >
+
+
+    <!-- PWA -->
     <link
         rel="manifest"
         href="manifest.json"
     >
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#00ff88">
+
+    <link
+        rel="icon"
+        href="favicon.ico"
+        sizes="any"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="icon-192.png"
+    >
+
 </head>
+
 
 <body>
 
     <main class="app-container">
 
-        <h1>MEORE FREE</h1>
+
+        <!-- Заголовок -->
+        <header class="app-header">
+
+            <h1>
+                MEORE FREE
+            </h1>
+
+            <p class="app-subtitle">
+                Save your location
+            </p>
+
+        </header>
+
 
         <!-- Получение координат -->
         <button
             id="pin-btn"
+            class="primary-button"
             type="button"
         >
             PIN
         </button>
 
 
-        <!-- Координаты -->
+        <!-- Карточка координат -->
         <section class="coordinates-box">
 
-            <p>
-                Latitude:
-                <span id="latitude-value">—</span>
-            </p>
+            <div class="coordinate-row">
 
-            <p>
-                Longitude:
-                <span id="longitude-value">—</span>
-            </p>
+                <span class="coordinate-label">
+                    Latitude
+                </span>
 
-            <p>
-                Accuracy:
-                <span id="accuracy-value">—</span>
-            </p>
+                <span
+                    id="latitude-value"
+                    class="coordinate-value"
+                >
+                    —
+                </span>
 
-            <p>
-                Time:
-                <span id="time-value">—</span>
-            </p>
+            </div>
+
+
+            <div class="coordinate-row">
+
+                <span class="coordinate-label">
+                    Longitude
+                </span>
+
+                <span
+                    id="longitude-value"
+                    class="coordinate-value"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="coordinate-row">
+
+                <span class="coordinate-label">
+                    Accuracy
+                </span>
+
+                <span
+                    id="accuracy-value"
+                    class="coordinate-value"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="coordinate-row">
+
+                <span class="coordinate-label">
+                    Time
+                </span>
+
+                <span
+                    id="time-value"
+                    class="coordinate-value"
+                >
+                    —
+                </span>
+
+            </div>
 
         </section>
 
 
         <!-- Статус -->
-        <p id="status-message">
+        <p
+            id="status-message"
+            class="status-message"
+        >
             Координаты ещё не получены
         </p>
 
 
         <!-- Заметка -->
-        <label for="note-input">
-            NOTE
-        </label>
+        <section class="note-section">
 
-        <input
-            id="note-input"
-            type="text"
-            maxlength="200"
-            autocomplete="off"
-            placeholder="Введите заметку"
-        >
+            <label
+                class="input-label"
+                for="note-input"
+            >
+                NOTE
+            </label>
 
+            <input
+                id="note-input"
+                class="note-input"
+                type="text"
+                maxlength="200"
+                autocomplete="off"
+                placeholder="Введите заметку"
+            >
 
-        <!-- Сохранение -->
-        <button
-            id="save-btn"
-            type="button"
-            disabled
-        >
-            SAVE
-        </button>
+        </section>
 
 
-        <!-- Переход к сохранённым точкам -->
-        <button
-            id="saved-points-btn"
-            type="button"
-        >
-            SAVED POINTS
-        </button>
-        <button id="restore-btn">
-    RESTORE<br>
-    FROM GOOGLE DRIVE
-</button>
+        <!-- Основные действия -->
+        <section class="main-actions">
+
+            <button
+                id="save-btn"
+                class="primary-button"
+                type="button"
+                disabled
+            >
+                SAVE
+            </button>
+
+
+            <button
+                id="saved-points-btn"
+                class="outlined-button"
+                type="button"
+            >
+                SAVED POINTS
+            </button>
+
+        </section>
+
+
+        <!-- Google Drive -->
+        <section class="drive-section">
+
+            <button
+                id="restore-btn"
+                class="text-button"
+                type="button"
+            >
+                RESTORE FROM GOOGLE DRIVE
+            </button>
+
+        </section>
 
     </main>
 
 
-<script src="js/storage.js?v=5"></script>
-<script src="js/maps.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+    <!-- Основные модули -->
+    <script src="js/storage.js?v=6"></script>
+    <script src="js/maps.js?v=6"></script>
+    <script src="js/app.js?v=6"></script>
 
-<script
-    src="https://accounts.google.com/gsi/client"
-    async
-    defer>
-</script>
 
-<script src="js/drive.js?v=5"></script>
+    <!-- Google Identity Services -->
+    <script
+        src="https://accounts.google.com/gsi/client"
+        async
+        defer
+    ></script>
+
+
+    <!-- Google Drive -->
+    <script src="js/drive.js?v=6"></script>
 
 </body>
 
