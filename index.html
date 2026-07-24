@@ -173,16 +173,7 @@ L.tileLayer(
   }
 ).addTo(map);
 
-// TOMTOM TRAFFIC
-const trafficLayer=L.tileLayer(
-  'https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.png?key=p2AWikBN6D0RCBEzYWQ7dmltR9KhtyEo',
-  {
-    maxZoom:19,
-    opacity:0.8
-  }
-);
 
-let trafficEnabled=false;
 let pulseMarker;
 
 // SAVE
