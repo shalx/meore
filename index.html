@@ -369,19 +369,7 @@ document.getElementById("alertBtn").onclick=()=>{
 
     showPulse(lat,lon);
 
-    // TOGGLE TRAFFIC
-    if(!trafficEnabled){
-
-      trafficLayer.addTo(map);
-
-      trafficEnabled=true;
-
-    }else{
-
-      map.removeLayer(trafficLayer);
-
-      trafficEnabled=false;
-    }
+   
 
   });
 
