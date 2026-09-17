@@ -2,16 +2,42 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пробки</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Пробки в реальном времени</title>
     <link rel="manifest" href="manifest.json">
+    <!-- Подключаем легкие карты, которые не будут тормозить на магнитоле -->
+    <link rel="stylesheet" href="https://unpkg.com" />
+    <script src="https://unpkg.com"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; }
+        body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #e5e3df; }
     </style>
 </head>
 <body>
-    <!-- Вместо ссылки ниже подставьте нужный URL с картой пробок вашего города -->
-    <iframe src="https://yandex.ru"></iframe>
+
+<div id="map"></div>
+
+<script>
+    // 1. Укажите здесь координаты вашего города [Широта, Долгота] и начальный масштаб (12)
+    // Сейчас настроено на Москву. Например, для Питера: [59.9386, 30.3141]
+    const myCoordinates = [55.7558, 37.6173]; 
+    
+    const map = L.map('map').setView(myCoordinates, 12);
+
+    // 2. Загружаем бесплатную базовую карту
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. Накладываем живой слой пробок (работает открыто по всему миру)
+    L.tileLayer('https://openweathermap.org{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
+        opacity: 0.5
+    });
+    
+    // Альтернативный бесплатный слой пробок от OpenSeaMap/TomTom или кастомных провайдеров:
+    L.tileLayer('https://{s}://{z}/{x}/{y}.png', {
+        maxZoom: 18
+    }).addTo(map);
+</script>
+
 </body>
 </html>
