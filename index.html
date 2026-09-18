@@ -6,15 +6,24 @@
     <title>Тбилиси Пробки</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Растягиваем интерактивный слой на весь экран магнитолы без отступов */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1a1a1a; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <!-- Официальный и полностью разрешенный фрейм, отцентрированный на Тбилиси -->
+    <!-- Официальный и разрешенный виджет карты Тбилиси -->
     <iframe src="https://windy.com"></iframe>
 
+    <script>
+        // Этот скрипт принудительно удаляет старый зависший Service Worker из памяти магнитолы/ПК
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+    </script>
 </body>
 </html>
