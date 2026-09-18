@@ -5,38 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тбилиси Пробки</title>
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Подключаем надежные библиотеки Leaflet через глобальный CDN -->
-    <link rel="stylesheet" href="https://cloudflare.com" />
-    <script src="https://cloudflare.com"></script>
-    
     <style>
-        /* Растягиваем карту на весь экран магнитолы без рамок */
-        body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #ebebeb; }
+        /* Растягиваем интерфейс на весь экран магнитолы */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #222; font-family: sans-serif; }
+        .map-container { width: 100%; height: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
+        img { width: 100%; height: 100%; object-fit: cover; }
+        /* Кнопка ручного обновления для водителя */
+        .refresh-btn { position: absolute; bottom: 20px; right: 20px; background: #ffcc00; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 16px; }
+        .refresh-btn:active { background: #ddb300; }
     </style>
 </head>
 <body>
 
-<div id="map"></div>
+<div class="map-container">
+    <!-- Живая статическая карта Тбилиси с дорожной ситуацией -->
+    <img id="trafficMap" src="https://yandex.ru" alt="Карта Пробок">
+    
+    <button class="refresh-btn" onclick="updateTraffic()">Обновить пробки</button>
+</div>
 
 <script>
-    // Инициализируем карту и центрируем на Тбилиси (масштаб 13)
-    var map = L.map('map', {
-        zoomControl: true,
-        maxZoom: 18,
-        minZoom: 10
-    }).setView([41.7151, 44.8271], 13);
+    // Функция для автоматического и ручного обновления дорожной ситуации
+    function updateTraffic() {
+        var mapImg = document.getElementById('trafficMap');
+        // Добавляем случайный параметр времени, чтобы принудительно обновить картинку пробок
+        mapImg.src = "https://yandex.ru&timestamp=" + new Date().getTime();
+    }
 
-    // Базовая подложка карты от OpenStreetMap (светлая и быстрая для слабой оперативки)
-    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    // НАКЛАДЫВАЕМ ЖИВОЙ СЛОЙ ТРАНСПОРТНОГО ПОТОКА И ДОРОГ (работает без ключей)
-    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
-        opacity: 0.8
-    }).addTo(map);
+    // Автоматически обновлять пробки каждые 2 минуты во время движения в машине
+    setInterval(updateTraffic, 120000);
 </script>
 
 </body>
