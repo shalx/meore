@@ -5,35 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тбилиси Пробки</title>
     <link rel="manifest" href="manifest.json">
+    <!-- Подключаем стили и скрипт Leaflet из открытого и надежного источника cdnjs -->
+    <link rel="stylesheet" href="https://cloudflare.com" />
+    <script src="https://cloudflare.com"></script>
     <style>
-        /* Растягиваем интерфейс на весь экран магнитолы */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #222; font-family: sans-serif; }
-        .map-container { width: 100%; height: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
-        img { width: 100%; height: 100%; object-fit: cover; }
-        /* Кнопка ручного обновления для водителя */
-        .refresh-btn { position: absolute; bottom: 20px; right: 20px; background: #ffcc00; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 16px; }
-        .refresh-btn:active { background: #ddb300; }
+        /* Растягиваем карту на весь экран магнитолы без полос прокрутки */
+        body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; }
     </style>
 </head>
 <body>
 
-<div class="map-container">
-    <!-- Живая статическая карта Тбилиси с дорожной ситуацией -->
-    <img id="trafficMap" src="https://yandex.ru" alt="Карта Пробок">
-    
-    <button class="refresh-btn" onclick="updateTraffic()">Обновить пробки</button>
-</div>
+<div id="map"></div>
 
 <script>
-    // Функция для автоматического и ручного обновления дорожной ситуации
-    function updateTraffic() {
-        var mapImg = document.getElementById('trafficMap');
-        // Добавляем случайный параметр времени, чтобы принудительно обновить картинку пробок
-        mapImg.src = "https://yandex.ru&timestamp=" + new Date().getTime();
-    }
+    // Создаем карту и центрируем ее на Тбилиси [Широта, Долгота]
+    var map = L.map('map', {
+        zoomControl: true,
+        maxZoom: 18,
+        minZoom: 10
+    }).setView([41.7151, 44.8271], 13);
 
-    // Автоматически обновлять пробки каждые 2 минуты во время движения в машине
-    setInterval(updateTraffic, 120000);
+    // Загружаем открытые карты Voyager от CartoDB (базируются на OpenStreetMap)
+    // Этот сервер открыт для всех сайтов и никогда не заблокирует вашу магнитолу
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Накладываем живую дорожную разметку улиц Тбилиси
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+        maxZoom: 18
+    }).addTo(map);
 </script>
 
 </body>
