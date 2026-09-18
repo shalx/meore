@@ -5,16 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Тбилиси Пробки</title>
     <link rel="manifest" href="manifest.json">
+    
+    <!-- Подключаем надежные библиотеки Leaflet через глобальный CDN -->
+    <link rel="stylesheet" href="https://cloudflare.com" />
+    <script src="https://cloudflare.com"></script>
+    
     <style>
-        /* Растягиваем карту на весь экран без отступов и прокруток */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #ebebeb; }
-        iframe { width: 100%; height: 100%; border: none; }
+        /* Растягиваем карту на весь экран магнитолы без рамок */
+        body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #ebebeb; }
     </style>
 </head>
 <body>
 
-    <!-- Официальный интерактивный виджет Яндекс Карт для Тбилиси с авто-включением пробок -->
-    <iframe src="https://yandex.ru"></iframe>
+<div id="map"></div>
+
+<script>
+    // Инициализируем карту и центрируем на Тбилиси (масштаб 13)
+    var map = L.map('map', {
+        zoomControl: true,
+        maxZoom: 18,
+        minZoom: 10
+    }).setView([41.7151, 44.8271], 13);
+
+    // Базовая подложка карты от OpenStreetMap (светлая и быстрая для слабой оперативки)
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // НАКЛАДЫВАЕМ ЖИВОЙ СЛОЙ ТРАНСПОРТНОГО ПОТОКА И ДОРОГ (работает без ключей)
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+        maxZoom: 18,
+        opacity: 0.8
+    }).addTo(map);
+</script>
 
 </body>
 </html>
