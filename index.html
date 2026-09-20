@@ -27,6 +27,7 @@
             background: #34a853; color: white; font-size: 18px; font-weight: bold;
             text-decoration: none; border-radius: 16px; transition: background 0.2s;
             box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4);
+            text-align: center;
         }
         .launch-btn:active { background: #2b8c44; }
     </style>
@@ -41,6 +42,7 @@
             <input type="range" id="zoomRange" min="12" max="18" value="15" step="1">
         </div>
         
+        <!-- Изначально ссылка настроена на средний масштаб (15z) -->
         <a id="openMapBtn" href="https://google.com" target="_blank" class="launch-btn">ОТКРЫТЬ КАРТУ ПРОБОК</a>
     </div>
 
@@ -49,11 +51,22 @@
         const label = document.getElementById('rangeLabel');
         const btn = document.getElementById('openMapBtn');
 
+        // Четкие, проверенные прямые ссылки для Тбилиси под каждый масштаб
+        const mapLinks = {
+            12: "https://google.com",
+            13: "https://google.com",
+            14: "https://google.com",
+            15: "https://google.com",
+            16: "https://google.com",
+            17: "https://google.com",
+            18: "https://google.com"
+        };
+
         const distanceTexts = { 
             12: "Весь город (~30 км)", 
             13: "Большой район (~15 км)", 
             14: "Дальний обзор (~10 км)", 
-            15: "Средняя (5.км)", 
+            15: "Средняя (5 км)", 
             16: "Ближняя (~2 км)", 
             17: "Только перекрестки (~1 км)", 
             18: "В упор (~500 метров)" 
@@ -61,8 +74,8 @@
 
         slider.addEventListener('input', function() { 
             const zoomValue = parseInt(this.value); 
-            // Формируем прямую ссылку с параметром пробок (!1e1)
-            btn.href = `https://google.com{zoomValue}z/data=!5m1!1e1`;
+            // Переключаем на готовую ссылку из списка выше
+            btn.href = mapLinks[zoomValue];
             label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
         });
     </script>
