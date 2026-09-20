@@ -4,72 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Мой Личный Навигатор</title>
-    
-    <!-- Подключаем API Яндекс Карт (они разрешены везде и не блокируются CORS) -->
-    <script src="https://yandex.ru" type="text/javascript"></script>
-
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: Arial, sans-serif; overflow: hidden; background: #e0e0e0; }
-        #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        /* Контейнер интерактивной карты Google */
+        #map-container { width: 100%; height: 100%; border: none; }
+        iframe { width: 100%; height: 100%; border: none; }
         .controls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px; }
         .controls label { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333; }
         .controls input { width: 100%; }
     </style>
 </head>
 <body>
+
     <div class="controls">
-        <label id="rangeLabel">Дальность пробок: Средняя (5 км)</label>
-        <input type="range" id="zoomRange" min="10" max="16" value="14" step="1">
+        <label id="rangeLabel">Дальность пробок: Средняя</label>
+        <input type="range" id="zoomRange" min="12" max="18" value="15" step="1">
     </div>
     
-    <div id="map"></div>
+    <!-- Прямое окно в Google Карты с включенными пробками -->
+    <div id="map-container">
+        <iframe id="googleMap" src="https://google.com"></iframe>
+    </div>
 
-    <script type="text/javascript">
-        // Ждем загрузки Яндекс API
-        ymaps.ready(init);
+    <script>
+        const slider = document.getElementById('zoomRange');
+        const label = document.getElementById('rangeLabel');
+        const iframe = document.getElementById('googleMap');
 
-        function init() {
-            // Создаем карту Тбилиси
-            const myMap = new ymaps.Map("map", {
-                center: [41.7151, 44.8271], // Тбилиси
-                zoom: 14,
-                controls: [] // Убираем все лишние кнопки
-            });
+        const distanceTexts = { 
+            12: "Весь город (~30 км)", 
+            13: "Большой район (~15 км)", 
+            14: "Дальний обзор (~10 км)", 
+            15: "Средняя (5 км)", 
+            16: "Ближняя (~2 км)", 
+            17: "Только перекрестки (~1 км)", 
+            18: "В упор (~500 метров)" 
+        };
 
-            // Автоматически включаем слой пробок в реальном времени
-            const actualProvider = new ymaps.traffic.provider.Actual();
-            actualProvider.setMap(myMap);
-
-            // Пытаемся найти вас по GPS телефона/ПК
-            ymaps.geolocation.get({
-                provider: 'browser',
-                mapStateAutoApply: true
-            }).then(function (result) {
-                // Ставим синюю точку на ваше местоположение
-                result.geoObjects.options.set('preset', 'islands#blueCircleDotIconWithCaption');
-                myMap.geoObjects.add(result.geoObjects);
-            });
-
-            // Логика работы ползунка дальности (масштаба)
-            const slider = document.getElementById('zoomRange');
-            const label = document.getElementById('rangeLabel');
-            
-            const distanceTexts = { 
-                10: "Весь город (~30 км)", 
-                11: "Большой район (~15 км)", 
-                12: "Дальний обзор (~10 км)", 
-                13: "Средняя (5 км)", 
-                14: "Ближняя (~2 км)", 
-                15: "Только перекрестки (~1 км)", 
-                16: "В упор (~500 метров)" 
-            };
-
-            slider.addEventListener('input', function() { 
-                const zoomValue = parseInt(this.value); 
-                myMap.setZoom(zoomValue); 
-                label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
-            });
-        }
+        // Изменяем масштаб напрямую в ссылке Google без использования библиотек
+        slider.addEventListener('input', function() { 
+            const zoomValue = parseInt(this.value); 
+            iframe.src = `https://google.com{zoomValue}&output=embed`;
+            label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
+        });
     </script>
 </body>
 </html>
