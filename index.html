@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Fix-Pin helps you save locations with notes and open them later in Google Maps."
+    >
+
+    <meta
+        name="theme-color"
+        content="#4285F4"
+    >
+
+    <title>Fix-Pin</title>
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="app-container">
+
+        <!-- =====================================
+        HEADER
+        ====================================== -->
+
+        <header class="app-header">
+
+            <h1 class="app-title">
+                Fix-Pin
+            </h1>
+
+            <button
+                id="menuBtn"
+                class="menu-button"
+                type="button"
+                title="Open menu"
+                aria-label="Open menu"
+                aria-expanded="false"
+                aria-controls="appMenu"
+            >
+                <i
+                    class="ph ph-list"
+                    aria-hidden="true"
+                ></i>
+            </button>
+
+        </header>
+
+
+        <!-- =====================================
+        MENU
+        ====================================== -->
+
+        <div
+            id="menuOverlay"
+            class="menu-overlay"
+            hidden
+        ></div>
+
+        <nav
+            id="appMenu"
+            class="app-menu"
+            aria-label="Fix-Pin menu"
+            hidden
+        >
+
+            <div class="menu-header">
+
+                <strong>
+                    Menu
+                </strong>
+
+                <button
+                    id="closeMenuBtn"
+                    class="menu-close-button"
+                    type="button"
+                    title="Close menu"
+                    aria-label="Close menu"
+                >
+                    <i
+                        class="ph ph-x"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
+            </div>
+
+            <button
+                id="openFileBtn"
+                class="menu-item"
+                type="button"
+                title="Open an FXPN file"
+            >
+                <i
+                    class="ph ph-folder-open"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Open File
+                </span>
+            </button>
+
+            <button
+                id="saveFileBtn"
+                class="menu-item"
+                type="button"
+                title="Save points to an FXPN file"
+            >
+                <i
+                    class="ph ph-download-simple"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Save to File
+                </span>
+            </button>
+
+            <button
+                id="aboutBtn"
+                class="menu-item"
+                type="button"
+                title="About Fix-Pin"
+            >
+                <i
+                    class="ph ph-info"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    About Fix-Pin
+                </span>
+            </button>
+
+        </nav>
+
+
+        <!-- =====================================
+        MAP
+        ====================================== -->
+
+        <div
+            id="map"
+            aria-label="Map with saved points"
+        ></div>
+
+
+        <!-- =====================================
+        NOTE
+        ====================================== -->
+
+        <input
+            id="myInput"
+            type="text"
+            placeholder="Note..."
+            autocomplete="off"
+            aria-label="Point note"
+        >
+
+
+        <!-- =====================================
+        MAIN ACTIONS
+        ====================================== -->
+
+        <div class="actions">
+
+            <button
+                id="alertBtn"
+                type="button"
+                title="Get current location"
+                aria-label="Get current location"
+            >
+                <i
+                    class="ph ph-crosshair"
+                    aria-hidden="true"
+                ></i>
+            </button>
+
+            <button
+                id="myButton"
+                type="button"
+                title="Save point"
+            >
+                <i
+                    class="ph ph-floppy-disk"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Save
+                </span>
+            </button>
+
+            <button
+                id="goToSelectedBtn"
+                type="button"
+                title="Open points shown on the map in Google Maps"
+            >
+                <i
+                    class="ph ph-navigation-arrow"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Go To
+                </span>
+            </button>
+
+        </div>
+
+
+        <!-- =====================================
+        SEARCH
+        ====================================== -->
+
+        <input
+            id="searchInput"
+            type="search"
+            placeholder="Search..."
+            autocomplete="off"
+            aria-label="Search saved points"
+        >
+
+
+        <!-- =====================================
+        SAVED POINTS
+        ====================================== -->
+
+        <ol
+            id="data-list"
+            aria-label="Saved points"
+        ></ol>
+
+
+        <!-- =====================================
+        FILE INPUT
+        ====================================== -->
+
+        <input
+            id="fileInput"
+            type="file"
+            accept=".fxpn,application/json"
+            hidden
+        >
+
+    </main>
+
+
+    <!-- =====================================
+    ABOUT FIX-PIN
+    ====================================== -->
+
+    <dialog
+        id="aboutDialog"
+        class="about-dialog"
+        aria-labelledby="aboutTitle"
+    >
+
+        <div class="about-content">
+
+            <div class="about-header">
+
+                <h2 id="aboutTitle">
+                    About Fix-Pin
+                </h2>
+
+                <button
+                    id="closeAboutBtn"
+                    class="about-close-button"
+                    type="button"
+                    title="Close"
+                    aria-label="Close About Fix-Pin"
+                >
+                    <i
+                        class="ph ph-x"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
+            </div>
+
+            <p>
+                Fix-Pin is a simple application for saving locations,
+                adding notes and opening saved points in Google Maps.
+            </p>
+
+            <p>
+                Saved points are stored on your device.
+                You can also save them to an FXPN file and open them later.
+            </p>
+
+            <p class="about-collaboration">
+                A collaboration between Shalx and OpenAI ChatGPT.
+            </p>
+
+            <p class="about-version">
+                Version 1.0
+            </p>
+
+        </div>
+
+    </dialog>
+
+
+    <!-- =====================================
+    TOAST MESSAGE
+    ====================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+    >
+        Pin saved
+    </div>
+
+
+    <!-- =====================================
+    SCRIPTS
+    ====================================== -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="storage.js"></script>
+    <script src="files.js"></script>
+    <script src="map.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
