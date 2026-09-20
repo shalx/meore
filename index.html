@@ -6,7 +6,6 @@
     <title>Мой Личный Навигатор</title>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: Arial, sans-serif; overflow: hidden; background: #e0e0e0; }
-        /* Контейнер интерактивной карты Google */
         #map-container { width: 100%; height: 100%; border: none; }
         iframe { width: 100%; height: 100%; border: none; }
         .controls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px; }
@@ -21,7 +20,7 @@
         <input type="range" id="zoomRange" min="12" max="18" value="15" step="1">
     </div>
     
-    <!-- Прямое окно в Google Карты с включенными пробками -->
+    <!-- Используем правильный Embed URL, разрешенный политикой Google -->
     <div id="map-container">
         <iframe id="googleMap" src="https://google.com"></iframe>
     </div>
@@ -30,6 +29,17 @@
         const slider = document.getElementById('zoomRange');
         const label = document.getElementById('rangeLabel');
         const iframe = document.getElementById('googleMap');
+
+        // Карта масштабируется с помощью изменения параметров матрицы Google Embed
+        const zoomParams = {
+            12: "1d23833.0!2d41.7151!3d44.8271",
+            13: "1d11916.0!2d41.7151!3d44.8271",
+            14: "1d5958.0!2d41.7151!3d44.8271",
+            15: "1d2979.0!2d41.7151!3d44.8271",
+            16: "1d1489.0!2d41.7151!3d44.8271",
+            17: "1d744.0!2d41.7151!3d44.8271",
+            18: "1d372.0!2d41.7151!3d44.8271"
+        };
 
         const distanceTexts = { 
             12: "Весь город (~30 км)", 
@@ -41,10 +51,10 @@
             18: "В упор (~500 метров)" 
         };
 
-        // Изменяем масштаб напрямую в ссылке Google без использования библиотек
         slider.addEventListener('input', function() { 
             const zoomValue = parseInt(this.value); 
-            iframe.src = `https://google.com{zoomValue}&output=embed`;
+            const param = zoomParams[zoomValue];
+            iframe.src = `https://google.com{param}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sru!2sge!4v1695200000000!5m2!1sru!2sge`;
             label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
         });
     </script>
