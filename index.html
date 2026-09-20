@@ -5,47 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Мой Личный Навигатор</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: Arial, sans-serif; overflow: hidden; background: #e0e0e0; }
-        #map-container { width: 100%; height: 100%; border: none; }
-        iframe { width: 100%; height: 100%; border: none; }
-        .controls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px; }
-        .controls label { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333; }
-        .controls input { width: 100%; }
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: #121212; color: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .container {
+            text-align: center; width: 90%; max-width: 400px;
+            background: #1e1e1e; padding: 30px 20px; border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        h1 { font-size: 20px; margin-bottom: 25px; color: #e0e0e0; }
+        .controls {
+            background: #2d2d2d; padding: 15px; border-radius: 16px; margin-bottom: 25px;
+        }
+        .controls label { font-size: 15px; font-weight: bold; display: block; margin-bottom: 10px; color: #34a853; }
+        .controls input { width: 100%; margin: 10px 0; }
+        .launch-btn {
+            display: inline-block; width: 100%; padding: 16px 0;
+            background: #34a853; color: white; font-size: 18px; font-weight: bold;
+            text-decoration: none; border-radius: 16px; transition: background 0.2s;
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4);
+        }
+        .launch-btn:active { background: #2b8c44; }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <label id="rangeLabel">Дальность пробок: Средняя</label>
-        <input type="range" id="zoomRange" min="12" max="18" value="15" step="1">
-    </div>
-    
-    <!-- Используем правильный Embed URL, разрешенный политикой Google -->
-    <div id="map-container">
-        <iframe id="googleMap" src="https://google.com"></iframe>
+    <div class="container">
+        <h1>🚗 Свободная езда без пробок</h1>
+        
+        <div class="controls">
+            <label id="rangeLabel">Дальность пробок: Средняя (5 км)</label>
+            <input type="range" id="zoomRange" min="12" max="18" value="15" step="1">
+        </div>
+        
+        <a id="openMapBtn" href="https://google.com" target="_blank" class="launch-btn">ОТКРЫТЬ КАРТУ ПРОБОК</a>
     </div>
 
     <script>
         const slider = document.getElementById('zoomRange');
         const label = document.getElementById('rangeLabel');
-        const iframe = document.getElementById('googleMap');
-
-        // Карта масштабируется с помощью изменения параметров матрицы Google Embed
-        const zoomParams = {
-            12: "1d23833.0!2d41.7151!3d44.8271",
-            13: "1d11916.0!2d41.7151!3d44.8271",
-            14: "1d5958.0!2d41.7151!3d44.8271",
-            15: "1d2979.0!2d41.7151!3d44.8271",
-            16: "1d1489.0!2d41.7151!3d44.8271",
-            17: "1d744.0!2d41.7151!3d44.8271",
-            18: "1d372.0!2d41.7151!3d44.8271"
-        };
+        const btn = document.getElementById('openMapBtn');
 
         const distanceTexts = { 
             12: "Весь город (~30 км)", 
             13: "Большой район (~15 км)", 
             14: "Дальний обзор (~10 км)", 
-            15: "Средняя (5 км)", 
+            15: "Средняя (5.км)", 
             16: "Ближняя (~2 км)", 
             17: "Только перекрестки (~1 км)", 
             18: "В упор (~500 метров)" 
@@ -53,8 +61,8 @@
 
         slider.addEventListener('input', function() { 
             const zoomValue = parseInt(this.value); 
-            const param = zoomParams[zoomValue];
-            iframe.src = `https://google.com{param}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sru!2sge!4v1695200000000!5m2!1sru!2sge`;
+            // Формируем прямую ссылку с параметром пробок (!1e1)
+            btn.href = `https://google.com{zoomValue}z/data=!5m1!1e1`;
             label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
         });
     </script>
