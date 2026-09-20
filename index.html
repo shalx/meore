@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Мой Личный Навигатор</title>
-    <!-- Подключаем стабильную версию карт Leaflet -->
-    <link rel="stylesheet" href="https://esm.sh" />
-    <script src="https://esm.sh"></script>
+    <!-- Официальные и надежные ссылки, которые точно пропустит любой браузер -->
+    <link rel="stylesheet" href="https://cloudflare.com" />
+    <script src="https://cloudflare.com"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: Arial, sans-serif; overflow: hidden; background: #e0e0e0; }
         #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
@@ -22,40 +22,36 @@
     </div>
     <div id="map"></div>
     <script>
-        // Создаем карту (по умолчанию Тбилиси, если GPS еще не поймал)
+        // Инициализация карты Тбилиси
         const map = L.map('map', { zoomControl: false }).setView([41.7151, 44.8271], 14);
 
-        // Стабильный бесплатный слой карты от CartoDB (не блокирует GitHub)
+        // Надежный слой карты от CartoDB
         L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            attribution: 'CartoDB'
+            maxZoom: 20
         }).addTo(map);
 
-        // Прямой слой пробок Google (работает без ключей API)
+        // Слой пробок от Google
         L.tileLayer('https://google.com{x}&y={y}&z={z}', {
             maxZoom: 20,
             transparent: true
         }).addTo(map);
 
-        // Точка вашей машины (синий маркер)
+        // Маркер местоположения
         const carIcon = L.divIcon({ 
             html: '<div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>', 
             className: '' 
         });
         const marker = L.marker([41.7151, 44.8271], { icon: carIcon }).addTo(map);
 
-        // Функция обновления GPS положения при движении
         function onLocationFound(e) { 
             marker.setLatLng(e.latlng); 
             map.panTo(e.latlng); 
         }
 
         map.on('locationfound', onLocationFound);
-
-        // Слежение за GPS на ходу
         map.locate({ watch: true, enableHighAccuracy: true });
 
-        // Настройка ползунка дальности
+        // Логика работы ползунка дистанции
         const slider = document.getElementById('zoomRange');
         const label = document.getElementById('rangeLabel');
         const distanceTexts = { 
