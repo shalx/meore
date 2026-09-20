@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Мой Личный Навигатор</title>
-    <!-- Официальные и надежные ссылки, которые точно пропустит любой браузер -->
-    <link rel="stylesheet" href="https://cloudflare.com" />
-    <script src="https://cloudflare.com"></script>
+    <!-- Официальный и самый быстрый сервер библиотеки -->
+    <link rel="stylesheet" href="https://unpkg.com" crossorigin="" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: Arial, sans-serif; overflow: hidden; background: #e0e0e0; }
         #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
@@ -20,54 +19,66 @@
         <label id="rangeLabel">Дальность пробок: Средняя (5 км)</label>
         <input type="range" id="zoomRange" min="11" max="17" value="14" step="1">
     </div>
+    
     <div id="map"></div>
+
+    <!-- Загружаем сам скрипт Leaflet строго перед кодом карты -->
+    <script src="https://unpkg.com" crossorigin=""></script>
     <script>
-        // Инициализация карты Тбилиси
-        const map = L.map('map', { zoomControl: false }).setView([41.7151, 44.8271], 14);
+        // Ждем полную загрузку библиотеки Leaflet, чтобы избежать ошибки "L is not defined"
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof L === 'undefined') {
+                alert('Не удалось загрузить карту. Пожалуйста, проверьте интернет или обновите страницу.');
+                return;
+            }
 
-        // Надежный слой карты от CartoDB
-        L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
-            maxZoom: 20
-        }).addTo(map);
+            // Инициализация карты Тбилиси
+            const map = L.map('map', { zoomControl: false }).setView([41.7151, 44.8271], 14);
 
-        // Слой пробок от Google
-        L.tileLayer('https://google.com{x}&y={y}&z={z}', {
-            maxZoom: 20,
-            transparent: true
-        }).addTo(map);
+            // Слой карты от CartoDB
+            L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+                maxZoom: 20
+            }).addTo(map);
 
-        // Маркер местоположения
-        const carIcon = L.divIcon({ 
-            html: '<div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>', 
-            className: '' 
-        });
-        const marker = L.marker([41.7151, 44.8271], { icon: carIcon }).addTo(map);
+            // Слой пробок от Google
+            L.tileLayer('https://google.com{x}&y={y}&z={z}', {
+                maxZoom: 20,
+                transparent: true
+            }).addTo(map);
 
-        function onLocationFound(e) { 
-            marker.setLatLng(e.latlng); 
-            map.panTo(e.latlng); 
-        }
+            // Синий маркер машины
+            const carIcon = L.divIcon({ 
+                html: '<div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>', 
+                className: '' 
+            });
+            const marker = L.marker([41.7151, 44.8271], { icon: carIcon }).addTo(map);
 
-        map.on('locationfound', onLocationFound);
-        map.locate({ watch: true, enableHighAccuracy: true });
+            function onLocationFound(e) { 
+                marker.setLatLng(e.latlng); 
+                map.panTo(e.latlng); 
+            }
 
-        // Логика работы ползунка дистанции
-        const slider = document.getElementById('zoomRange');
-        const label = document.getElementById('rangeLabel');
-        const distanceTexts = { 
-            11: "Весь город (~30 км)", 
-            12: "Большой район (~15 км)", 
-            13: "Дальний обзор (~10 км)", 
-            14: "Средняя (5 км)", 
-            15: "Ближняя (~2 км)", 
-            16: "Только перекрестки (~1 км)", 
-            17: "В упор (~500 метров)" 
-        };
+            map.on('locationfound', onLocationFound);
+            map.locate({ watch: true, enableHighAccuracy: true });
 
-        slider.addEventListener('input', function() { 
-            const zoomValue = parseInt(this.value); 
-            map.setZoom(zoomValue); 
-            label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
+            // Работа ползунка дистанции
+            const slider = document.getElementById('zoomRange');
+            const label = document.getElementById('rangeLabel');
+            const distanceTexts = { 
+                11: "Весь город (~30 км)", 
+                12: "Большой район (~15 км)", 
+                13: "Дальний обзор (~10 км)", 
+                14: "Средняя (5 км)", 
+                15: "Ближняя (~2 км)", 
+                16: "Только перекрестки (~1 км)", 
+                17: "В упор (~500 метров)" 
+            };
+
+            slider.addEventListener('input', function() { 
+                const zoomValue = parseInt(this.value); 
+                map.setZoom(zoomValue); 
+                label.innerText = "Дальность пробок: " + distanceTexts[zoomValue]; 
+            });
         });
     </script>
 </body>
